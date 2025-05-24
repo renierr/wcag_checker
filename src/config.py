@@ -33,6 +33,7 @@ class Config:
             namespace = args[0]
             self.mode = Mode(namespace.mode)
             self.browser = namespace.browser
+            self.browser_visible = namespace.browser_visible
             self.login = namespace.login
             self.inputs = namespace.inputs
             self.output = namespace.output
@@ -58,6 +59,7 @@ class Config:
             # initialise directly with keyword arguments
             self.mode = Mode(kwargs.get("mode", Mode.CONTRAST))
             self.browser = kwargs.get("browser")
+            self.browser_visible = kwargs.get("browser_visible", False)
             self.login = kwargs.get("login")
             self.inputs = kwargs.get("inputs")
             self.selector = kwargs.get("selector")

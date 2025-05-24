@@ -108,7 +108,8 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
         else:
             from selenium.webdriver.chrome.options import Options
             options = Options()
-        options.add_argument("--headless")
+        if not config.browser_visible:
+            options.add_argument("--headless")
         options.add_argument("--window-size=1920,1080")
         options.add_argument("--disable-extensions")
         options.add_argument("--no-sandbox")
@@ -276,6 +277,8 @@ if __name__ == "__main__":
     )
     parser.add_argument("--browser", "-b", type=str, choices=["chrome", "edge"], default="chrome",
                     help="Select Browser for Selenium webdriver (chrome or edge).")
+    parser.add_argument("--browser_visible", "-bv", action="store_true",
+                        help="Make the remote controlled browser visible - keep in mind that this prevent resolution to be set correctly use it only for debugging.")
     parser.add_argument("--output", "-o", type=str,
                         help="The base folder for output files.", nargs="?", default="output")
     parser.add_argument("--debug", "-d", action="store_true",

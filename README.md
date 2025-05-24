@@ -5,8 +5,6 @@ to ensure they meet WCAG (Web Content Accessibility Guidelines) requirements.
 
 It provides various report formats and the ability to report issues directly to YouTrack.
 
-[[_TOC_]]
-
 ## Features
 
 - Check contrast ratios on websites.
@@ -248,3 +246,7 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 - [OpenCV](https://opencv.org/) for image processing capabilities.
 - [NumPy](https://numpy.org/) for numerical operations.
 - [Requests](https://docs.python-requests.org/en/latest/) for making HTTP requests.
+- [PyInstaller](https://pyinstaller.org/) for creating executable files.
+- [Axe](https://www.deque.com/axe/) for automated WCAG validation.
+- [Rich](https://rich.readthedocs.io/en/stable/) for creating visually appealing console outputs.
+

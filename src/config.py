@@ -7,14 +7,23 @@ class ReportLevel(Enum):
     ALL = "all"
     INVALID = "invalid"
 
+    def __str__(self):
+        return self.value
+
 class ColorSource(Enum):
     IMAGE = "image"
     ELEMENT = "element"
+
+    def __str__(self):
+        return self.value
 
 class Mode(Enum):
     CONTRAST = "contrast"
     AXE = "axe"
     ACTIONS = "actions"
+
+    def __str__(self):
+        return self.value
 
 class ConfigEncoder(json.JSONEncoder):
     def default(self, obj):

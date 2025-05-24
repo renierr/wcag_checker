@@ -179,7 +179,7 @@ waiting for elements to load, or analyzing the page for accessibility issues.
 
 you can see the available actions by running the script with the `actions` mode parameter:
 ```bash
-python ./src/main.py --actions
+python ./src/main.py actions
 ```
 
 some (but not all are listed here):
@@ -188,7 +188,7 @@ some (but not all are listed here):
 - `@wait: <seconds|loaded|[selector]>`  
 - `@input: <selector>=<text>`  
 - `@clear: <selector>`
-- `@scroll:` <direction|selector>`
+- `@scroll: <direction|selector>`
 - `@screenshot: <filename>`
 - `@navigate: <url>`
 - `@back`

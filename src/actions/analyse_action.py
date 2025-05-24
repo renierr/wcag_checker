@@ -15,7 +15,19 @@ axe = None
 @register_action("analyze")
 @register_action("analyse")
 def analyse_action(config: Config, driver: webdriver, param: str|None) -> dict | None:
-    """Analyse the page using a specific action."""
+    """
+    Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <url>`
+
+    Triggers an analysis of the current page (e.g., WCAG or contrast check).
+    ```
+    @analyse
+    ```
+    Optionally, you can pass a parameter.
+
+    Where text in brackets `"My page Title"` is used as the title in the report.
+
+    Or a Url that first will be navigated to before the analysis is performed, e.g., `/my_sub_page/index.html`.
+    """
     global url_idx
     global axe
     if config.mode == Mode.AXE and not axe:

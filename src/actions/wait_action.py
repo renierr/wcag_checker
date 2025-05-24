@@ -12,7 +12,18 @@ from src.utils import wait_page_loaded
 
 @register_action("wait")
 def wait_action(config: Config, driver: webdriver, param: str) -> None:
-    """Wait for a specific time or until a page is loaded."""
+    """
+    Syntax: `@wait: <seconds>` or `@wait: loaded` or `@wait: <selector>`
+
+    Waits for the specified number of seconds before the next step.
+
+    or `loaded` waits until the page is fully loaded.
+
+    or all other text is treated as a selector and waits until the element is present.
+    ```
+    @wait: loaded
+    ```
+    """
     try:
         if param.endswith("s"):
             wait_time = int(param[:-1])  # Interpret as seconds

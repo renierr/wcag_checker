@@ -12,7 +12,19 @@ PREDEFINED_RESOLUTIONS = {
 
 @register_action("resize")
 def resize_action(config, driver, param):
-    """Resize the browser window."""
+    """
+    Syntax: `@resize <size | predefined | full>`
+
+    Resizes the browser window to a specific size or view.
+    - `size`: Specify a width and height (e.g., `@resize: 1024x768`).
+    - `predefined`: Use a predefined size like `mobile`, `tablet`, or `desktop` (e.g., `@resize: mobile`).
+    - `full`: Resizes to full inner width and height, so that all content will be visible (e.g., `@resize: full`).
+    ```
+    @resize: 1024x768
+    @resize: mobile
+    @resize: full
+    ```
+    """
     try:
         if not param or param in ["full"]:
             set_window_size_to_viewport(driver)

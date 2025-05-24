@@ -23,7 +23,7 @@ from src.utils import get_embedded_file_path, call_url, get_full_base_url
 from src.report import generate_markdown_report, generate_html_report, build_markdown
 from src.youtrack import report_to_youtrack_as_issue, YouTrackAPI
 from src.config import Config, ColorSource, ConfigEncoder, Mode, ReportLevel
-from src.action_handler import action_registry
+from src.action_handler import action_registry, print_action_documentation
 from src.actions.analyse_action import analyse_action
 import src.actions
 
@@ -71,7 +71,6 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
     :param youtrack: YouTrackAPI object for reporting issues.
     """
     info_logs_of_config(config)
-    load_all_actions()
 
     # create folders
     Path(config.output).mkdir(parents=True, exist_ok=True)
@@ -322,6 +321,10 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="mode", required=False,
                                        help="Mode of the Tool")
 
+    # Subparser for mode 'actions'
+    actions_parser = subparsers.add_parser(Mode.ACTIONS.value,
+                                           help="Show all registered actions and their documentation.",
+                                           formatter_class=CustomArgparseFormatter)
     # Subparser for mode 'axe'
     axe_parser = subparsers.add_parser(Mode.AXE.value,
                                        parents=[parent_processing_parser],
@@ -367,6 +370,11 @@ if __name__ == "__main__":
 
     if args.mode is None:
         parser.print_help()
+        sys.exit(0)
+
+    load_all_actions()
+    if args.mode == Mode.ACTIONS.value:
+        print_action_documentation()
         sys.exit(0)
 
     if args.youtrack:

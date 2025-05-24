@@ -1,3 +1,7 @@
+from collections import defaultdict
+from rich.markdown import Markdown
+from rich.table import Table
+from rich.console import Console
 from selenium import webdriver
 
 from src.config import Config
@@ -7,6 +11,9 @@ class ActionRegistry:
     """Registry to manage browser actions."""
     def __init__(self):
         self._actions = {}
+
+    def get_registered_actions(self):
+        return self._actions
 
     def register(self, name, func):
         """Register a new action."""
@@ -46,3 +53,24 @@ def register_action(name):
         return func
     return decorator
 
+def print_action_documentation():
+    console = Console(width=100)
+
+    console.print("\nThe following actions are registered and can be used", style="bold green")
+    console.print("Hint: Actions start with an [bold cyan]@[/bold cyan] sign and can have parameters delimited with [bold cyan]:[/bold cyan] \n", style="dim")
+
+    table = Table(title="Registered Actions", show_lines=True)
+    table.add_column("Action", style="bold cyan")
+    table.add_column("Description", style="dim")
+
+    actions_by_func = defaultdict(list)
+
+    for action, func in action_registry.get_registered_actions().items():
+        actions_by_func[func].append(action)
+
+    for func, actions in actions_by_func.items():
+        doc = func.__doc__ or "No description available"
+        markdown_doc = Markdown(doc.strip())
+        table.add_row(", ".join(actions), markdown_doc)
+
+    console.print(table)

@@ -12,6 +12,7 @@ class ColorSource(Enum):
 class Mode(Enum):
     CONTRAST = "contrast"
     AXE = "axe"
+    ACTIONS = "actions"
 
 class ConfigEncoder(json.JSONEncoder):
     def default(self, obj):

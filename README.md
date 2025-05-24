@@ -177,98 +177,25 @@ waiting for elements to load, or analyzing the page for accessibility issues.
 
 **Available actions:**
 
-#### `@click: <selector>`  
-Clicks the element identified by the CSS selector `<selector>`.  
-```
-@click: #submit-button
-```
-
-#### `@analyse`  
-Triggers an analysis of the current page (e.g., WCAG or contrast check).  
-```
-@analyse
-```
-Optionally, you can pass a parameter.     
-where text in brackets `"My page Title"` is the title used in the report.     
-Or a Url that first will be navigated to
-
-#### `@wait: <seconds|loaded|[selector]>`  
-Waits for the specified number of seconds before the next step.    
-or `loaded` waits until the page is fully loaded.    
-or all other text is treated as a selector and waits until the element is loaded.    
-```
-@wait: loaded
+you can see the available actions by running the script with the `actions` mode parameter:
+```bash
+python ./src/main.py --actions
 ```
 
-#### `@input: <selector>=<text>`  
-Types the given `<text>` into the input field identified by `<selector>`.  
-```
-@input #username-field=My input text<LF>
-```
-You can use special characters `<LF>` for new lines or `<TAB>` for tabs.
-
-#### `@clear: <selector>`
-Clears the input field identified by the CSS selector `<selector>`.  
-```
-@clear: #input-field
-```
-
-#### `@scroll:` <direction|selector>`
-Scrolls the page in a specific direction (top, bottom, left, right) or 
-to a specific element identified by a CSS selector (<selector>).
-```
-@scroll: bottom
-@scroll: #footer
-```
-
-#### `@screenshot: <filename>`
-Takes a screenshot of the current page and saves it with the specified `<filename>`.
-```
-@screenshot: my_screenshot.png
-```
-
-#### `@navigate: <url>`
-Navigates to the specified `<url>`.
-```
-@navigate: https://example.com
-@navigate: /servlet/BrowseUser
-```
-
-#### `@back`
-Navigates back to the previous page in the browser history.
-```
-@back
-```
-
-#### `@refresh`
-Refreshes the current page.
-```
-@refresh
-```
-
-#### `@hover: <selector>`
-Hovers over the element identified by the CSS selector `<selector>`.
-```
-@hover: #menu-item
-```
-
-#### `@select: <selector>=<option_value>`
-Selects an option from a dropdown or select element identified by the CSS selector `<selector>`.
-You can specify the option value to select.
-```
-@select: #dropdown-menu=option_value
-```
-
-#### `@resize: <size|[predefinied]|full>`
-Resizes the browser window to a specific size or view.
-- `size`: Specify a width and height (e.g., `@resize: 1024x768`).
-- `predefinied`: Use predefined views like `mobile`, `tablet`, or `desktop` (e.g., `@resize: mobile`).
-- `full`: Resizes to full inner width and height, so that all content will be visible (e.g., `@resize: full`).
-``` 
-@resize: 1024x768
-@resize: mobile
-@resize: full
-```
+some (but not all are listed here):
+- `@click: <selector>`  
+- `@analyse`  
+- `@wait: <seconds|loaded|[selector]>`  
+- `@input: <selector>=<text>`  
+- `@clear: <selector>`
+- `@scroll:` <direction|selector>`
+- `@screenshot: <filename>`
+- `@navigate: <url>`
+- `@back`
+- `@refresh`
+- `@hover: <selector>`
+- `@select: <selector>=<option_value>`
+- `@resize: <size|[predefinied]|full>`
 
 **Notes:**
 - Actions can be placed in config file between or instead of inputs.

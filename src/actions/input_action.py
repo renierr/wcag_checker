@@ -15,6 +15,15 @@ special_chars = {
 
 @register_action("input")
 def input_action(config: Config, driver: webdriver, param: str) -> None:
+    """
+    Syntax: `@input <selector>=<text>`
+
+    Types the given `<text>` into the input field identified by `<selector>`.
+    ```
+    @input #username-field=My input text<LF>
+    ```
+    You can use special characters `<LF>` for new lines or `<TAB>` for tabs.
+    """
     if not param or "=" not in param:
         logger.warning("Invalid parameter for input action. Expected format: 'selector=value'.")
         return
@@ -34,6 +43,14 @@ def input_action(config: Config, driver: webdriver, param: str) -> None:
 
 @register_action("clear")
 def clear_action(config, driver, param):
+    """
+    Syntax: `@clear <selector>`
+
+    Clears the input field identified by the CSS selector `<selector>`.
+    ```
+    @clear: #input-field
+    ```
+    """
     if not param:
         logger.warning("no selector provided for clear action.")
         return
@@ -46,6 +63,15 @@ def clear_action(config, driver, param):
 
 @register_action("select")
 def select_action(config, driver, param):
+    """
+    Syntax: `@select <selector>=<value>`
+
+    Selects an option from a dropdown or select element identified by the CSS selector `<selector>`.
+    You can specify the option value to select.
+    ```
+    @select: #dropdown-menu=option_value
+    ```
+    """
     if not param or "=" not in param:
         logger.warning("Invalid parameter for select action. Expected format: 'selector=value'.")
         return

@@ -9,7 +9,14 @@ from src.utils import wait_page_loaded
 
 @register_action("click")
 def click_action(config: Config, driver: webdriver, param: str) -> None:
-    """Click on an element."""
+    """
+    Syntax: `@click <selector>`
+
+    Clicks the element identified by the CSS selector `<selector>`.
+    ```
+    @click: #submit-button
+    ```
+    """
     if not param:
         logger.warning("No selector provided for click action.")
         return

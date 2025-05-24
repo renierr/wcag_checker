@@ -1,22 +1,44 @@
 from pathlib import Path
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
 from src.action_handler import register_action
+from src.config import Config
 from src.logger_setup import logger
 
 @register_action("screenshot")
-def screenshot_action(config, driver, param):
+def screenshot_action(config: Config, driver: webdriver, param: str):
     """
-    Syntax: `@screenshot <filename>`
+    Syntax: `@screenshot <filename>=<selector>`
 
     Takes a screenshot of the current page and saves it with the specified `<filename>`.
+    If optional `<selector>` is provided, it will take a screenshot of that specific element.
+    This is done by separating the filename and selector with an equals sign (`=`).
     ```
     @screenshot: my_screenshot.png
+    @screenshot: my_screenshot.png=#header
     ```
     """
     if not param:
         logger.warning("No data to take a screenshot for action @screenshot.")
         return
+
+    parts = param.split("=", 1)
+    filename = parts[0]
+    selector = parts[1] if len(parts) > 1 else None
+
     if not param.endswith(".png"):
         param += ".png"
-    screenshot = Path(config.output) / "screenshots" / param
-    logger.debug(f"Taking screenshot and saving to {screenshot}")
-    driver.save_screenshot(screenshot.as_posix())
+
+    screenshot_path = Path(config.output) / "screenshots" / filename
+    logger.debug(f"Taking screenshot for '{selector if selector else 'all'}' and saving to {screenshot_path}")
+
+    if selector:
+        try:
+            element = driver.find_element(By.CSS_SELECTOR, selector)
+            element.screenshot(screenshot_path.as_posix())
+        except Exception as e:
+            logger.error(f"Failed to take screenshot of element '{selector}': {e}")
+    else:
+        driver.save_screenshot(screenshot_path.as_posix())
+

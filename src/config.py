@@ -22,31 +22,15 @@ class ConfigEncoder(json.JSONEncoder):
 
 class Config:
     def __init__(self, *args, **kwargs):
-        def resolution_split(resolution: str) -> tuple:
-            try:
-                width, height = map(int, resolution.split("x"))
-                return width, height
-            except ValueError:
-                raise ValueError("Resolution must be in the format <width>x<height>")
 
         if len(args) == 1 and hasattr(args[0], '__dict__'):
             # initialize with argparse.Namespace
             namespace = args[0]
             self.mode = Mode(namespace.mode)
+            self.debug = namespace.debug
             self.browser = namespace.browser
             self.browser_visible = namespace.browser_visible
-            self.login = namespace.login
-            self.inputs = namespace.inputs
             self.output = namespace.output
-            self.debug = namespace.debug
-            self.json_output = namespace.json
-            self.markdown_output = namespace.markdown
-            self.html_output = namespace.html
-            self.youtrack_output = namespace.youtrack
-            self.simulate = namespace.simulate
-            self.resolution = resolution_split(namespace.resolution)
-            self.resolution_width = self.resolution[0]
-            self.resolution_height = self.resolution[1]
         else:
             raise ValueError("Config must be initialized with an argparse.Namespace.")
 
@@ -58,13 +42,37 @@ class Config:
         return self.__str__()
 
 
-class AxeConfig(Config):
+class ProcessingConfig(Config):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        def resolution_split(resolution: str) -> tuple:
+            try:
+                width, height = map(int, resolution.split("x"))
+                return width, height
+            except ValueError:
+                raise ValueError("Resolution must be in the format <width>x<height>")
+
+        namespace = args[0]
+        self.login = namespace.login
+        self.inputs = namespace.inputs
+        self.json_output = namespace.json
+        self.markdown_output = namespace.markdown
+        self.html_output = namespace.html
+        self.youtrack_output = namespace.youtrack
+        self.simulate = namespace.simulate
+        self.resolution = resolution_split(namespace.resolution)
+        self.resolution_width = self.resolution[0]
+        self.resolution_height = self.resolution[1]
+
+class AxeConfig(ProcessingConfig):
     def __init__(self, *args, axe_rules=None, **kwargs):
         super().__init__(*args, **kwargs)
         namespace = args[0]
         self.axe_rules = getattr(namespace, "axe_rules", None)
 
-class ContrastConfig(Config):
+class ContrastConfig(ProcessingConfig):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         namespace = args[0]

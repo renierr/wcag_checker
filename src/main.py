@@ -85,6 +85,22 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
         with open(config.simulate, "r") as f:
             json_data = json.load(f)
     else:
+        # if urls contain a string with prefix "config:" thread it as a file and read the lines as urls to append
+        expanded_urls = []
+        for url_check in config.urls:
+            if isinstance(url_check, str) and url_check.startswith("config:"):
+                config_file = url_check.replace("config:", "")
+                logger.info(f"Reading URLs from config file: {config_file}")
+                with open(config_file, "r") as f:
+                    file_urls = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
+                    expanded_urls.extend(file_urls)
+            else:
+                expanded_urls.append(url_check)
+        urls_len = len(expanded_urls)
+        if urls_len == 0:
+            logger.error("No URLs provided to check. Please provide at least one URL or a config file")
+            sys.exit(1)
+
         logger.info("Starting Selenium WebDriver")
         if config.browser == "edge":
             from selenium.webdriver.edge.options import Options
@@ -111,19 +127,6 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
             base_url = get_full_base_url(driver)
             logger.debug(f"Extracted Base URL: {base_url}")
 
-            # if urls contain a string with prefix "config:" thread it as a file and read the lines as urls to append
-            expanded_urls = []
-            for url_check in config.urls:
-                if isinstance(url_check, str) and url_check.startswith("config:"):
-                    config_file = url_check.replace("config:", "")
-                    logger.info(f"Reading URLs from config file: {config_file}")
-                    with open(config_file, "r") as f:
-                        file_urls = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
-                        expanded_urls.extend(file_urls)
-                else:
-                    expanded_urls.append(url_check)
-
-            urls_len = len(expanded_urls)
             url_data = []
             for url_idx, url in enumerate(expanded_urls):
                 url_idx += 1
@@ -291,7 +294,7 @@ if __name__ == "__main__":
                         The URL to check for contrast ratio.
                         You can pass a file where URLs are defined in single lines, by prefix the path to file with 'config:'
                         """).strip(),
-                        nargs="*", default="/")
+                        nargs="*", default="")
     parent_processing_parser.add_argument("--json", action=argparse.BooleanOptionalAction,
                         help="Enable or disable JSON output.", default=True)
     parent_processing_parser.add_argument("--markdown", action=argparse.BooleanOptionalAction,

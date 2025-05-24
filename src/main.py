@@ -22,7 +22,7 @@ from src.logger_setup import logger
 from src.utils import get_embedded_file_path, call_url, get_full_base_url
 from src.report import generate_markdown_report, generate_html_report, build_markdown
 from src.youtrack import report_to_youtrack_as_issue, YouTrackAPI
-from src.config import Config, ColorSource, ConfigEncoder, Mode, ReportLevel
+from src.config import Config, AxeConfig, ContrastConfig, ColorSource, ConfigEncoder, Mode, ReportLevel
 from src.action_handler import action_registry, print_action_documentation
 from src.actions.analyse_action import analyse_action
 import src.actions
@@ -389,7 +389,13 @@ if __name__ == "__main__":
         logger.setLevel(logging.DEBUG)
         logger.debug("Debug mode enabled.")
 
-    arg_config = Config(args)
+    if args.mode == Mode.AXE.value:
+        arg_config = AxeConfig(args)
+    elif args.mode == Mode.CONTRAST.value:
+        arg_config = ContrastConfig(args)
+    else:
+        arg_config = Config(args)
+
     if args.youtrack:
         youtrack_api = YouTrackAPI(args.youtrack_api_key, args.youtrack_url, args.youtrack_project)
     else:

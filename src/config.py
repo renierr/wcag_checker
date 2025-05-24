@@ -17,7 +17,7 @@ class Mode(Enum):
 class ConfigEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Enum):
-            return obj.value  # Enum-Wert als String zurückgeben
+            return obj.value
         return super().default(obj)
 
 class Config:
@@ -47,40 +47,8 @@ class Config:
             self.resolution = resolution_split(namespace.resolution)
             self.resolution_width = self.resolution[0]
             self.resolution_height = self.resolution[1]
-            # mode specific - could be not set
-            self.selector = getattr(namespace, "selector", None)
-            self.contrast_threshold = getattr(namespace, "contrast_threshold", None)
-            self.use_canny_edge_detection = getattr(namespace, "use_canny_edge_detection", False)
-            self.use_antialias = getattr(namespace, "use_antialias", False)
-            self.report_level = ReportLevel(getattr(namespace, "report_level", ReportLevel.INVALID))
-            self.alternate_color_suggestion = getattr(namespace, "alternate_color_suggestion", False)
-            self.color_source = ColorSource(getattr(namespace, "color_source", ColorSource.ELEMENT))
-            self.axe_rules = getattr(namespace, "axe_rules", None)
         else:
-            # initialise directly with keyword arguments
-            self.mode = Mode(kwargs.get("mode", Mode.CONTRAST))
-            self.browser = kwargs.get("browser")
-            self.browser_visible = kwargs.get("browser_visible", False)
-            self.login = kwargs.get("login")
-            self.inputs = kwargs.get("inputs")
-            self.selector = kwargs.get("selector")
-            self.contrast_threshold = kwargs.get("contrast_threshold")
-            self.output = kwargs.get("output")
-            self.use_canny_edge_detection = kwargs.get("use_canny_edge_detection")
-            self.use_antialias = kwargs.get("use_antialias")
-            self.debug = kwargs.get("debug")
-            self.json_output = kwargs.get("json_output", True)
-            self.markdown_output = kwargs.get("markdown_output", True)
-            self.html_output = kwargs.get("html_output", True)
-            self.youtrack_output = kwargs.get("youtrack_output", True)
-            self.simulate = kwargs.get("simulate")
-            self.report_level = ReportLevel(kwargs.get("report_level", ReportLevel.INVALID))
-            self.resolution = resolution_split(kwargs.get("resolution", "1920x1080"))
-            self.resolution_width = self.resolution[0]
-            self.resolution_height = self.resolution[1]
-            self.alternate_color_suggestion = kwargs.get("alternate_color_suggestion", False)
-            self.color_source = ColorSource(kwargs.get("color_source", ColorSource.ELEMENT))
-            self.axe_rules = kwargs.get("axe_rules", None)
+            raise ValueError("Config must be initialized with an argparse.Namespace.")
 
     def __str__(self):
         attributes = vars(self)
@@ -88,3 +56,22 @@ class Config:
 
     def __repr__(self):
         return self.__str__()
+
+
+class AxeConfig(Config):
+    def __init__(self, *args, axe_rules=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        namespace = args[0]
+        self.axe_rules = getattr(namespace, "axe_rules", None)
+
+class ContrastConfig(Config):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        namespace = args[0]
+        self.selector = getattr(namespace, "selector", None)
+        self.contrast_threshold = getattr(namespace, "contrast_threshold", None)
+        self.use_canny_edge_detection = getattr(namespace, "use_canny_edge_detection", False)
+        self.use_antialias = getattr(namespace, "use_antialias", False)
+        self.report_level = ReportLevel(getattr(namespace, "report_level", ReportLevel.INVALID))
+        self.alternate_color_suggestion = getattr(namespace, "alternate_color_suggestion", False)
+        self.color_source = ColorSource(getattr(namespace, "color_source", ColorSource.ELEMENT))

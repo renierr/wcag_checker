@@ -54,7 +54,7 @@ def register_action(name):
     return decorator
 
 def print_action_documentation():
-    console = Console(width=100)
+    console = Console()
 
     console.print("\nThe following actions are registered and can be used", style="bold green")
     console.print("Hint: Actions start with an [bold cyan]@[/bold cyan] sign and can have parameters delimited with [bold cyan]:[/bold cyan] \n", style="dim")

@@ -1,17 +1,27 @@
 # -*- mode: python ; coding: utf-8 -*-
+import sys
+import os
+project_dir = os.path.abspath(os.path.dirname('.'))
+sys.path.append(os.path.abspath(os.path.dirname('.')))
 
 import glob
+import pkgutil
+import src.actions
 from PyInstaller.utils.hooks import collect_data_files
 
 axe_data_files = collect_data_files('selenium_axe_python')
 template_files = [(file, 'src/templates') for file in glob.glob('src/templates/*.md')]
+hiddenimports = [
+    f"src.actions.{module_name}"
+    for _, module_name, _ in pkgutil.iter_modules(src.actions.__path__)
+]
 
 a = Analysis(
     ['src\\main.py'],
     pathex=[],
     binaries=[],
     datas=[('README.md', '.')] + template_files + axe_data_files,
-    hiddenimports=[],
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

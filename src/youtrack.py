@@ -29,7 +29,7 @@ def report_to_youtrack_as_issue(config: Config, youtrack: YouTrackAPI, json_data
     if config.mode == Mode.AXE:
         # Check if there are any violations
         axe_violations = [
-            result for url_data in json_data.get("urls", [])
+            result for url_data in json_data.get("inputs", [])
             for result in url_data.get("results", [])
             if result.get("violations", [])
         ]
@@ -48,7 +48,7 @@ def report_to_youtrack_as_issue(config: Config, youtrack: YouTrackAPI, json_data
             return None
     else:
         non_compliant_elements = [
-            result for url_data in json_data.get("urls", [])
+            result for url_data in json_data.get("inputs", [])
             for result in url_data.get("results", [])
             if result.get("meets_wcag") is False
         ]
@@ -68,26 +68,26 @@ def report_to_youtrack_as_issue(config: Config, youtrack: YouTrackAPI, json_data
 
 def build_attachments_mode_contrast(json_data: dict) -> list:
     attachments = [
-        url_data.get("screenshot_outline") for url_data in json_data.get("urls", [])
+        url_data.get("screenshot_outline") for url_data in json_data.get("inputs", [])
         if "screenshot_outline" in url_data
     ]
     attachments += [
-        result.get("screenshot") for url_data in json_data.get("urls", [])
+        result.get("screenshot") for url_data in json_data.get("inputs", [])
         for result in url_data.get("results", [])
         if "screenshot" in result
     ]
 
-    # add the screenshot_outline attachment from urls
+    # add the screenshot_outline attachment from inputs
     logger.debug(f"Attachments contrast axe mode: {len(attachments)}")
     return attachments
 
 def build_attachments_mode_axe(json_data: dict) -> list:
     attachments = []
     attachments += [
-        url_data.get("screenshot_outline") for url_data in json_data.get("urls", [])
+        url_data.get("screenshot_outline") for url_data in json_data.get("inputs", [])
         if "screenshot_outline" in url_data
     ]
-    for url_data in json_data.get("urls", []):
+    for url_data in json_data.get("inputs", []):
         for result in url_data.get("results", []):
             for violation in result.get("violations", []):
                 for node in violation.get("nodes", []):

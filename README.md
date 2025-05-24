@@ -14,7 +14,7 @@ It provides various report formats and the ability to report issues directly to 
 - Multiple sources for color extraction.
 - Suggestion of alternative colors that meet the WCAG requirements.
 - Debugging and simulation modes.
-- Multiple URLs can be checked at once. 
+- Multiple inputs can be checked at once. 
 - ....and more
 
 ## Installation
@@ -121,7 +121,7 @@ use the `--simulate` flag with a pre generated JSON file as argument.
 
 ### Examples
 ```bash
-python .\src\main.py contrast --urls "http://example.com" --youtrack --youtrack_api_key "your_api_key" --youtrack_project "0-2"
+python .\src\main.py contrast --inputs "http://example.com" --youtrack --youtrack_api_key "your_api_key" --youtrack_project "0-2"
 ```
 This command will check the contrast ratio on `http://example.com`, generate a JSON report, and create issues in YouTrack for any violations found.
     
@@ -132,28 +132,28 @@ This command will simulate the checking process using the predefined JSON data f
 All reports are generated for the JSON file.
 
 ```bash
-python .\src\main.py axe --urls "http://example.com"
+python .\src\main.py axe --inputs "http://example.com"
 ```
 This command use axe to check the page on `http://example.com`, 
 
 ```bash
-python .\src\main.py contrast --urls "config:urls.txt" --use_antialias --color_source element
+python .\src\main.py contrast --inputs "config:inputs.txt" --use_antialias --color_source element
 ```
-This command will check the contrast ratio on all URLs listed in `urls.txt`,
+This command will check the contrast ratio on all inputs listed in `inputs.txt`,
 use the elements as color source.
 
 ### Notes
-Set the `--login` parameter to the login URL of your system or use it as a startpoint where other relative URLs base on.        
+Set the `--login` parameter to the login URL of your system or use it as a startpoint where other relative inputs base on.        
 The default URL is `` (empty; which will be ignored).    
-You can leverage the `--login` parameter to specify a login URL that will be called first before checking the other URLs.
+You can leverage the `--login` parameter to specify a login URL that will be called first before checking the other inputs.
 
-The Login URL is always called first and then all processed URLs, in the same session.
+The Login URL is always called first and then all processed inputs, in the same session.
 
-The URLs you provide to scan a Page are relative to the login URL starting with '/'.    
-You can specify multiple URLs in a textfile, where each URL is a separate line.    
-Passing the textfile with the `--urls` parameter and a value prefixed `config:<myfile>`.
+The inputs you provide to scan a Page are relative to the login URL starting with '/'.    
+You can specify multiple inputs in a textfile, where each URL is a separate line.    
+Passing the textfile with the `--inputs` parameter and a value prefixed `config:<myfile>`.
 
-For Example (file with URLs defined):    
+For Example (file with inputs defined):    
 ```plaintext
 /servlet/MenuItem
 /servlet/Browse
@@ -162,7 +162,7 @@ If the line starts with a '#' character, it is ignored.
 
 ### Actions
 
-You can use special actions in your config file (such as for URLs or test flows) by prefixing them with `@`.     
+You can use special actions in your config file (such as for inputs or test flows) by prefixing them with `@`.     
 These actions control the tool's behavior during testing and navigation.
 
 The actions are executed in the order they appear in the file.
@@ -213,7 +213,7 @@ You can use special characters `<LF>` for new lines or `<TAB>` for tabs.
 
 
 **Notes:**
-- Actions can be placed in config file between or instead of URLs.
+- Actions can be placed in config file between or instead of inputs.
 - Each action should be on its own line.
 - Lines starting with `#` are treated as comments and ignored.
 

@@ -34,7 +34,7 @@ class Config:
             self.mode = Mode(namespace.mode)
             self.browser = namespace.browser
             self.login = namespace.login
-            self.urls = namespace.urls
+            self.inputs = namespace.inputs
             self.output = namespace.output
             self.debug = namespace.debug
             self.json_output = namespace.json
@@ -55,11 +55,11 @@ class Config:
             self.color_source = ColorSource(getattr(namespace, "color_source", ColorSource.ELEMENT))
             self.axe_rules = getattr(namespace, "axe_rules", None)
         else:
-            # Initialisierung mit direkten Parametern
+            # initialise directly with keyword arguments
             self.mode = Mode(kwargs.get("mode", Mode.CONTRAST))
             self.browser = kwargs.get("browser")
             self.login = kwargs.get("login")
-            self.urls = kwargs.get("urls")
+            self.inputs = kwargs.get("inputs")
             self.selector = kwargs.get("selector")
             self.contrast_threshold = kwargs.get("contrast_threshold")
             self.output = kwargs.get("output")

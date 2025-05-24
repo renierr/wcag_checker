@@ -41,7 +41,7 @@ def info_logs_of_config(config: Config) -> None:
     logger.info(f"Running in mode: {config.mode.value}")
     logger.info(f"Browser: {config.browser}")
     logger.info(f"Base folder for output: {config.output}")
-    logger.info(f"URLs to check ({len(config.urls)}): {config.urls}")
+    logger.info(f"Inputs to check ({len(config.inputs)}): {config.inputs}")
 
     if config.mode == Mode.CONTRAST:
         logger.info(f"Using selector: {config.selector}")
@@ -85,20 +85,20 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
         with open(config.simulate, "r") as f:
             json_data = json.load(f)
     else:
-        # if urls contain a string with prefix "config:" thread it as a file and read the lines as urls to append
-        expanded_urls = []
-        for url_check in config.urls:
-            if isinstance(url_check, str) and url_check.startswith("config:"):
-                config_file = url_check.replace("config:", "")
-                logger.info(f"Reading URLs from config file: {config_file}")
+        # if inputs contain a string with prefix "config:" thread it as a file and read the lines as inputs to append
+        expanded_inputs = []
+        for input_check in config.inputs:
+            if isinstance(input_check, str) and input_check.startswith("config:"):
+                config_file = input_check.replace("config:", "")
+                logger.info(f"Reading inputs from config file: {config_file}")
                 with open(config_file, "r") as f:
-                    file_urls = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
-                    expanded_urls.extend(file_urls)
+                    file_inputs = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
+                    expanded_inputs.extend(file_inputs)
             else:
-                expanded_urls.append(url_check)
-        urls_len = len(expanded_urls)
-        if urls_len == 0:
-            logger.error("No URLs provided to check. Please provide at least one URL or a config file")
+                expanded_inputs.append(input_check)
+        inputs_len = len(expanded_inputs)
+        if inputs_len == 0:
+            logger.error("No Inputs provided to check. Please provide at least one input or a config file")
             sys.exit(1)
 
         logger.info("Starting Selenium WebDriver")
@@ -128,9 +128,9 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
             logger.debug(f"Extracted Base URL: {base_url}")
 
             url_data = []
-            for url_idx, url in enumerate(expanded_urls):
+            for url_idx, url in enumerate(expanded_inputs):
                 url_idx += 1
-                logger.info(f"[{url_idx}/{urls_len}] Processing URL or Action: {url}")
+                logger.info(f"[{url_idx}/{inputs_len}] Processing Input or Action: {url}")
                 entry = None
                 results = []
 
@@ -147,7 +147,7 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
 
                 except Exception as e:
                     error_message = str(e).splitlines()[0]
-                    logger.error(f"Error processing URL or Action {url}: {error_message}")
+                    logger.error(f"Error processing Input or Action {url}: {error_message}")
                     results.append({
                         "url": url,
                         "error": error_message
@@ -163,8 +163,8 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "base_url": base_url,
                 "config": config.__dict__,
-                "total_urls": len(url_data),
-                "urls": url_data,
+                "total_inputs": len(url_data),
+                "inputs": url_data,
             })
 
             if config.json_output:
@@ -289,10 +289,10 @@ if __name__ == "__main__":
     parent_processing_parser = argparse.ArgumentParser(add_help=False)
     parent_processing_parser.add_argument("--login", "-l", type=str,
                         help="The URL to login to page - called before processing", nargs="?", default="")
-    parent_processing_parser.add_argument("--urls", type=str,
+    parent_processing_parser.add_argument("--inputs", "-i", type=str,
                         help=textwrap.dedent("""\
-                        The URL to check for contrast ratio.
-                        You can pass a file where URLs are defined in single lines, by prefix the path to file with 'config:'
+                        The Inputs to check.
+                        You can pass a file by prefix the path to file with 'config:'
                         """).strip(),
                         nargs="*", default="")
     parent_processing_parser.add_argument("--json", action=argparse.BooleanOptionalAction,

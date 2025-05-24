@@ -1,3 +1,6 @@
+from selenium.common import NoSuchElementException
+from selenium.webdriver.common.by import By
+
 from src.action_handler import register_action
 from src.logger_setup import logger
 from src.utils import call_url
@@ -14,7 +17,12 @@ def scroll_action(config, driver, param):
         }
         driver.execute_script(scroll_script[param])
     else:
-        driver.execute_script("document.querySelector(arguments[0]).scrollIntoView();", param)
+        try:
+            elem = driver.find_element(By.CSS_SELECTOR, param)
+            driver.execute_script("arguments[0].scrollIntoView();", elem)
+        except NoSuchElementException:
+            logger.warning(f"No element found for scrolling with selector: {param}")
+            return
 
 
 @register_action("navigate")
@@ -30,8 +38,12 @@ def hover_action(config, driver, param):
     if not param:
         logger.warning("No selector provided for hover action.")
         return
-    element = driver.find_element_by_css_selector(param)
-    driver.ActionChains(driver).move_to_element(element).perform()
+    try:
+        element = driver.find_element(By.CSS_SELECTOR, param)
+        driver.ActionChains(driver).move_to_element(element).perform()
+    except NoSuchElementException:
+        logger.warning(f"No element found for hover action with selector: {param}")
+        return
 
 @register_action("back")
 def back_action(config, driver, param):

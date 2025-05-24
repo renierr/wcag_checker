@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
 from src.action_handler import register_action
@@ -21,22 +22,27 @@ def input_action(config: Config, driver: webdriver, param: str) -> None:
     selector, text = param.split("=", 1)
     logger.debug(f"Inputting text '{text}' into element with selector '{selector}'")
 
-    elem = driver.find_element("css selector", selector)
-    if not elem.is_displayed():
+    try:
+        elem = driver.find_element(By.CSS_SELECTOR, selector)
+        for placeholder, char in special_chars.items():
+            text = text.replace(placeholder, char)
+        elem.send_keys(text)
+        wait_page_loaded(driver)
+    except NoSuchElementException:
         logger.warning(f"Element with selector '{selector}' is not displayed.")
         return
-    for placeholder, char in special_chars.items():
-        text = text.replace(placeholder, char)
-    elem.send_keys(text)
-    wait_page_loaded(driver)
 
 @register_action("clear")
 def clear_action(config, driver, param):
     if not param:
         logger.warning("no selector provided for clear action.")
         return
-    element = driver.find_element_by_css_selector(param)
-    element.clear()
+    try:
+        element = driver.find_element(By.CSS_SELECTOR, param)
+        element.clear()
+    except NoSuchElementException:
+        logger.warning(f"No element found for clear action with selector: {param}")
+        return
 
 @register_action("select")
 def select_action(config, driver, param):
@@ -45,5 +51,9 @@ def select_action(config, driver, param):
         return
     selector, value = param.split("=", 1)
     logger.debug(f"Selecting value '{value}' in element with selector '{selector}'")
-    element = driver.find_element_by_css_selector(selector)
-    Select(element).select_by_visible_text(value)
+    try:
+        element = driver.find_element(By.CSS_SELECTOR, selector)
+        Select(element).select_by_visible_text(value)
+    except NoSuchElementException:
+        logger.warning(f"No element found for select action with selector: {selector}")
+        return

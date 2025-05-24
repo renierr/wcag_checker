@@ -1,4 +1,6 @@
 from selenium import webdriver
+from selenium.common import NoSuchElementException
+from selenium.webdriver.common.by import By
 
 from src.action_handler import register_action
 from src.config import Config
@@ -11,6 +13,10 @@ def click_action(config: Config, driver: webdriver, param: str) -> None:
     if not param:
         logger.warning("No selector provided for click action.")
         return
-    elem = driver.find_element("css selector", param)
-    elem.click()
-    wait_page_loaded(driver)
+    try:
+        driver.find_element(By.CSS_SELECTOR, param)
+        elem.click()
+        wait_page_loaded(driver)
+    except NoSuchElementException as e:
+        logger.warning(f"No element found for click action with selector: {param}")
+        return

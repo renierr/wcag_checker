@@ -1,0 +1,13 @@
+selenium
+pillow
+colorlog
+pyinstaller
+numpy
+opencv-python
+scikit-learn
+mistune
+requests
+rich
+rich-argparse
+jinja2
+selenium-axe-python

@@ -1,0 +1,8 @@
+/screenshots/
+.idea/
+.venv/
+/contrast_results.json
+/output/
+/dist/
+/build/
+urls.txt

@@ -8,7 +8,9 @@ from src.utils import wait_page_loaded
 @register_action("click")
 def click_action(config: Config, driver: webdriver, param: str) -> None:
     """Click on an element."""
-    logger.info(f"Clicking on element with selector '{param}'")
+    if not param:
+        logger.warning("No selector provided for click action.")
+        return
     elem = driver.find_element("css selector", param)
     elem.click()
     wait_page_loaded(driver)

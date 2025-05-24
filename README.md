@@ -179,14 +179,12 @@ waiting for elements to load, or analyzing the page for accessibility issues.
 
 #### `@click: <selector>`  
 Clicks the element identified by the CSS selector `<selector>`.  
-Example:  
 ```
 @click: #submit-button
 ```
 
 #### `@analyse`  
 Triggers an analysis of the current page (e.g., WCAG or contrast check).  
-Example:  
 ```
 @analyse
 ```
@@ -198,19 +196,68 @@ Or a Url that first will be navigated to
 Waits for the specified number of seconds before the next step.    
 or `loaded` waits until the page is fully loaded.    
 or all other text is treated as a selector and waits until the element is loaded.    
-Example:  
 ```
 @wait: loaded
 ```
 
 #### `@input: <selector>=<text>`  
 Types the given `<text>` into the input field identified by `<selector>`.  
-Example:  
 ```
 @input #username-field=My input text<LF>
 ```
 You can use special characters `<LF>` for new lines or `<TAB>` for tabs.
 
+#### `@clear: <selector>`
+Clears the input field identified by the CSS selector `<selector>`.  
+```
+@clear: #input-field
+```
+
+#### `@scroll:` <direction|selector>`
+Scrolls the page in a specific direction (up, down, left, right) or 
+to a specific element identified by a CSS selector (<selector>).
+```
+@scroll: down
+@scroll: #footer
+```
+
+#### `@screenshot: <filename>`
+Takes a screenshot of the current page and saves it with the specified `<filename>`.
+```
+@screenshot: my_screenshot.png
+```
+
+#### `@navigate: <url>`
+Navigates to the specified `<url>`.
+```
+@navigate: https://example.com
+@navigate: /servlet/BrowseUser
+```
+
+#### `@back`
+Navigates back to the previous page in the browser history.
+```
+@back
+```
+
+#### `@refresh`
+Refreshes the current page.
+```
+@refresh
+```
+
+#### `@hover: <selector>`
+Hovers over the element identified by the CSS selector `<selector>`.
+```
+@hover: #menu-item
+```
+
+#### `@select: <selector>=<option_value>`
+Selects an option from a dropdown or select element identified by the CSS selector `<selector>`.
+You can specify the option value to select.
+```
+@select: #dropdown-menu=option_value
+```
 
 **Notes:**
 - Actions can be placed in config file between or instead of inputs.

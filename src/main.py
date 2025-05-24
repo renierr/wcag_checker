@@ -274,20 +274,20 @@ if __name__ == "__main__":
         description=Markdown(description, style="argparse.text"),
         formatter_class=CustomArgparseFormatter
     )
-    parser.add_argument("--browser", type=str, choices=["chrome", "edge"], default="chrome",
+    parser.add_argument("--browser", "-b", type=str, choices=["chrome", "edge"], default="chrome",
                     help="Select Browser for Selenium webdriver (chrome or edge).")
-    parser.add_argument("--output", type=str,
+    parser.add_argument("--output", "-o", type=str,
                         help="The base folder for output files.", nargs="?", default="output")
-    parser.add_argument("--debug", action="store_true",
+    parser.add_argument("--debug", "-d", action="store_true",
                         help="Enable debug mode for detailed output.")
-    parser.add_argument("--readme", action="store_true",
+    parser.add_argument("--readme", "-r", action="store_true",
                         help="Show README markdown in terminal.")
     parser.add_argument(
-        "--version", action="version", version="[argparse.prog]%(prog)s[/] version [i]1.0.0[/]"
+        "--version", "-v", action="version", version="[argparse.prog]%(prog)s[/] version [i]1.0.0[/]"
     )
 
     parent_processing_parser = argparse.ArgumentParser(add_help=False)
-    parent_processing_parser.add_argument("--login", type=str,
+    parent_processing_parser.add_argument("--login", "-l", type=str,
                         help="The URL to login to page - called before processing", nargs="?", default="")
     parent_processing_parser.add_argument("--urls", type=str,
                         help=textwrap.dedent("""\
@@ -311,9 +311,9 @@ if __name__ == "__main__":
     parent_processing_parser.add_argument("--youtrack_project", type=str,
                         help="YouTrack project id.",
                         required=False, default="0-2")
-    parent_processing_parser.add_argument("--simulate", type=str,
+    parent_processing_parser.add_argument("--simulate", "-s", type=str,
                         help="Simulate checking; use JSON as base to generate reports (no website calls)")
-    parent_processing_parser.add_argument("--resolution", type=str,
+    parent_processing_parser.add_argument("--resolution", "-r", type=str,
                         help="Set the Resolution the remote controlled Browser will default to. Format <width>x<height>", default="1920x1080")
 
     subparsers = parser.add_subparsers(dest="mode", required=False,

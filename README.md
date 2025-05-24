@@ -214,10 +214,10 @@ Clears the input field identified by the CSS selector `<selector>`.
 ```
 
 #### `@scroll:` <direction|selector>`
-Scrolls the page in a specific direction (up, down, left, right) or 
+Scrolls the page in a specific direction (top, bottom, left, right) or 
 to a specific element identified by a CSS selector (<selector>).
 ```
-@scroll: down
+@scroll: bottom
 @scroll: #footer
 ```
 
@@ -257,6 +257,17 @@ Selects an option from a dropdown or select element identified by the CSS select
 You can specify the option value to select.
 ```
 @select: #dropdown-menu=option_value
+```
+
+#### `@resize: <size|[predefinied]|full>`
+Resizes the browser window to a specific size or view.
+- `size`: Specify a width and height (e.g., `@resize: 1024x768`).
+- `predefinied`: Use predefined views like `mobile`, `tablet`, or `desktop` (e.g., `@resize: mobile`).
+- `full`: Resizes to full inner width and height, so that all content will be visible (e.g., `@resize: full`).
+``` 
+@resize: 1024x768
+@resize: mobile
+@resize: full
 ```
 
 **Notes:**

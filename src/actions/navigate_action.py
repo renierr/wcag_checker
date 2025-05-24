@@ -8,10 +8,10 @@ from src.utils import call_url
 
 @register_action("scroll")
 def scroll_action(config, driver, param):
-    if param in ["up", "down", "left", "right"]:
+    if param in ["top", "bottom", "left", "right"]:
         scroll_script = {
-            "up": "window.scrollBy(0, -window.innerHeight);",
-            "down": "window.scrollBy(0, window.innerHeight);",
+            "top": "window.scrollTo(0, 0);",
+            "bottom": "window.scrollTo(0, document.body.scrollHeight);",
             "left": "window.scrollBy(-window.innerWidth, 0);",
             "right": "window.scrollBy(window.innerWidth, 0);"
         }

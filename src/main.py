@@ -19,7 +19,7 @@ from selenium import webdriver
 import selenium.common.exceptions
 
 from src.logger_setup import logger
-from src.utils import get_embedded_file_path, call_url, get_full_base_url
+from src.utils import get_embedded_file_path, call_url, get_full_base_url, filter_args_for_dataclass
 from src.report import generate_markdown_report, generate_html_report, build_markdown
 from src.youtrack import report_to_youtrack_as_issue, YouTrackAPI
 from src.config import Config, AxeConfig, ContrastConfig, ColorSource, ConfigEncoder, Mode, ReportLevel
@@ -167,7 +167,7 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
                 "inputs": url_data,
             })
 
-            if config.json_output:
+            if config.json:
                 results_file = Path(config.output) / f"{config.mode.value}_results.json"
                 with results_file.open("w", encoding="utf-8") as json_file:
                     json.dump(json_data, json_file, indent=4, ensure_ascii=False, cls=ConfigEncoder)
@@ -201,17 +201,17 @@ def reporting(config: Config, json_data: dict, youtrack: YouTrackAPI) -> None:
     if not json_data:
         logger.warning("No data to report. Exiting.")
         return
-    if config.markdown_output or config.html_output or config.youtrack_output:
+    if config.markdown or config.html or config.youtrack:
         logger.info("Building Markdown report data...")
         markdown_report_data = build_markdown(config, json_data)
 
-        if config.markdown_output:
+        if config.markdown:
             logger.info("Generating Markdown report...")
             generate_markdown_report(config, json_data, markdown_data=markdown_report_data)
-        if config.html_output:
+        if config.html:
             logger.info("Generating HTML report...")
             generate_html_report(config, json_data, markdown_data=markdown_report_data)
-        if config.youtrack_output:
+        if config.youtrack:
             logger.info("Generating YouTrack issues...")
             report_to_youtrack_as_issue(config, youtrack, json_data, markdown_data=markdown_report_data)
 
@@ -351,14 +351,14 @@ if __name__ == "__main__":
                         help="Apply and use antialias on processed images.")
     contrast_parser.add_argument("--selector", type=str,
                         help="CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
-    contrast_parser.add_argument("--color_source", type=str,
+    contrast_parser.add_argument("--color_source", type=ColorSource,
                         help="The source to extract the colors from to check.",
-                        choices=[e.value for e in ColorSource], nargs="?", default=ColorSource.ELEMENT.value)
+                        choices=list(ColorSource), nargs="?", default=ColorSource.ELEMENT)
     contrast_parser.add_argument("--alternate_color_suggestion", action="store_true",
                         help="Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
-    contrast_parser.add_argument("--report_level", type=str,
+    contrast_parser.add_argument("--report_level", type=ReportLevel,
                                  help="The level of which to report (all, invalid).",
-                                 choices=[e.value for e in ReportLevel], nargs="?", default=ReportLevel.INVALID.value)
+                                 choices=list(ReportLevel), nargs="?", default=ReportLevel.INVALID)
 
     args = parser.parse_args()
 
@@ -389,12 +389,20 @@ if __name__ == "__main__":
         logger.setLevel(logging.DEBUG)
         logger.debug("Debug mode enabled.")
 
-    if args.mode == Mode.AXE.value:
-        arg_config = AxeConfig(args)
-    elif args.mode == Mode.CONTRAST.value:
-        arg_config = ContrastConfig(args)
+    # convert to dict to create dataclass instances
+    args_dict = vars(args)
+    args_dict["mode"] = Mode(args_dict["mode"])
+    args_dict["resolution"] = tuple(map(int, args_dict["resolution"].split("x")))
+
+    if args.mode == Mode.AXE:
+        filtered_args = filter_args_for_dataclass(AxeConfig, args_dict)
+        arg_config = AxeConfig(**filtered_args)
+    elif args.mode == Mode.CONTRAST:
+        filtered_args = filter_args_for_dataclass(ContrastConfig, args_dict)
+        arg_config = ContrastConfig(**filtered_args)
     else:
-        arg_config = Config(args)
+        filtered_args = filter_args_for_dataclass(Config, args_dict)
+        arg_config = Config(**filtered_args)
 
     if args.youtrack:
         youtrack_api = YouTrackAPI(args.youtrack_api_key, args.youtrack_url, args.youtrack_project)

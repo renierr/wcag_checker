@@ -1,4 +1,5 @@
 import sys
+from dataclasses import fields
 from urllib.parse import urlparse
 from pathlib import Path
 from selenium.webdriver.remote.webelement import WebElement
@@ -330,3 +331,7 @@ def wait_page_loaded(driver: webdriver) -> None:
             "window.performance.getEntriesByType('resource').filter(r => r.responseEnd === 0).length === 0"
         )
     )
+
+def filter_args_for_dataclass(cls, args_dict):
+    cls_fields = {f.name for f in fields(cls)}
+    return {key: value for key, value in args_dict.items() if key in cls_fields}

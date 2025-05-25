@@ -3,16 +3,17 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from src.config import Config, ReportLevel
+from src.config import Config, ReportLevel, ContrastConfig, ProcessingConfig
 from src.contrast import check_contrast
 from src.css import inject_outline_css
 from src.logger_setup import logger
 from src.utils import define_get_path_script, get_csspath, set_window_size_to_viewport
 
 
-def own_mode_contrast(config: Config, driver: webdriver, results: list, screenshots_folder: Path, url_idx: int) -> Path:
+def own_mode_contrast(config: Config, driver: webdriver, results: list, screenshots_folder: Path, url_idx: int) -> Path|None:
     """
     This function checks the contrast of elements on a webpage using Selenium.
+
     :param config: Configuration object containing settings.
     :param driver: Selenium WebDriver instance.
     :param results: List to store results.
@@ -20,6 +21,11 @@ def own_mode_contrast(config: Config, driver: webdriver, results: list, screensh
     :param url_idx: Index of the URL being processed.
     :return: Path to the full-page screenshot with outlines of elements.
     """
+
+    if not isinstance(config, ContrastConfig):
+        logger.error("Config is not an instance of ContrastConfig. Cannot run contrast mode.")
+        return None
+
     # find visible elements on page
     elements = [element for element in driver.find_elements(By.CSS_SELECTOR, config.selector) if element.is_displayed()]
     define_get_path_script(driver)  # will later be used in JavaScript for element XPath
@@ -55,7 +61,7 @@ def own_mode_contrast(config: Config, driver: webdriver, results: list, screensh
     return full_page_screenshot_path_outline
 
 
-def outline_elements_for_screenshot(config: Config, driver: webdriver, elements: list[WebElement],
+def outline_elements_for_screenshot(config: ProcessingConfig, driver: webdriver, elements: list[WebElement],
                                     missed_contrast_elements: list, url_idx: int) -> Path:
     set_window_size_to_viewport(driver)
     inject_outline_css(driver)
@@ -81,7 +87,8 @@ def outline_elements_for_screenshot(config: Config, driver: webdriver, elements:
                 continue
 
             missed_element_present = (elements == missed_contrast_elements) or any(element == missed for missed in missed_contrast_elements)
-            if config.report_level == ReportLevel.INVALID and not missed_element_present:
+            report_invalid_only = True if isinstance(config, ContrastConfig) and config.report_level == ReportLevel.INVALID else True
+            if report_invalid_only and not missed_element_present:
                 logger.debug(f"Element {index} is not in missed_contrast_elements and invalid_only mode is set. Skipping outline.")
                 continue
 

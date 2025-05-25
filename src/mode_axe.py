@@ -4,7 +4,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium_axe_python import Axe
 from pathlib import Path
 
-from src.config import Config
+from src.config import Config, AxeConfig
 from src.logger_setup import logger
 from src.mode_own import outline_elements_for_screenshot
 
@@ -23,6 +23,10 @@ def axe_mode(axe: Axe, config: Config, driver: webdriver, results: list,
              screenshots_folder: Path, url_idx: int) -> Path|None:
     if axe is None:
         logger.error("Axe is not initialized. Please call axe_mode_setup first.")
+        return None
+
+    if not isinstance(config, AxeConfig):
+        logger.error("Config is not an instance of AxeConfig. Cannot run axe mode.")
         return None
 
     logger.debug(f"Inject axe to url {url_idx}")

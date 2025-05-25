@@ -40,10 +40,7 @@ def axe_mode(axe: Axe, config: Config, driver: webdriver, results: list,
     if config.axe_rules:
         rules = [rule.strip() for rule in config.axe_rules.split(",")]
         logger.debug(f"Setting axe rules: {rules}")
-        options["runOnly"] = {
-            "type": "tag",
-            "values": rules
-        }
+        options["runOnly"] = dict(type="tag", values=rules)  # type: ignore
     axe_data = axe.run(options=options)
 
     # extract violation elements

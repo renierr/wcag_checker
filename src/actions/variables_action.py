@@ -10,6 +10,8 @@ def var_action(config: Config, driver: webdriver, param: str | None, context: di
     Syntax: `@var <name>=<value>`
 
     Sets a variable in the context dictionary with the specified name and value.
+    In appropriate actions you can use these variables with the syntax `${name}`.
+
     ```
     @var: my_variable=my_value
     @var: another_variable=123

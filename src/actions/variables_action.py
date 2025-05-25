@@ -1,6 +1,6 @@
 from selenium import webdriver
 
-from src.action_handler import register_action
+from src.action_handler import register_action, parse_param_to_key_value
 from src.config import Config
 from src.logger_setup import logger
 
@@ -22,7 +22,7 @@ def var_action(config: Config, driver: webdriver, param: str | None, context: di
         logger.warning("Invalid parameter for var action. Expected format: 'name=value'.")
         return
 
-    name, value = param.split('=', 1)
+    name, value = parse_param_to_key_value(param)
     value = value.strip()
     name = name.strip()
     logger.debug(f"Setting variable: {name}={value}")

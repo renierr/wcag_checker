@@ -101,6 +101,8 @@ def print_action_documentation():
 def parse_param_to_json(param: str | None) -> dict | None:
     """
     Parse a parameter string to a JSON object.
+    Use action_context to replace any variables with syntax ${...}.
+
     If the string is empty or None, return None.
     If the string starts with '{' or '[', parse it as JSON.
     Otherwise, return None.
@@ -109,9 +111,34 @@ def parse_param_to_json(param: str | None) -> dict | None:
         return None
     try:
         if param.startswith('{') or param.startswith('['):
+            # Replace any variables in the JSON string with their values from action_context
+            for var_name, var_value in action_context.items():
+                param = param.replace(f"${{{var_name}}}", str(var_value))
             return json.loads(param)
         else:
             return None
     except json.JSONDecodeError as e:
         logger.error(f"JSON decoding error: {e}")
+        return None
+
+def parse_param_to_key_value(param: str | None) -> tuple[str, str] | None:
+    """
+    Parse a parameter string to a key-value tuple.
+    Use action_context to replace any variables with syntax ${...}.
+
+    If the string is empty or None, return None.
+    If the string contains '=', split it into key and value.
+    Otherwise, return None.
+    """
+    if not param or '=' not in param:
+        return None
+    try:
+        key, value = param.split('=', 1)
+        # Replace any variables in the value with their values from action_context
+        for var_name, var_value in action_context.items():
+            key = key.replace(f"${{{var_name}}}", str(var_value))
+            value = value.replace(f"${{{var_name}}}", str(var_value))
+        return key.strip(), value.strip()
+    except ValueError as e:
+        logger.error(f"Error parsing key-value pair: {e}")
         return None

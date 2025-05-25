@@ -1,6 +1,6 @@
 from selenium import webdriver
 
-from src.action_handler import register_action, parse_param_to_json
+from src.action_handler import register_action, parse_param_to_json, parse_param_to_key_value
 from src.config import Config
 from src.logger_setup import logger
 
@@ -32,7 +32,7 @@ def cookie_action(config: Config, driver: webdriver, param: str | None) -> None:
             logger.warning("Invalid cookie format. Use <name>=<value>.")
             return
 
-        name, value = param.split('=', 1)
+        name, value = parse_param_to_key_value(param)
         logger.debug(f"Setting cookie: {name}={value}")
         # Set the cookie in the browser
         driver.add_cookie({"name": name, "value": value})

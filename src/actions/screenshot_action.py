@@ -2,7 +2,7 @@ from pathlib import Path
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from src.action_handler import register_action
+from src.action_handler import register_action, parse_param_to_key_value
 from src.config import Config
 from src.logger_setup import logger
 
@@ -23,7 +23,7 @@ def screenshot_action(config: Config, driver: webdriver, param: str):
         logger.warning("No data to take a screenshot for action @screenshot.")
         return
 
-    parts = param.split("=", 1)
+    parts = parse_param_to_key_value(param)
     filename = parts[0]
     selector = parts[1] if len(parts) > 1 else None
 

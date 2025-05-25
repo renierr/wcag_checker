@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
-from src.action_handler import register_action
+from src.action_handler import register_action, parse_param_to_key_value
 from src.config import Config
 from src.logger_setup import logger
 from src.utils import wait_page_loaded
@@ -28,7 +28,7 @@ def input_action(config: Config, driver: webdriver, param: str) -> None:
         logger.warning("Invalid parameter for input action. Expected format: 'selector=value'.")
         return
 
-    selector, text = param.split("=", 1)
+    selector, text = parse_param_to_key_value(param)
     logger.debug(f"Inputting text '{text}' into element with selector '{selector}'")
 
     try:
@@ -75,7 +75,7 @@ def select_action(config, driver, param):
     if not param or "=" not in param:
         logger.warning("Invalid parameter for select action. Expected format: 'selector=value'.")
         return
-    selector, value = param.split("=", 1)
+    selector, value = parse_param_to_key_value(param)
     logger.debug(f"Selecting value '{value}' in element with selector '{selector}'")
     try:
         element = driver.find_element(By.CSS_SELECTOR, selector)

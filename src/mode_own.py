@@ -56,6 +56,7 @@ def own_mode_contrast(config: Config, driver: webdriver, results: list, screensh
             if config.debug:
                 raise e
     # last screenshot with outline of elements
+    print(f"Missed contrast elements: {len(elements)}")
     full_page_screenshot_path_outline = outline_elements_for_screenshot(config, driver, elements,
                                                                         missed_contrast_elements, url_idx)
     return full_page_screenshot_path_outline
@@ -97,4 +98,13 @@ def outline_elements_for_screenshot(config: ProcessingConfig, driver: webdriver,
         except Exception:
             pass
     driver.save_screenshot(full_page_screenshot_path_outline)
+
+    # clear outlines and labels
+    # language=JS
+    cleanup_script = """
+        document.querySelectorAll('.contrat_checker--outline').forEach(el => el.classList.remove('contrat_checker--outline'));
+        document.querySelectorAll('.contrat_checker--label').forEach(label => label.remove());
+    """
+    driver.execute_script(cleanup_script)
+
     return full_page_screenshot_path_outline

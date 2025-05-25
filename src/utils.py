@@ -276,16 +276,6 @@ def get_embedded_file_path(filename):
         return Path(sys._MEIPASS) / filename
     return filename
 
-def load_template(template_name: str) -> str:
-    """
-    Load a template file and return its content.
-    :param template_name: Name of the template file.
-    :return: Content of the template file.
-    """
-    file_path = get_embedded_file_path(Path("src") / "templates" / template_name)
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
-
 def take_element_Screenshot(driver: webdriver, element: WebElement, index: int, screenshot_path: Path) -> None:
     """
     Take a screenshot of a specific WebElement and save it to the specified path.

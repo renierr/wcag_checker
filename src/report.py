@@ -1,9 +1,9 @@
 import mistune
 
 from pathlib import Path
-from jinja2 import Template, Environment
+from jinja2 import Template, Environment, FileSystemLoader
 from src.config import Config, Mode
-from src.utils import create_color_span, load_template
+from src.utils import create_color_span, get_embedded_file_path
 from src.logger_setup import logger
 
 def join_color_span(colors):
@@ -33,13 +33,13 @@ def build_markdown(config: Config, json_data: dict) -> str:
     :return: Markdown report as string.
     """
 
-    env = Environment()
+    env = Environment(loader=FileSystemLoader(get_embedded_file_path(Path("src") / "templates")))
     env.filters['join_color_span'] = join_color_span
     env.filters['create_color_span'] = create_color_span
     env.filters['count_violations'] = count_violations
 
     template_name = "markdown_axe_report_template.md" if config.mode == Mode.AXE else "markdown_contrast_report_template.md"
-    md = (env.from_string(load_template(template_name))
+    md = (env.get_template(template_name)
           .render(config=config, json_data=json_data, output=config.output))
     return md
 

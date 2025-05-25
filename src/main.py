@@ -63,6 +63,10 @@ def handle_action(config: Config, driver: webdriver, action_str: str) -> dict | 
 def parse_inputs(inputs: list[str]) -> list[str]:
     """
     Parse the inputs to ensure they are valid URLs or actions.
+    You can use multiple lines in a config file
+    if the line ends with `{` until a following line starts with `}`,
+    these will be combined as one.
+
     :param inputs: List of input strings.
     :return: List of parsed input strings.
     """

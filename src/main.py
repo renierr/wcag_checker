@@ -6,8 +6,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from pathlib import Path
 import json
 import logging
-import argparse
-import textwrap
 import time
 import importlib
 import pkgutil
@@ -22,7 +20,7 @@ from src.arg_parse import argument_parser
 from src.utils import get_embedded_file_path, call_url, get_full_base_url, filter_args_for_dataclass
 from src.report import generate_markdown_report, generate_html_report, build_markdown
 from src.youtrack import report_to_youtrack_as_issue, YouTrackAPI
-from src.config import Config, AxeConfig, ContrastConfig, ColorSource, ConfigEncoder, Mode, ReportLevel
+from src.config import Config, AxeConfig, ContrastConfig, ConfigEncoder, Mode, ReportLevel
 from src.action_handler import action_registry, print_action_documentation
 from src.actions.analyse_action import analyse_action
 import src.actions

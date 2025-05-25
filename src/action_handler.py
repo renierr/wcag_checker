@@ -8,8 +8,26 @@ from selenium import webdriver
 from src.config import Config
 from src.logger_setup import logger
 
+action_context = {}
+
 class ActionRegistry:
-    """Registry to manage browser actions."""
+    """
+    Registry to manage browser actions.
+
+    use the decorator `@register_action("action_name")` to register a new action.
+
+    Actions should be defined as functions that accept `config`, `driver`, and an optional `param` argument.
+    The `param` argument can be a string or None, depending on the action's requirements.
+    Actions can also accept a `context` dictionary if needed, which can be used to share state between actions.
+
+    Action return values can be a dictionary or None, depending on the action's purpose.
+    Returned dictionaries will be used as a result for the current processed action.
+
+    example declaration of an action:
+    @register_action("my_action")
+    def my_action(config: Config, driver: webdriver, param: str | None = None, context: dict = action_context) -> dict | None:
+        pass
+    """
     def __init__(self):
         self._actions = {}
 
@@ -37,7 +55,11 @@ class ActionRegistry:
                 action, param = action_body, None
 
             if action in self._actions:
-                return self._actions[action](config, driver, param)
+                action_func = self._actions[action]
+                if "context" in action_func.__code__.co_varnames:
+                    return action_func(config, driver, param, action_context)
+                else:
+                    return action_func(config, driver, param)
             else:
                 logger.warning(f"Unknown action: {action}")
         except Exception as e:

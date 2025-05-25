@@ -19,7 +19,6 @@ from src.logger_setup import logger
 from src.arg_parse import argument_parser
 from src.utils import get_embedded_file_path, call_url, get_full_base_url, filter_args_for_dataclass
 from src.report import generate_markdown_report, generate_html_report, build_markdown
-from src.youtrack import report_to_youtrack_as_issue, YouTrackAPI
 from src.config import Config, AxeConfig, ContrastConfig, ConfigEncoder, Mode, ReportLevel, ProcessingConfig
 from src.action_handler import action_registry, print_action_documentation
 from src.actions.analyse_action import analyse_action
@@ -46,7 +45,6 @@ def info_logs_of_config(config: Config) -> None:
         logger.info(f"JSON output enabled: {'Yes' if config.json else 'No'}")
         logger.info(f"Markdown report enabled: {'Yes' if config.markdown else 'No'}")
         logger.info(f"HTML report enabled: {'Yes' if config.html else 'No'}")
-        logger.info(f"YouTrack reporting enabled: {'Yes' if config.youtrack else 'No'}")
         logger.info(f"Simulate with file: {config.simulate if config.simulate else 'None'}")
         logger.info(f"Inputs to check ({len(config.inputs)}): {config.inputs}")
 
@@ -102,14 +100,13 @@ def parse_inputs(inputs: list[str]) -> list[str]:
     return parsed_inputs
 
 
-def main(config: Config, youtrack: YouTrackAPI = None) -> None:
+def main(config: Config) -> None:
     """
     Main function to process the config and inputs.
     This function initializes the Selenium WebDriver, processes the inputs,
     and generates reports based on the configuration.
 
-    :param config: Config object containing all arguments.
-    :param youtrack: YouTrackAPI object for reporting issues.
+    :param config: Config object base class can be instances of sub classes.
     """
     info_logs_of_config(config)
 
@@ -219,22 +216,21 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
                 # close bowser
                 driver.quit()
 
-    reporting(config, json_data, youtrack)
+    reporting(config, json_data)
     logger.info("Finished.")
 
 
-def reporting(config: Config, json_data: dict, youtrack: YouTrackAPI) -> None:
+def reporting(config: Config, json_data: dict) -> None:
     """
     Generate reports based on the configuration and JSON data.
     :param config: Config object containing all arguments.
     :param json_data: JSON data containing the report details.
-    :param youtrack: YouTrackAPI object for reporting issues.
     """
 
     if not json_data:
         logger.warning("No data to report. Exiting.")
         return
-    if isinstance(config, ProcessingConfig) and (config.markdown or config.html or config.youtrack):
+    if isinstance(config, ProcessingConfig) and (config.markdown or config.html):
         logger.info("Building Markdown report data...")
         markdown_report_data = build_markdown(config, json_data)
 
@@ -244,10 +240,6 @@ def reporting(config: Config, json_data: dict, youtrack: YouTrackAPI) -> None:
         if config.html:
             logger.info("Generating HTML report...")
             generate_html_report(config, json_data, markdown_data=markdown_report_data)
-        if config.youtrack:
-            logger.info("Generating YouTrack issues...")
-            report_to_youtrack_as_issue(config, youtrack, json_data, markdown_data=markdown_report_data)
-
 
 def show_readme(file_path: str):
     """
@@ -290,14 +282,6 @@ if __name__ == "__main__":
         print_action_documentation()
         sys.exit(0)
 
-    if args.youtrack:
-        if not args.youtrack_api_key:
-            parser.error("--youtrack_api_key is required when --youtrack is enabled.")
-        if not args.youtrack_url:
-            parser.error("--youtrack_url is required when --youtrack is enabled.")
-        if not args.youtrack_project:
-            parser.error("--youtrack_project is required when --youtrack is enabled.")
-
     if args.debug:
         logger.setLevel(logging.DEBUG)
         logger.debug("Debug mode enabled.")
@@ -317,10 +301,5 @@ if __name__ == "__main__":
         filtered_args = filter_args_for_dataclass(Config, args_dict)
         arg_config = Config(**filtered_args)
 
-    if args.youtrack:
-        youtrack_api = YouTrackAPI(args.youtrack_api_key, args.youtrack_url, args.youtrack_project)
-    else:
-        youtrack_api = None
-
-    main(arg_config, youtrack_api)
+    main(arg_config)
 

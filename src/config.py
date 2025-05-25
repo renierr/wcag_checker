@@ -47,7 +47,6 @@ class ProcessingConfig(Config):
     json: bool = True
     markdown: bool = True
     html: bool = True
-    youtrack: bool = False
     simulate: Optional[str] = None
     resolution: Tuple[int, int] = (1920, 1080)
     resolution_width: int = field(init=False)

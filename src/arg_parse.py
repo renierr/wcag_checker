@@ -29,7 +29,7 @@ def argument_parser() -> argparse.ArgumentParser:
 
     It uses Selenium WebDriver to interact with the webpage (a Chrome Browser is needed).
 
-    The report can be generated in JSON, Markdown, HTML format and can be sent to YouTrack as issues.
+    The report can be generated in JSON, Markdown and HTML format.
 
     Select a mode to run the Tool with, call option --help after mode to see specific options for them.    
     Be aware that global options are defined before the mode.
@@ -68,16 +68,6 @@ def argument_parser() -> argparse.ArgumentParser:
                                           help="Enable or disable Markdown Report output.", default=True)
     parent_processing_parser.add_argument("--html", action=argparse.BooleanOptionalAction,
                                           help="Enable or disable HTML Report output.", default=True)
-    parent_processing_parser.add_argument("--youtrack", action=argparse.BooleanOptionalAction,
-                                          help="Enable or disable YouTrack Issue creation of Report.", default=False)
-    parent_processing_parser.add_argument("--youtrack_api_key", type=str,
-                                          help="API key for YouTrack authentication.\nRequired if youtrack option is used", required=False)
-    parent_processing_parser.add_argument("--youtrack_url", type=str,
-                                          help="Base URL for the YouTrack instance.",
-                                          required=False, default="https://youtrack.cloud/api")
-    parent_processing_parser.add_argument("--youtrack_project", type=str,
-                                          help="YouTrack project id.",
-                                          required=False, default="0-2")
     parent_processing_parser.add_argument("--simulate", "-s", type=str,
                                           help="Simulate checking; use JSON as base to generate reports (no website calls)")
     parent_processing_parser.add_argument("--resolution", "-r", type=str,

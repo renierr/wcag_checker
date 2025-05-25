@@ -3,14 +3,13 @@
 This project is a tool for checking websites 
 to ensure they meet WCAG (Web Content Accessibility Guidelines) requirements. 
 
-It provides various report formats and the ability to report issues directly to YouTrack.
+It provides various report formats.
 
 ## Features
 
 - Check contrast ratios on websites.
 - Use Axe to check wcag rules on websites.
 - Support for various report formats: JSON, Markdown, HTML.
-- Integration with YouTrack for issue creation.
 - Multiple sources for color extraction.
 - Suggestion of alternative colors that meet the WCAG requirements.
 - Debugging and simulation modes.
@@ -109,21 +108,10 @@ To see the help message for the script, run the tool with the `-h` or `--help` o
 The script will analyse the website and generate a report based on the selected format.    
 It has 2 modes `axe` or `contrast`. Dependent on the mode other options are needed or not used. 
 
-If you choose to report issues to YouTrack, follow the prompts to enter your YouTrack credentials and issue details.    
-The script will create issues in YouTrack for any contrast ratio violations found on the website.
-Since Youtrack does not allow more than 500 attachments per issue, the script will upload only the first 500 images found on the page.
-Also the Youtrack issue text is limited to 64k characters, so the script will truncate the text if it exceeds this limit.
-
 You can also use the `--debug` flag to enable debugging mode, which provides additional information about the script's execution.
 
 If you want to simulate the script's behavior without actually checking a website, 
 use the `--simulate` flag with a pre generated JSON file as argument.
-
-### Examples
-```bash
-python .\src\main.py contrast --inputs "http://example.com" --youtrack --youtrack_api_key "your_api_key" --youtrack_project "0-2"
-```
-This command will check the contrast ratio on `http://example.com`, generate a JSON report, and create issues in YouTrack for any violations found.
     
 ```bash
 python .\src\main.py axe --simulate "output/contrast_result.json"
@@ -215,7 +203,6 @@ some (but not all are listed here):
 - Check the console output for any error messages or warnings (try the --debug option).
 - Make sure your target System is configured correctly and accessible.
 - If the remote control of the Browser failed, try running it again—maybe the browser was not started correctly.
-- If you are using the YouTrack integration, ensure that your API key and project ID are correct.
 - If you are using the `--simulate` option, make sure the JSON file exists and is in the correct format.
 - You will not see the Browser window, it is silently running in the background.
 
@@ -227,10 +214,8 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 ## Acknowledgments
 - [WCAG](https://www.w3.org/WAI/WCAG21/) for providing guidelines on web accessibility.
-- [YouTrack](https://www.jetbrains.com/youtrack/) for issue tracking and project management.
 - [OpenCV](https://opencv.org/) for image processing capabilities.
 - [NumPy](https://numpy.org/) for numerical operations.
-- [Requests](https://docs.python-requests.org/en/latest/) for making HTTP requests.
 - [PyInstaller](https://pyinstaller.org/) for creating executable files.
 - [Axe](https://www.deque.com/axe/) for automated WCAG validation.
 - [Rich](https://rich.readthedocs.io/en/stable/) for creating visually appealing console outputs.

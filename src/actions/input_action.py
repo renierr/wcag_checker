@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
@@ -79,7 +80,7 @@ def select_action(config, driver, param):
     logger.debug(f"Selecting value '{value}' in element with selector '{selector}'")
     try:
         element = driver.find_element(By.CSS_SELECTOR, selector)
-        Select(element).select_by_visible_text(value)
+        Select(element).select_by_value(value)
     except NoSuchElementException:
         logger.warning(f"No element found for select action with selector: {selector}")
         return

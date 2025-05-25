@@ -21,7 +21,7 @@ def click_action(config: Config, driver: webdriver, param: str) -> None:
         logger.warning("No selector provided for click action.")
         return
     try:
-        driver.find_element(By.CSS_SELECTOR, param)
+        elem = driver.find_element(By.CSS_SELECTOR, param)
         elem.click()
         wait_page_loaded(driver)
     except NoSuchElementException as e:

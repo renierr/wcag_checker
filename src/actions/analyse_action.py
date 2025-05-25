@@ -1,9 +1,10 @@
+from dataclasses import fields
 from pathlib import Path
 
 from selenium import webdriver
 
-from src.action_handler import register_action
-from src.config import Config, Mode
+from src.action_handler import register_action, parse_param_to_json
+from src.config import Config, Mode, AxeConfig, ContrastConfig, ProcessingConfig
 from src.logger_setup import logger
 from src.mode_axe import axe_mode_setup, axe_mode
 from src.mode_own import own_mode_contrast
@@ -79,3 +80,63 @@ def analyse_action(config: Config, driver: webdriver, param: str|None) -> dict |
     if full_page_screenshot_path_outline:
         entry["screenshot_outline"] = full_page_screenshot_path_outline.as_posix()
     return entry
+
+@register_action("analyse_axe")
+def analyse_axe_action(config: Config, driver: webdriver, param: str|None) -> dict | None:
+    """
+    Syntax: `@analyse_axe: <config>`
+
+    Triggers an analysis of the current page using Axe.
+    The `<config>` parameter can be a JSON string with Axe options,
+    or it can be omitted to use the default Axe configuration if provided on startup.
+    ```
+    @analyse_axe: {axe_rules: ["wcag2aa"]}
+    ```
+    """
+
+    axe_options = parse_param_to_json(param)
+    if not isinstance(config, AxeConfig) and not axe_options:
+        logger.error("No Axe configuration provided for @analyse_axe action.")
+        return None
+
+    # build new config object with options set
+    base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
+    axe_config = ContrastConfig(
+        **{key: value for key, value in vars(config).items() if key in base_fields},
+        **axe_options
+    ) if axe_options else config
+    axe_config.mode = Mode.AXE
+    # analyse the page with the given axe config
+    analyse_action(axe_config, driver, None)
+
+
+
+@register_action("analyse_contrast")
+def analyse_contrast_action(config: Config, driver: webdriver, param: str|None) -> dict | None:
+    """
+    Syntax: `@analyse_contrast: <config>`
+
+    Triggers an analysis of the current page using Contrast.
+    The `<config>` parameter can be a JSON string with Contrast options,
+    or it can be omitted to use the default Contrast configuration if provided on startup.
+    ```
+    @analyse_contrast: {contrast_threshold: 4.5, selector: "a, button:not([disabled])"}
+    ```
+    """
+
+    contrast_options = parse_param_to_json(param)
+    if not isinstance(config, ContrastConfig) and not contrast_options:
+        logger.error("No Contrast configuration provided for @analyse_contrast action.")
+        return None
+
+    # build new config object with options set
+    base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
+    contrast_config = ContrastConfig(
+        **{key: value for key, value in vars(config).items() if key in base_fields},
+        **contrast_options
+    ) if contrast_options else config
+    contrast_config.mode = Mode.CONTRAST
+
+    # analyse the page with the given axe config
+    return analyse_action(contrast_config, driver, None)
+

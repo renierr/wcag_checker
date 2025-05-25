@@ -25,16 +25,6 @@ The tool also provides a screenshot of the element for better visualization. As 
 Each element shows a table with the used colors, the contrast ratio and if it meets the WCAG requirements.    
 If applicable, the tool also provides color suggestions that meet the WCAG contrast ratio requirements.
 
-## Configuration
-- **Mode:** {{config.mode}}
-- **Contrast Threshold:** {{config.contrast_threshold}}
-- **Selector:** `{{config.selector}}`
-- **Alternate Color Suggestion:** {{"Enabled" if config.alternate_color_suggestion else "Disabled"}}
-- **Use Canny Edge Detection:** {{"Enabled" if config.use_canny_edge_detection else "Disabled"}}
-- **Use Antialias:** {{"Enabled" if config.use_antialias else "Disabled"}}
-- **Report Level:** {{config.report_level}}
-- **Base Resolution:** {{config.resolution_width}}x{{config.resolution_height}}
-
 ## Results
 There are {{json_data.total_inputs}} pages in total.
 
@@ -46,6 +36,9 @@ There are {{json_data.total_inputs}} pages in total.
 {% for input_data in json_data.inputs -%}
 <a name="page-{{input_data.index}}"></a>
 ### Page ({{input_data.index}} / {{json_data.total_inputs}}):
+
+{% include 'markdown_config_output_template.md' %}
+
 {% if input_data.url %}
 [Link to url]({{input_data.url}})
 {{input_data.url}}

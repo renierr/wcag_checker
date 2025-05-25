@@ -10,11 +10,6 @@ Using Axe to make the checks and report it.
 
 An overview Screenshot is provided for each Page.
 
-## Configuration
-- **Mode:** {{config.mode}}
-- **Base Resolution:** {{config.resolution_width}}x{{config.resolution_height}}
-- **Axe Rules:** {{config.axe_rules}}
-
 ## Results
 There are {{json_data.total_inputs}} pages in total.
 
@@ -26,6 +21,9 @@ There are {{json_data.total_inputs}} pages in total.
 {% for input_data in json_data.inputs -%}
 <a name="page-{{input_data.index}}"></a>
 ### Page ({{input_data.index}} / {{json_data.total_inputs}}):
+
+{% include 'markdown_config_output_template.md' %}
+
 {% if input_data.url %}
 [Link to url]({{input_data.url}})
 {{input_data.url}}

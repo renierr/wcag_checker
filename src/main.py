@@ -20,7 +20,7 @@ from src.arg_parse import argument_parser
 from src.utils import get_embedded_file_path, call_url, get_full_base_url, filter_args_for_dataclass
 from src.report import generate_markdown_report, generate_html_report, build_markdown
 from src.youtrack import report_to_youtrack_as_issue, YouTrackAPI
-from src.config import Config, AxeConfig, ContrastConfig, ConfigEncoder, Mode, ReportLevel
+from src.config import Config, AxeConfig, ContrastConfig, ConfigEncoder, Mode, ReportLevel, ProcessingConfig
 from src.action_handler import action_registry, print_action_documentation
 from src.actions.analyse_action import analyse_action
 import src.actions
@@ -38,10 +38,19 @@ def info_logs_of_config(config: Config) -> None:
     """
     logger.info(f"Running in mode: {config.mode.value}")
     logger.info(f"Browser: {config.browser}")
+    logger.info(f"Browser visible: {'Yes' if config.browser_visible else 'No'}")
     logger.info(f"Base folder for output: {config.output}")
-    logger.info(f"Inputs to check ({len(config.inputs)}): {config.inputs}")
+    if isinstance(config, ProcessingConfig):
+        logger.info(f"Login URL: {config.login if config.login else 'None'}")
+        logger.info(f"Resolution: {config.resolution_width}x{config.resolution_height}")
+        logger.info(f"JSON output enabled: {'Yes' if config.json else 'No'}")
+        logger.info(f"Markdown report enabled: {'Yes' if config.markdown else 'No'}")
+        logger.info(f"HTML report enabled: {'Yes' if config.html else 'No'}")
+        logger.info(f"YouTrack reporting enabled: {'Yes' if config.youtrack else 'No'}")
+        logger.info(f"Simulate with file: {config.simulate if config.simulate else 'None'}")
+        logger.info(f"Inputs to check ({len(config.inputs)}): {config.inputs}")
 
-    if config.mode == Mode.CONTRAST:
+    if config.mode == Mode.CONTRAST and isinstance(config, ContrastConfig):
         logger.info(f"Using selector: {config.selector}")
         logger.info(f"Contrast ratio threshold: {config.contrast_threshold}")
         logger.info("Reporting only invalid elements (do not meet WCAG requirements): " + ("Yes" if config.report_level == ReportLevel.INVALID else "No"))
@@ -52,7 +61,7 @@ def info_logs_of_config(config: Config) -> None:
         else:
             logger.info("Using default HSL color spectrum for suggestions.")
 
-    if config.mode == Mode.AXE:
+    if config.mode == Mode.AXE and isinstance(config, AxeConfig):
         logger.info(f"Axe rules to check: {config.axe_rules if config.axe_rules else 'default'}")
 
 
@@ -95,7 +104,9 @@ def parse_inputs(inputs: list[str]) -> list[str]:
 
 def main(config: Config, youtrack: YouTrackAPI = None) -> None:
     """
-    Main function to check a contrast ratio of elements on a webpage.
+    Main function to process the config and inputs.
+    This function initializes the Selenium WebDriver, processes the inputs,
+    and generates reports based on the configuration.
 
     :param config: Config object containing all arguments.
     :param youtrack: YouTrackAPI object for reporting issues.
@@ -109,106 +120,107 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
     screenshots_folder.mkdir(parents=True, exist_ok=True)
 
     json_data = {}
-    if config.simulate:
-        logger.info(f"Simulating with file: {config.simulate}")
-        with open(config.simulate, "r") as f:
-            json_data = json.load(f)
-    else:
-        # if inputs contain a string with prefix "config:" thread it as a file and read the lines as inputs to append
-        expanded_inputs = parse_inputs(config.inputs)
-        inputs_len = len(expanded_inputs)
-        if inputs_len == 0:
-            logger.error("No Inputs provided to check. Please provide at least one input or a config file")
-            sys.exit(1)
-
-        logger.info("Starting Selenium WebDriver")
-        if config.browser == "edge":
-            from selenium.webdriver.edge.options import Options
-            options = Options()
+    if isinstance(config, ProcessingConfig):
+        if config.simulate:
+            logger.info(f"Simulating with file: {config.simulate}")
+            with open(config.simulate, "r") as f:
+                json_data = json.load(f)
         else:
-            from selenium.webdriver.chrome.options import Options
-            options = Options()
-        if not config.browser_visible:
-            options.add_argument("--headless")
-        options.add_argument("--window-size=1920,1080")
-        options.add_argument("--disable-extensions")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        options.add_argument("--disable-gpu")
-        if config.browser == "edge":
-            driver = webdriver.Edge(options=options)
-        else:
-            driver = webdriver.Chrome(options=options)
-        try:
-            # first go to login url if defined
-            if config.login:
-                logger.info(f"Perform Login with URL: {config.login}")
-                call_url(driver, config.login)
+            # if inputs contain a string with prefix "config:" thread it as a file and read the lines as inputs to append
+            expanded_inputs = parse_inputs(config.inputs)
+            inputs_len = len(expanded_inputs)
+            if inputs_len == 0:
+                logger.error("No Inputs provided to check. Please provide at least one input or a config file")
+                sys.exit(1)
 
-            base_url = get_full_base_url(driver)
-            logger.debug(f"Extracted Base URL: {base_url}")
+            logger.info("Starting Selenium WebDriver")
+            if config.browser == "edge":
+                from selenium.webdriver.edge.options import Options
+                options = Options()
+            else:
+                from selenium.webdriver.chrome.options import Options
+                options = Options()
+            if not config.browser_visible:
+                options.add_argument("--headless")
+            options.add_argument("--window-size=1920,1080")
+            options.add_argument("--disable-extensions")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+            if config.browser == "edge":
+                driver = webdriver.Edge(options=options)
+            else:
+                driver = webdriver.Chrome(options=options)
+            try:
+                # first go to login url if defined
+                if config.login:
+                    logger.info(f"Perform Login with URL: {config.login}")
+                    call_url(driver, config.login)
 
-            url_data = []
-            for url_idx, url in enumerate(expanded_inputs):
-                url_idx += 1
-                logger.info(f"[{url_idx}/{inputs_len}] Processing Input or Action: {url}")
-                entry = None
-                results = []
+                base_url = get_full_base_url(driver)
+                logger.debug(f"Extracted Base URL: {base_url}")
 
-                try:
-                    # detect actions starting with @
-                    if isinstance(url, str) and url.startswith("@"):
-                        entry = handle_action(config, driver, url)
-                        if entry:
-                            url_data.append(entry)
-                        continue
+                url_data = []
+                for url_idx, url in enumerate(expanded_inputs):
+                    url_idx += 1
+                    logger.info(f"[{url_idx}/{inputs_len}] Processing Input or Action: {url}")
+                    entry = None
+                    results = []
 
-                    # normal url will get analysed directly
-                    entry = analyse_action(config, driver, url)
+                    try:
+                        # detect actions starting with @
+                        if isinstance(url, str) and url.startswith("@"):
+                            entry = handle_action(config, driver, url)
+                            if entry:
+                                url_data.append(entry)
+                            continue
 
-                except Exception as e:
-                    error_message = str(e).splitlines()[0]
-                    logger.error(f"Error processing Input or Action {url}: {error_message}")
-                    results.append({
-                        "url": url,
-                        "error": error_message
-                    })
-                    if config.debug:
-                        raise e
+                        # normal url will get analysed directly
+                        entry = analyse_action(config, driver, url)
 
-                if entry:
-                    url_data.append(entry)
+                    except Exception as e:
+                        error_message = str(e).splitlines()[0]
+                        logger.error(f"Error processing Input or Action {url}: {error_message}")
+                        results.append({
+                            "url": url,
+                            "error": error_message
+                        })
+                        if config.debug:
+                            raise e
+
+                    if entry:
+                        url_data.append(entry)
 
 
-            json_data.update({
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
-                "base_url": base_url,
-                "config": config.__dict__,
-                "total_inputs": len(url_data),
-                "inputs": url_data,
-            })
+                json_data.update({
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "base_url": base_url,
+                    "config": config.__dict__,
+                    "total_inputs": len(url_data),
+                    "inputs": url_data,
+                })
 
-            if config.json:
-                results_file = Path(config.output) / f"{config.mode.value}_results.json"
-                with results_file.open("w", encoding="utf-8") as json_file:
-                    json.dump(json_data, json_file, indent=4, ensure_ascii=False, cls=ConfigEncoder)
+                if config.json:
+                    results_file = Path(config.output) / f"{config.mode.value}_results.json"
+                    with results_file.open("w", encoding="utf-8") as json_file:
+                        json.dump(json_data, json_file, indent=4, ensure_ascii=False, cls=ConfigEncoder)
 
-        except selenium.common.exceptions.WebDriverException as e:
-            logger.error(f"WebDriverException occurred: {e.msg}")
-            logger.error(f"Screen: {e.screen}")
-            logger.warning("Please check if the URL is correct and the server is running. \
-            You can use the --debug flag to enable debug mode. \
-            Please check the arguments passed to the script. \
-            Use --help to see all available arguments.")
-        except Exception as e:
-            logger.error(f"An error occurred: {e}")
-            raise e
-        finally:
-            # close bowser
-            driver.quit()
+            except selenium.common.exceptions.WebDriverException as e:
+                logger.error(f"WebDriverException occurred: {e.msg}")
+                logger.error(f"Screen: {e.screen}")
+                logger.warning("Please check if the URL is correct and the server is running. \
+                You can use the --debug flag to enable debug mode. \
+                Please check the arguments passed to the script. \
+                Use --help to see all available arguments.")
+            except Exception as e:
+                logger.error(f"An error occurred: {e}")
+                raise e
+            finally:
+                # close bowser
+                driver.quit()
 
     reporting(config, json_data, youtrack)
-    logger.info("Finished checking contrast ratio.")
+    logger.info("Finished.")
 
 
 def reporting(config: Config, json_data: dict, youtrack: YouTrackAPI) -> None:
@@ -222,7 +234,7 @@ def reporting(config: Config, json_data: dict, youtrack: YouTrackAPI) -> None:
     if not json_data:
         logger.warning("No data to report. Exiting.")
         return
-    if config.markdown or config.html or config.youtrack:
+    if isinstance(config, ProcessingConfig) and (config.markdown or config.html or config.youtrack):
         logger.info("Building Markdown report data...")
         markdown_report_data = build_markdown(config, json_data)
 

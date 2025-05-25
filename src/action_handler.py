@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from rich.markdown import Markdown
 from rich.table import Table
@@ -74,3 +75,21 @@ def print_action_documentation():
         table.add_row(", ".join(actions), markdown_doc)
 
     console.print(table)
+
+def parse_param_to_json(param: str | None) -> dict | None:
+    """
+    Parse a parameter string to a JSON object.
+    If the string is empty or None, return None.
+    If the string starts with '{' or '[', parse it as JSON.
+    Otherwise, return None.
+    """
+    if not param:
+        return None
+    try:
+        if param.startswith('{') or param.startswith('['):
+            return json.loads(param)
+        else:
+            return None
+    except json.JSONDecodeError as e:
+        logger.error(f"JSON decoding error: {e}")
+        return None

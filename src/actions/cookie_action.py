@@ -1,0 +1,38 @@
+from selenium import webdriver
+
+from src.action_handler import register_action, parse_param_to_json
+from src.config import Config
+from src.logger_setup import logger
+
+@register_action("cookie")
+def cookie_action(config: Config, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@cookie <name>=<value>` or `@cookie {"name": "<name>", "value": "<value>"}`
+
+    Sets a cookie in the browser with the specified name and value.
+    ```
+    @cookie: my_cookie=my_value
+    @cookie: {"name": "my_cookie", "value": "my_value"}
+    ```
+    If no parameter is provided, a warning is logged.
+    If the parameter is not in the correct format, a warning is logged.
+    """
+
+    if not param:
+        logger.warning("No cookie name and value provided.")
+        return
+
+    json_param = parse_param_to_json(param)
+    if json_param:
+        logger.debug(f"Setting cookie from JSON: {json_param}")
+        # Set the cookie in the browser
+        driver.add_cookie(json_param)
+    else:
+        if '=' not in param:
+            logger.warning("Invalid cookie format. Use <name>=<value>.")
+            return
+
+        name, value = param.split('=', 1)
+        logger.debug(f"Setting cookie: {name}={value}")
+        # Set the cookie in the browser
+        driver.add_cookie({"name": name, "value": value})

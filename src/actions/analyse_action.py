@@ -72,6 +72,7 @@ def analyse_action(config: Config, driver: webdriver, param: str|None) -> dict |
     entry = {
         "url": param,
         "index": url_idx,
+        "config": config.__dict__,
         "results": results,
         "title": page_title if 'page_title' in locals() else None,
     }

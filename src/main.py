@@ -192,7 +192,6 @@ def main(config: Config) -> None:
                 json_data.update({
                     "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                     "base_url": base_url,
-                    "config": config.__dict__,
                     "total_inputs": len(url_data),
                     "inputs": url_data,
                 })

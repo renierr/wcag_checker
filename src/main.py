@@ -60,6 +60,34 @@ def handle_action(config: Config, driver: webdriver, action_str: str) -> dict | 
     """Delegates action handling to the ActionRegistry."""
     return action_registry.execute(config, driver, action_str)
 
+def parse_inputs(inputs: list[str]) -> list[str]:
+    """
+    Parse the inputs to ensure they are valid URLs or actions.
+    :param inputs: List of input strings.
+    :return: List of parsed input strings.
+    """
+    parsed_inputs = []
+    for input_check in inputs:
+        if isinstance(input_check, str) and input_check.startswith("config:"):
+            config_file = input_check.replace("config:", "")
+            logger.info(f"Reading inputs from config file: {config_file}")
+            with open(config_file, "r") as f:
+                lines = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
+                combined_line = None
+                for line in lines:
+                    if combined_line:
+                        combined_line += " " + line
+                        if line.startswith("}"):
+                            parsed_inputs.append(combined_line)
+                            combined_line = None
+                    elif line.endswith("{"):
+                        combined_line = line
+                    else:
+                        parsed_inputs.append(line)
+        else:
+            parsed_inputs.append(input_check)
+    return parsed_inputs
+
 
 def main(config: Config, youtrack: YouTrackAPI = None) -> None:
     """
@@ -83,16 +111,7 @@ def main(config: Config, youtrack: YouTrackAPI = None) -> None:
             json_data = json.load(f)
     else:
         # if inputs contain a string with prefix "config:" thread it as a file and read the lines as inputs to append
-        expanded_inputs = []
-        for input_check in config.inputs:
-            if isinstance(input_check, str) and input_check.startswith("config:"):
-                config_file = input_check.replace("config:", "")
-                logger.info(f"Reading inputs from config file: {config_file}")
-                with open(config_file, "r") as f:
-                    file_inputs = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
-                    expanded_inputs.extend(file_inputs)
-            else:
-                expanded_inputs.append(input_check)
+        expanded_inputs = parse_inputs(config.inputs)
         inputs_len = len(expanded_inputs)
         if inputs_len == 0:
             logger.error("No Inputs provided to check. Please provide at least one input or a config file")

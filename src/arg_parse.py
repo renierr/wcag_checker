@@ -5,7 +5,7 @@ from rich_argparse import RawTextRichHelpFormatter
 from gettext import gettext as _
 from argparse import SUPPRESS, OPTIONAL, ZERO_OR_MORE
 
-from src.config import Config, AxeConfig, ContrastConfig, ColorSource, ConfigEncoder, Mode, ReportLevel
+from src.config import ColorSource, Mode, ReportLevel
 
 class CustomArgparseFormatter(RawTextRichHelpFormatter):
 

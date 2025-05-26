@@ -2,7 +2,7 @@ import mistune
 
 from pathlib import Path
 from jinja2 import Template, Environment, FileSystemLoader
-from src.config import Config, Mode
+from src.config import Config
 from src.utils import create_color_span, get_embedded_file_path
 from src.logger_setup import logger
 

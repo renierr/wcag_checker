@@ -8,7 +8,7 @@ from selenium import webdriver
 
 from src.action_handler import action_registry
 from src.actions.analyse_action import analyse_action
-from src.config import Config, ProcessingConfig, ConfigEncoder, Mode, ContrastConfig, ReportLevel, AxeConfig, Runner
+from src.config import Config, ProcessingConfig, ConfigEncoder, ReportLevel, Runner
 from src.logger_setup import logger
 from src.report import build_markdown, generate_markdown_report, generate_html_report
 from src.utils import call_url, get_full_base_url

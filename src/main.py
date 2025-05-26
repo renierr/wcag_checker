@@ -13,7 +13,7 @@ from rich.markdown import Markdown
 from src.logger_setup import logger
 from src.arg_parse import argument_parser
 from src.utils import get_embedded_file_path, filter_args_for_dataclass
-from src.config import Config, AxeConfig, ContrastConfig, Mode, ProcessingConfig
+from src.config import Mode, ProcessingConfig
 from src.action_handler import print_action_documentation
 from src.actions.analyse_action import analyse_action
 from src.processing import check_run

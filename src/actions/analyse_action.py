@@ -4,7 +4,7 @@ from pathlib import Path
 from selenium import webdriver
 
 from src.action_handler import register_action, parse_param_to_json
-from src.config import Config, Mode, AxeConfig, ContrastConfig, ProcessingConfig, Runner
+from src.config import ProcessingConfig, Runner
 from src.logger_setup import logger
 from src.mode_axe import axe_mode_setup, axe_mode
 from src.mode_own import own_mode_contrast
@@ -61,8 +61,8 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path}")
     driver.save_screenshot(full_page_screenshot_path)
 
-    # select mode to run the check
-    if config.mode == Mode.AXE:
+    # select runner to run the check
+    if config.runner == Runner.AXE:
         full_page_screenshot_path_outline = axe_mode(axe, config, driver,
                                                      results, screenshots_folder, url_idx)
     else:
@@ -89,19 +89,20 @@ def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: webdriver,
     This is used to avoid code duplication in the `analyse_action` function.
     """
     check_options = parse_param_to_json(param)
-    if not isinstance(config, ProcessingConfig) and check_options is None:
-        logger.error(f"No configuration provided for @analyse_{runner.value} action.")
-        return None
+    check_param = None
+    if check_options is None:
+        check_param = param
+        check_options = {}
 
     # build new config object with options set
     base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
     check_config = ProcessingConfig(
         **{key: value for key, value in vars(config).items() if key in base_fields},
         **check_options
-    ) if check_options is not None else config
+    )
     check_config.runner = runner
     # analyse the page with the given axe config
-    return analyse_action(check_config, driver, None)
+    return analyse_action(check_config, driver, check_param)
 
 
 @register_action("analyse_axe")

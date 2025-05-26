@@ -19,8 +19,6 @@ class ColorSource(Enum):
 
 class Mode(Enum):
     CHECK = "check"
-    CONTRAST = "contrast"
-    AXE = "axe"
     ACTIONS = "actions"
 
     def __str__(self):

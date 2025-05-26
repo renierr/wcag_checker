@@ -4,7 +4,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from selenium_axe_python import Axe
 from pathlib import Path
 
-from src.config import Config, AxeConfig, ProcessingConfig
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.mode_own import outline_elements_for_screenshot
 

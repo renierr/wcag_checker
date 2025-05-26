@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
-from src.config import Config, ReportLevel, ContrastConfig, ProcessingConfig
+from src.config import ReportLevel, ProcessingConfig
 from src.contrast import check_contrast
 from src.css import inject_outline_css
 from src.logger_setup import logger
@@ -83,7 +83,7 @@ def outline_elements_for_screenshot(config: ProcessingConfig, driver: webdriver,
                 continue
 
             missed_element_present = (elements == missed_contrast_elements) or any(element == missed for missed in missed_contrast_elements)
-            report_invalid_only = True if isinstance(config, ContrastConfig) and config.report_level == ReportLevel.INVALID else True
+            report_invalid_only = config.report_level == ReportLevel.INVALID
             if report_invalid_only and not missed_element_present:
                 logger.debug(f"Element {index} is not in missed_contrast_elements and invalid_only mode is set. Skipping outline.")
                 continue

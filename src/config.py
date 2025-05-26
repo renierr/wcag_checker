@@ -69,17 +69,3 @@ class ProcessingConfig(Config):
 
     def __post_init__(self):
         self.resolution_width, self.resolution_height = self.resolution
-
-@dataclass
-class AxeConfig(ProcessingConfig):
-    axe_rules: Optional[str] = "wcag22aa"
-
-@dataclass
-class ContrastConfig(ProcessingConfig):
-    selector: Optional[str] = "a, button:not([disabled])"
-    contrast_threshold: float = 4.5
-    use_canny_edge_detection: bool = False
-    use_antialias: bool = False
-    report_level: ReportLevel = ReportLevel.INVALID
-    alternate_color_suggestion: bool = False
-    color_source: ColorSource = ColorSource.ELEMENT

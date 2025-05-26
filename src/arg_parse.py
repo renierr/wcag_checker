@@ -103,14 +103,17 @@ def argument_parser() -> argparse.ArgumentParser:
                                  help=f"{for_contrast_runner_hint}The source to extract the colors from to check.",
                                  choices=list(ColorSource), nargs="?", default=ColorSource.ELEMENT)
     check_parser.add_argument("--alternate_color_suggestion", action="store_true",
-                                 help=f"{for_contrast_runner_hint}Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
+                                 help=textwrap.dedent(f"""\
+                                 {for_contrast_runner_hint}Use alternative color suggestion algorithm.
+                                 (RGB color if true -- computation heavy) - default is HSL color spectrum."
+                                 """).strip())
     check_parser.add_argument("--report_level", type=ReportLevel,
                                  help=f"{for_contrast_runner_hint}The level of which to report.",
                                  choices=list(ReportLevel), nargs="?", default=ReportLevel.INVALID)
     check_parser.add_argument("--axe_rules", type=str,
                             default="wcag22aa",
                             help=textwrap.dedent(f"""\
-                                {for_axe_runner_hint}Define axe rules (comma separated) that should be checked. set empty to use all axe rules.
+                                {for_axe_runner_hint}Define axe rules (comma separated) that should be checked.
                                 see: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md#axe-core-tags for rule names
                                 example: --axe_rules "wcag2aa, wcag21aa, wcag22aa"
                                 """).strip())

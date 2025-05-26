@@ -20,6 +20,7 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
     Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <url>`
 
     Triggers an analysis of the current page (e.g., WCAG or contrast check).
+    With the default runner and configuration set on startup.
     ```
     @analyse
     ```

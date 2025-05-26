@@ -6,8 +6,8 @@ from selenium import webdriver
 from src.action_handler import register_action, parse_param_to_json
 from src.config import ProcessingConfig, Runner
 from src.logger_setup import logger
-from src.mode_axe import axe_mode_setup, axe_mode
-from src.mode_own import own_mode_contrast
+from src.runner_axe import axe_mode_setup, runner_axe
+from src.runner_contrast import runner_contrast
 from src.utils import reset_window_size, call_url, set_window_size_to_viewport
 
 url_idx = 0
@@ -64,11 +64,11 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
 
     # select runner to run the check
     if config.runner == Runner.AXE:
-        full_page_screenshot_path_outline = axe_mode(axe, config, driver,
-                                                     results, screenshots_folder, url_idx)
+        full_page_screenshot_path_outline = runner_axe(axe, config, driver,
+                                                       results, screenshots_folder, url_idx)
     else:
-        full_page_screenshot_path_outline = own_mode_contrast(config, driver,
-                                                              results, screenshots_folder, url_idx)
+        full_page_screenshot_path_outline = runner_contrast(config, driver,
+                                                            results, screenshots_folder, url_idx)
     # save results
     entry = {
         "url": param,

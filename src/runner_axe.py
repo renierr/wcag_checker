@@ -6,7 +6,7 @@ from pathlib import Path
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
-from src.mode_own import outline_elements_for_screenshot
+from src.runner_contrast import outline_elements_for_screenshot
 
 
 def axe_mode_setup(config: ProcessingConfig, driver: webdriver) -> Axe:
@@ -19,8 +19,8 @@ def axe_mode_setup(config: ProcessingConfig, driver: webdriver) -> Axe:
     axe = Axe(driver)
     return axe
 
-def axe_mode(axe: Axe, config: ProcessingConfig, driver: webdriver, results: list,
-             screenshots_folder: Path, url_idx: int) -> Path|None:
+def runner_axe(axe: Axe, config: ProcessingConfig, driver: webdriver, results: list,
+               screenshots_folder: Path, url_idx: int) -> Path|None:
     if axe is None:
         logger.error("Axe is not initialized. Please call axe_mode_setup first.")
         return None

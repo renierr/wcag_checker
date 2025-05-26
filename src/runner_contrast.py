@@ -10,7 +10,7 @@ from src.logger_setup import logger
 from src.utils import define_get_path_script, get_csspath, set_window_size_to_viewport
 
 
-def own_mode_contrast(config: ProcessingConfig, driver: webdriver, results: list, screenshots_folder: Path, url_idx: int) -> Path|None:
+def runner_contrast(config: ProcessingConfig, driver: webdriver, results: list, screenshots_folder: Path, url_idx: int) -> Path | None:
     """
     This function checks the contrast of elements on a webpage using Selenium.
 

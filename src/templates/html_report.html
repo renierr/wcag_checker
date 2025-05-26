@@ -168,6 +168,36 @@
     details[open] summary {
       color: #0056b3;
     }
+    .fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      font-size: 20px;
+    }
+
+    .fab.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .fab:hover {
+      background-color: #0056b3;
+    }
+
   </style>
 </head>
 <body>
@@ -181,12 +211,26 @@
 <footer>
   &copy; {{timestamp.split('-')[0]}} WCAG Checker. All rights reserved.
 </footer>
+<button class="fab" id="scrollToTop" title="Scroll to top">&#8679;</button>
 <script>
   const images = document.querySelectorAll('img[alt^="Element"]');
   images.forEach((image) => {
     image.addEventListener('click', () => {
       image.classList.toggle('large');
     });
+  });
+
+  const scrollToTopButton = document.getElementById('scrollToTop');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 200) {
+      scrollToTopButton.classList.add('show');
+    } else {
+      scrollToTopButton.classList.remove('show');
+    }
+  });
+
+  scrollToTopButton.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 </script>
 </body>

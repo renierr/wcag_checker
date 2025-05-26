@@ -7,9 +7,9 @@
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
-      line-height: 1.6;
-      margin: auto;
-      padding: 20px;
+      line-height: 1.8;
+      margin: 0;
+      padding: 0;
       color: #212529;
       background-color: #f8f9fa;
     }
@@ -19,6 +19,7 @@
       margin: 20px 0;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
       background-color: #fff;
+      border-radius: 10px;
     }
     th, td {
       border: 1px solid #dee2e6;
@@ -78,25 +79,36 @@
     a {
       color: #007bff;
       text-decoration: none;
+      font-weight: bold;
     }
     a:hover {
       text-decoration: underline;
     }
     header {
-      background-color: #007bff;
+      background: linear-gradient(90deg, #007bff, #0056b3);
       color: #fff;
-      padding: 20px;
+      padding: 30px 20px;
       text-align: center;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
     }
     header h1 {
       margin: 0;
       font-size: 2rem;
     }
+    header p {
+      margin: 5px 0 0;
+      font-size: 1rem;
+      opacity: 0.9;
+    }
     main {
-      padding: 20px;
+      padding: 30px;
       max-width: 1200px;
-      margin: auto;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
     footer {
       text-align: center;

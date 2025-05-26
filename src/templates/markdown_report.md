@@ -38,11 +38,11 @@ There are {{json_data.total_inputs}} pages in total.
 **Violations count for this URL:** {{ input_data.results | count_violations }}
 
 {% if input_data.index > 1 -%}
-[⬅️ Prev ({{input_data.index - 1}})](#url-{{input_data.index - 1}})
+[⬅️ Prev ({{input_data.index - 1}})](#page-{{input_data.index - 1}})
 {%- endif -%}
 {%- if input_data.index < json_data.total_inputs -%}
 {%- if input_data.index > 1 %} | {% endif -%}
-[Next ({{input_data.index + 1}}) ➡️](#url-{{input_data.index + 1}})
+[Next ({{input_data.index + 1}}) ➡️](#page-{{input_data.index + 1}})
 {%- endif %}
 
 

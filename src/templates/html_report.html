@@ -10,18 +10,18 @@
       line-height: 1.6;
       margin: auto;
       padding: 20px;
-      max-width: 1200px;
-      color: #333;
-      background-color: #f4f7fa;
+      color: #212529;
+      background-color: #f8f9fa;
     }
     table {
       width: 100%;
       border-collapse: collapse;
       margin: 20px 0;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
     }
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid #dee2e6;
       padding: 12px;
       text-align: left;
     }
@@ -31,10 +31,10 @@
       font-weight: bold;
     }
     tr:nth-child(even) {
-      background-color: #f9f9f9;
+      background-color: #f8f9fa;
     }
     tr:hover {
-      background-color: #f1f1f1;
+      background-color: #e9ecef;
     }
     img {
       max-width: 100%;
@@ -47,7 +47,7 @@
       cursor: pointer;
     }
     img.large {
-      transform: scale(4);
+      transform: scale(3);
       transform-origin: center;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
@@ -60,11 +60,11 @@
     }
     blockquote {
       font-style: italic;
-      color: #555;
+      color: #495057;
       border-left: 4px solid #007bff;
       margin: 1.5em 10px;
       padding: 0.5em 10px;
-      background-color: #f9f9f9;
+      background-color: #f8f9fa;
     }
     blockquote p {
       margin: 0;
@@ -82,10 +82,43 @@
     a:hover {
       text-decoration: underline;
     }
+    header {
+      background-color: #007bff;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+    main {
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: #f1f1f1;
+      color: #6c757d;
+      margin-top: 20px;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
 <body>
-{{html_content}}
+<header>
+  <h1>WCAG Report</h1>
+  <p>Generated on {{timestamp}}</p>
+</header>
+<main>
+  {{html_content}}
+</main>
+<footer>
+  &copy; {{timestamp.split('-')[0]}} WCAG Checker. All rights reserved.
+</footer>
 <script>
   const images = document.querySelectorAll('img[alt^=\"Element\"');
   images.forEach((image) => {

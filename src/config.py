@@ -57,7 +57,7 @@ class ProcessingConfig(Config):
 
 @dataclass
 class AxeConfig(ProcessingConfig):
-    axe_rules: Optional[str] = None
+    axe_rules: Optional[str] = "wcag22aa"
 
 @dataclass
 class ContrastConfig(ProcessingConfig):

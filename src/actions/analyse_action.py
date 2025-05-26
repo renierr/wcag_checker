@@ -105,7 +105,7 @@ def analyse_axe_action(config: Config, driver: webdriver, param: str|None) -> di
     axe_config = AxeConfig(
         **{key: value for key, value in vars(config).items() if key in base_fields},
         **axe_options
-    ) if axe_options else config
+    ) if axe_options is not None else config
     axe_config.mode = Mode.AXE
     # analyse the page with the given axe config
     return analyse_action(axe_config, driver, None)
@@ -136,7 +136,7 @@ def analyse_contrast_action(config: Config, driver: webdriver, param: str|None) 
     contrast_config = ContrastConfig(
         **{key: value for key, value in vars(config).items() if key in base_fields},
         **contrast_options
-    ) if contrast_options else config
+    ) if contrast_options is not None else config
     contrast_config.mode = Mode.CONTRAST
 
     # analyse the page with the given axe config

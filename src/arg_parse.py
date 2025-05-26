@@ -82,6 +82,8 @@ def argument_parser() -> argparse.ArgumentParser:
                                            help="Show all registered actions and their documentation.",
                                            formatter_class=CustomArgparseFormatter)
     # Subparser for mode 'check'
+    for_axe_runner_hint = "[bold yellow](for axe runner)→ [/bold yellow]"
+    for_contrast_runner_hint = "[bold magenta](for contrast runner)→ [/bold magenta]"
     check_parser = subparsers.add_parser(Mode.CHECK.value,
                                             parents=[parent_processing_parser],
                                             help="Run the WCAG checks for input with reporting.",
@@ -90,25 +92,25 @@ def argument_parser() -> argparse.ArgumentParser:
                               help="Default runner to check the pages, used unless overridden via action.",
                               choices=list(Runner), nargs="?", default=Runner.AXE)
     check_parser.add_argument("--contrast_threshold", type=float,
-                                 help="[bold yellow](for contrast runner)[/bold yellow]The minimum contrast ratio to meet WCAG requirements.", nargs="?", default=4.5)
+                                 help=f"{for_contrast_runner_hint}The minimum contrast ratio to meet WCAG requirements.", nargs="?", default=4.5)
     check_parser.add_argument("--use_canny_edge_detection", action="store_true",
-                                 help="[bold yellow](for contrast runner)[/bold yellow]Apply and use Canny edge detection on processed images.")
+                                 help=f"{for_contrast_runner_hint}Apply and use Canny edge detection on processed images.")
     check_parser.add_argument("--use_antialias", action="store_true",
-                                 help="[bold yellow](for contrast runner)[/bold yellow]Apply and use antialias on processed images.")
+                                 help=f"{for_contrast_runner_hint}Apply and use antialias on processed images.")
     check_parser.add_argument("--selector", type=str,
-                                 help="[bold yellow](for contrast runner)[/bold yellow]CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
+                                 help=f"{for_contrast_runner_hint}CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
     check_parser.add_argument("--color_source", type=ColorSource,
-                                 help="[bold yellow](for contrast runner)[/bold yellow]The source to extract the colors from to check.",
+                                 help=f"{for_contrast_runner_hint}The source to extract the colors from to check.",
                                  choices=list(ColorSource), nargs="?", default=ColorSource.ELEMENT)
     check_parser.add_argument("--alternate_color_suggestion", action="store_true",
-                                 help="[bold yellow](for contrast runner)[/bold yellow]Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
+                                 help=f"{for_contrast_runner_hint}Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
     check_parser.add_argument("--report_level", type=ReportLevel,
-                                 help="[bold yellow](for contrast runner)[/bold yellow]The level of which to report.",
+                                 help=f"{for_contrast_runner_hint}The level of which to report.",
                                  choices=list(ReportLevel), nargs="?", default=ReportLevel.INVALID)
     check_parser.add_argument("--axe_rules", type=str,
                             default="wcag22aa",
-                            help=textwrap.dedent("""\
-                                [bold yellow](for axe runner)[/bold yellow]Define axe rules (comma separated) that should be checked. set empty to use all axe rules.
+                            help=textwrap.dedent(f"""\
+                                {for_axe_runner_hint}Define axe rules (comma separated) that should be checked. set empty to use all axe rules.
                                 see: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md#axe-core-tags for rule names
                                 example: --axe_rules "wcag2aa, wcag21aa, wcag22aa"
                                 """).strip())

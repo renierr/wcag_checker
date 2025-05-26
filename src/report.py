@@ -141,6 +141,18 @@ html_template = """
             border-left: 2px solid #ddd;
             padding-left: 10px;
         }
+        blockquote {
+          font-style: italic;
+          color: #555;
+          border-left: 4px solid #ccc;
+          margin: 1.5em 10px;
+          padding: 0.5em 10px;
+          background-color: #f9f9f9;
+        }
+
+        blockquote p {
+          margin: 0;
+        }
     </style>
 </head>
 <body>

@@ -56,7 +56,6 @@ def own_mode_contrast(config: Config, driver: webdriver, results: list, screensh
             if config.debug:
                 raise e
     # last screenshot with outline of elements
-    print(f"Missed contrast elements: {len(elements)}")
     full_page_screenshot_path_outline = outline_elements_for_screenshot(config, driver, elements,
                                                                         missed_contrast_elements, url_idx)
     return full_page_screenshot_path_outline

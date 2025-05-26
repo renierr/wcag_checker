@@ -16,7 +16,10 @@ def script_action(config: ProcessingConfig, driver: webdriver, param: str | None
     Execute a script on the current page.
     ```
     @script: console.log("Hello, world!");
-    @script: document.title = "New Title";
+    @script: {
+      document.title = "New Title";
+      console.log("Title changed to:", document.title);
+    }
     ```
     """
     if not param:

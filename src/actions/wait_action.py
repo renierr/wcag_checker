@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from src.action_handler import register_action
-from src.config import Config, ProcessingConfig
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.utils import wait_page_loaded
 

@@ -99,6 +99,29 @@ def print_action_documentation():
 
     console.print(table)
 
+def parse_param_to_string(param: str | None) -> str | None:
+    """
+    Parse a parameter string to a string. Allow multiline via the {...} syntax.
+    Use action_context to replace any variables with syntax ${...}.
+
+    If the string is empty or None, return None.
+    Otherwise, return the string with variables replaced.
+    """
+    if not param:
+        return None
+    try:
+        # multiline strings can be enclosed in {...}
+        if param.startswith('{') and param.endswith('}'):
+            param = param[1:-1].strip()
+        # Replace any variables in the string with their values from action_context
+        for var_name, var_value in action_context.items():
+            param = param.replace(f"${{{var_name}}}", str(var_value))
+        return param.strip()
+    except Exception as e:
+        logger.error(f"Error parsing string parameter: {e}")
+        return None
+
+
 def parse_param_to_json(param: str | None) -> dict | None:
     """
     Parse a parameter string to a JSON object.

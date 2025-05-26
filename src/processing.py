@@ -8,13 +8,13 @@ from selenium import webdriver
 
 from src.action_handler import action_registry
 from src.actions.analyse_action import analyse_action
-from src.config import Config, ProcessingConfig, ConfigEncoder, Mode, ContrastConfig, ReportLevel, AxeConfig
+from src.config import Config, ProcessingConfig, ConfigEncoder, Mode, ContrastConfig, ReportLevel, AxeConfig, Runner
 from src.logger_setup import logger
 from src.report import build_markdown, generate_markdown_report, generate_html_report
 from src.utils import call_url, get_full_base_url
 
 
-def check_run(config: Config) -> None:
+def check_run(config: ProcessingConfig) -> None:
     """
     Main function to process the config and inputs.
     This function initializes the Selenium WebDriver, processes the inputs,
@@ -133,7 +133,7 @@ def check_run(config: Config) -> None:
     logger.info("Finished.")
 
 
-def info_logs_of_config(config: Config) -> None:
+def info_logs_of_config(config: ProcessingConfig) -> None:
     """
     Log the configuration details.
     :param config: Config object containing all arguments.
@@ -142,16 +142,15 @@ def info_logs_of_config(config: Config) -> None:
     logger.info(f"Browser: {config.browser}")
     logger.info(f"Browser visible: {'Yes' if config.browser_visible else 'No'}")
     logger.info(f"Base folder for output: {config.output}")
-    if isinstance(config, ProcessingConfig):
-        logger.info(f"Login URL: {config.login if config.login else 'None'}")
-        logger.info(f"Resolution: {config.resolution_width}x{config.resolution_height}")
-        logger.info(f"JSON output enabled: {'Yes' if config.json else 'No'}")
-        logger.info(f"Markdown report enabled: {'Yes' if config.markdown else 'No'}")
-        logger.info(f"HTML report enabled: {'Yes' if config.html else 'No'}")
-        logger.info(f"Simulate with file: {config.simulate if config.simulate else 'None'}")
-        logger.info(f"Inputs to check ({len(config.inputs)}): {config.inputs}")
+    logger.info(f"Login URL: {config.login if config.login else 'None'}")
+    logger.info(f"Resolution: {config.resolution_width}x{config.resolution_height}")
+    logger.info(f"JSON output enabled: {'Yes' if config.json else 'No'}")
+    logger.info(f"Markdown report enabled: {'Yes' if config.markdown else 'No'}")
+    logger.info(f"HTML report enabled: {'Yes' if config.html else 'No'}")
+    logger.info(f"Simulate with file: {config.simulate if config.simulate else 'None'}")
+    logger.info(f"Inputs to check ({len(config.inputs)}): {config.inputs}")
 
-    if config.mode == Mode.CONTRAST and isinstance(config, ContrastConfig):
+    if config.runner == Runner.CONTRAST:
         logger.info(f"Using selector: {config.selector}")
         logger.info(f"Contrast ratio threshold: {config.contrast_threshold}")
         logger.info("Reporting only invalid elements (do not meet WCAG requirements): " + ("Yes" if config.report_level == ReportLevel.INVALID else "No"))
@@ -162,11 +161,11 @@ def info_logs_of_config(config: Config) -> None:
         else:
             logger.info("Using default HSL color spectrum for suggestions.")
 
-    if config.mode == Mode.AXE and isinstance(config, AxeConfig):
+    if config.runner == Runner.AXE:
         logger.info(f"Axe rules to check: {config.axe_rules if config.axe_rules else 'default'}")
 
 
-def handle_action(config: Config, driver: webdriver, action_str: str) -> dict | None:
+def handle_action(config: ProcessingConfig, driver: webdriver, action_str: str) -> dict | None:
     """Delegates action handling to the ActionRegistry."""
     return action_registry.execute(config, driver, action_str)
 

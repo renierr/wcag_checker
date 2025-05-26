@@ -4,7 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
 from src.action_handler import register_action, parse_param_to_key_value
-from src.config import Config
+from src.config import Config, ProcessingConfig
 from src.logger_setup import logger
 from src.utils import wait_page_loaded
 
@@ -15,7 +15,7 @@ special_chars = {
 }
 
 @register_action("input")
-def input_action(config: Config, driver: webdriver, param: str) -> None:
+def input_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
     """
     Syntax: `@input <selector>=<text>`
 
@@ -43,7 +43,7 @@ def input_action(config: Config, driver: webdriver, param: str) -> None:
         return
 
 @register_action("clear")
-def clear_action(config, driver, param):
+def clear_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
     """
     Syntax: `@clear <selector>`
 
@@ -63,7 +63,7 @@ def clear_action(config, driver, param):
         return
 
 @register_action("select")
-def select_action(config, driver, param):
+def select_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
     """
     Syntax: `@select <selector>=<value>`
 

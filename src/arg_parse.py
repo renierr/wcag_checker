@@ -80,12 +80,28 @@ def argument_parser() -> argparse.ArgumentParser:
     actions_parser = subparsers.add_parser(Mode.ACTIONS.value,
                                            help="Show all registered actions and their documentation.",
                                            formatter_class=CustomArgparseFormatter)
-    # Subparser for mode 'axe'
-    axe_parser = subparsers.add_parser(Mode.AXE.value,
-                                       parents=[parent_processing_parser],
-                                       help="Use Axe-Mode.",
-                                       formatter_class=CustomArgparseFormatter)
-    axe_parser.add_argument("--axe_rules", type=str,
+    # Subparser for mode 'check'
+    check_parser = subparsers.add_parser(Mode.CHECK.value,
+                                            parents=[parent_processing_parser],
+                                            help="Run the WCAG checks for input with reporting.",
+                                            formatter_class=CustomArgparseFormatter)
+    check_parser.add_argument("--contrast_threshold", type=float,
+                                 help="The minimum contrast ratio to meet WCAG requirements.", nargs="?", default=4.5)
+    check_parser.add_argument("--use_canny_edge_detection", action="store_true",
+                                 help="Apply and use Canny edge detection on processed images.")
+    check_parser.add_argument("--use_antialias", action="store_true",
+                                 help="Apply and use antialias on processed images.")
+    check_parser.add_argument("--selector", type=str,
+                                 help="CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
+    check_parser.add_argument("--color_source", type=ColorSource,
+                                 help="The source to extract the colors from to check.",
+                                 choices=list(ColorSource), nargs="?", default=ColorSource.ELEMENT)
+    check_parser.add_argument("--alternate_color_suggestion", action="store_true",
+                                 help="Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
+    check_parser.add_argument("--report_level", type=ReportLevel,
+                                 help="The level of which to report.",
+                                 choices=list(ReportLevel), nargs="?", default=ReportLevel.INVALID)
+    check_parser.add_argument("--axe_rules", type=str,
                             default="wcag22aa",
                             help=textwrap.dedent("""\
                                 Define axe rules (comma separated) that should be checked. set empty to use all axe rules.
@@ -93,25 +109,4 @@ def argument_parser() -> argparse.ArgumentParser:
                                 example: --axe_rules "wcag2aa, wcag21aa, wcag22aa"
                                 """).strip())
 
-    # Subparser for mode 'contrast'
-    contrast_parser = subparsers.add_parser(Mode.CONTRAST.value,
-                                            parents=[parent_processing_parser],
-                                            help="Use Contrast-Mode.",
-                                            formatter_class=CustomArgparseFormatter)
-    contrast_parser.add_argument("--contrast_threshold", type=float,
-                                 help="The minimum contrast ratio to meet WCAG requirements.", nargs="?", default=4.5)
-    contrast_parser.add_argument("--use_canny_edge_detection", action="store_true",
-                                 help="Apply and use Canny edge detection on processed images.")
-    contrast_parser.add_argument("--use_antialias", action="store_true",
-                                 help="Apply and use antialias on processed images.")
-    contrast_parser.add_argument("--selector", type=str,
-                                 help="CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
-    contrast_parser.add_argument("--color_source", type=ColorSource,
-                                 help="The source to extract the colors from to check.",
-                                 choices=list(ColorSource), nargs="?", default=ColorSource.ELEMENT)
-    contrast_parser.add_argument("--alternate_color_suggestion", action="store_true",
-                                 help="Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
-    contrast_parser.add_argument("--report_level", type=ReportLevel,
-                                 help="The level of which to report.",
-                                 choices=list(ReportLevel), nargs="?", default=ReportLevel.INVALID)
     return parser

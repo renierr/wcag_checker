@@ -4,7 +4,7 @@ from pathlib import Path
 from selenium import webdriver
 
 from src.action_handler import register_action, parse_param_to_json
-from src.config import Config, Mode, AxeConfig, ContrastConfig, ProcessingConfig
+from src.config import Config, Mode, AxeConfig, ContrastConfig, ProcessingConfig, Runner
 from src.logger_setup import logger
 from src.mode_axe import axe_mode_setup, axe_mode
 from src.mode_own import own_mode_contrast
@@ -15,7 +15,7 @@ axe = None
 
 @register_action("analyze")
 @register_action("analyse")
-def analyse_action(config: Config, driver: webdriver, param: str|None) -> dict | None:
+def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None) -> dict | None:
     """
     Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <url>`
 
@@ -31,7 +31,7 @@ def analyse_action(config: Config, driver: webdriver, param: str|None) -> dict |
     """
     global url_idx
     global axe
-    if config.mode == Mode.AXE and not axe:
+    if config.runner == Runner.AXE and not axe:
         axe = axe_mode_setup(config, driver)
 
     url_idx += 1
@@ -82,8 +82,30 @@ def analyse_action(config: Config, driver: webdriver, param: str|None) -> dict |
         entry["screenshot_outline"] = full_page_screenshot_path_outline.as_posix()
     return entry
 
+
+def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: webdriver, param: str | None) -> dict | None:
+    """
+    Internal function to handle the different analysis action runners.
+    This is used to avoid code duplication in the `analyse_action` function.
+    """
+    check_options = parse_param_to_json(param)
+    if not isinstance(config, ProcessingConfig) and check_options is None:
+        logger.error(f"No configuration provided for @analyse_{runner.value} action.")
+        return None
+
+    # build new config object with options set
+    base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
+    check_config = ProcessingConfig(
+        **{key: value for key, value in vars(config).items() if key in base_fields},
+        **check_options
+    ) if check_options is not None else config
+    check_config.runner = runner
+    # analyse the page with the given axe config
+    return analyse_action(check_config, driver, None)
+
+
 @register_action("analyse_axe")
-def analyse_axe_action(config: Config, driver: webdriver, param: str|None) -> dict | None:
+def analyse_axe_action(config: ProcessingConfig, driver: webdriver, param: str|None) -> dict | None:
     """
     Syntax: `@analyse_axe: <config>`
 
@@ -94,26 +116,11 @@ def analyse_axe_action(config: Config, driver: webdriver, param: str|None) -> di
     @analyse_axe: {axe_rules: ["wcag2aa"]}
     ```
     """
-
-    axe_options = parse_param_to_json(param)
-    if not isinstance(config, AxeConfig) and axe_options is None:
-        logger.error("No Axe configuration provided for @analyse_axe action.")
-        return None
-
-    # build new config object with options set
-    base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
-    axe_config = AxeConfig(
-        **{key: value for key, value in vars(config).items() if key in base_fields},
-        **axe_options
-    ) if axe_options is not None else config
-    axe_config.mode = Mode.AXE
-    # analyse the page with the given axe config
-    return analyse_action(axe_config, driver, None)
-
+    return _analyse_runner(Runner.AXE, config, driver, param)
 
 
 @register_action("analyse_contrast")
-def analyse_contrast_action(config: Config, driver: webdriver, param: str|None) -> dict | None:
+def analyse_contrast_action(config: ProcessingConfig, driver: webdriver, param: str|None) -> dict | None:
     """
     Syntax: `@analyse_contrast: <config>`
 
@@ -125,20 +132,5 @@ def analyse_contrast_action(config: Config, driver: webdriver, param: str|None) 
     @analyse_axe: {}
     ```
     """
-
-    contrast_options = parse_param_to_json(param)
-    if not isinstance(config, ContrastConfig) and contrast_options is None:
-        logger.error("No Contrast configuration provided for @analyse_contrast action.")
-        return None
-
-    # build new config object with options set
-    base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
-    contrast_config = ContrastConfig(
-        **{key: value for key, value in vars(config).items() if key in base_fields},
-        **contrast_options
-    ) if contrast_options is not None else config
-    contrast_config.mode = Mode.CONTRAST
-
-    # analyse the page with the given axe config
-    return analyse_action(contrast_config, driver, None)
+    return _analyse_runner(Runner.CONTRAST, config, driver, param)
 

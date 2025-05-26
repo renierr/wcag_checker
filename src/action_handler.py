@@ -5,7 +5,7 @@ from rich.table import Table
 from rich.console import Console
 from selenium import webdriver
 
-from src.config import Config
+from src.config import Config, ProcessingConfig
 from src.logger_setup import logger
 
 action_context = {}
@@ -40,7 +40,7 @@ class ActionRegistry:
             raise ValueError(f"Action '{name}' is already registered.")
         self._actions[name] = func
 
-    def execute(self, config: Config, driver: webdriver, action_str: str) -> dict | None:
+    def execute(self, config: ProcessingConfig, driver: webdriver, action_str: str) -> dict | None:
         """Execute a registered action."""
         if not action_str.startswith("@"):
             logger.warning(f"Invalid action format: {action_str}")
@@ -64,6 +64,7 @@ class ActionRegistry:
                 logger.warning(f"Unknown action: {action}")
         except Exception as e:
             logger.error(f"Error executing action '{action_str}': {e}")
+        return None
 
 
 # create action registry

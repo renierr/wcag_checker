@@ -6,12 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
 from src.action_handler import register_action
-from src.config import Config
+from src.config import Config, ProcessingConfig
 from src.logger_setup import logger
 from src.utils import wait_page_loaded
 
 @register_action("wait")
-def wait_action(config: Config, driver: webdriver, param: str) -> None:
+def wait_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@wait: <seconds>` or `@wait: loaded` or `@wait: <selector>`
 

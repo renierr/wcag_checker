@@ -3,12 +3,12 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from src.action_handler import register_action
-from src.config import Config
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.utils import wait_page_loaded
 
 @register_action("click")
-def click_action(config: Config, driver: webdriver, param: str) -> None:
+def click_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
     """
     Syntax: `@click <selector>`
 

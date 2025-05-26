@@ -49,9 +49,9 @@ There are {{json_data.total_inputs}} pages in total.
 ![Full Page Screenshot with Outlines]({{input_data.get('screenshot_outline','').replace(output + '/', '')}})
 
 {%- for result in input_data.results -%}
-{% if input_data.config.mode|string == "axe" %}
+{% if input_data.config.runner|string == "axe" %}
 {% include 'markdown_results_include_axe.md' %}
-{% elif input_data.config.mode|string == "contrast" %}
+{% elif input_data.config.runner|string == "contrast" %}
 {% include 'markdown_results_include_contrast.md' %}
 {% endif %}
 

@@ -1,4 +1,7 @@
+from selenium import webdriver
+
 from src.action_handler import register_action
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.utils import set_window_size_to_viewport
 
@@ -11,7 +14,7 @@ PREDEFINED_RESOLUTIONS = {
 }
 
 @register_action("resize")
-def resize_action(config, driver, param):
+def resize_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@resize <size | predefined | full>`
 

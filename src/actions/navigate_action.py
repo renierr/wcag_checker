@@ -1,13 +1,15 @@
+from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from src.action_handler import register_action
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.utils import call_url
 
 
 @register_action("scroll")
-def scroll_action(config, driver, param):
+def scroll_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@scroll <direction>` or `@scroll <selector>`
 
@@ -36,7 +38,7 @@ def scroll_action(config, driver, param):
 
 
 @register_action("navigate")
-def navigate_action(config, driver, param):
+def navigate_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@navigate <url>`
 
@@ -53,7 +55,7 @@ def navigate_action(config, driver, param):
 
 
 @register_action("hover")
-def hover_action(config, driver, param):
+def hover_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@hover <selector>`
 
@@ -73,7 +75,7 @@ def hover_action(config, driver, param):
         return
 
 @register_action("back")
-def back_action(config, driver, param):
+def back_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@back`
 
@@ -85,7 +87,7 @@ def back_action(config, driver, param):
     driver.back()
 
 @register_action("refresh")
-def refresh_action(config, driver, param):
+def refresh_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@refresh`
 

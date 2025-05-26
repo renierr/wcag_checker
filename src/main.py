@@ -13,7 +13,7 @@ from rich.markdown import Markdown
 from src.logger_setup import logger
 from src.arg_parse import argument_parser
 from src.utils import get_embedded_file_path, filter_args_for_dataclass
-from src.config import Config, AxeConfig, ContrastConfig, Mode
+from src.config import Config, AxeConfig, ContrastConfig, Mode, ProcessingConfig
 from src.action_handler import print_action_documentation
 from src.actions.analyse_action import analyse_action
 from src.processing import check_run
@@ -73,17 +73,11 @@ def main():
     args_dict["mode"] = Mode(args_dict["mode"])
     args_dict["resolution"] = tuple(map(int, args_dict["resolution"].split("x")))
 
-    if args.mode == Mode.AXE:
-        filtered_args = filter_args_for_dataclass(AxeConfig, args_dict)
-        arg_config = AxeConfig(**filtered_args)
-    elif args.mode == Mode.CONTRAST:
-        filtered_args = filter_args_for_dataclass(ContrastConfig, args_dict)
-        arg_config = ContrastConfig(**filtered_args)
-    else:
-        filtered_args = filter_args_for_dataclass(Config, args_dict)
-        arg_config = Config(**filtered_args)
+    if args.mode == Mode.CHECK:
+        filtered_args = filter_args_for_dataclass(ProcessingConfig, args_dict)
+        arg_config = ProcessingConfig(**filtered_args)
+        check_run(arg_config)
 
-    check_run(arg_config)
 
 if __name__ == "__main__":
     main()

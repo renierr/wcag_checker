@@ -1,8 +1,8 @@
 #### Configuration
 - **Mode:** {{input_data.config.mode}}
-{% if input_data.config.mode|string == "axe" %}
+{% if input_data.config.runner|string == "axe" %}
 - **Axe Rules:** {{input_data.config.axe_rules}}
-{% elif input_data.config.mode|string == "contrast" %}
+{% elif input_data.config.runner|string == "contrast" %}
 - **Contrast Threshold:** {{input_data.config.contrast_threshold}}
 - **Selector:** `{{input_data.config.selector}}`
 - **Alternate Color Suggestion:** {{"Enabled" if input_data.config.alternate_color_suggestion else "Disabled"}}

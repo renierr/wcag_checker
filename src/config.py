@@ -18,9 +18,17 @@ class ColorSource(Enum):
         return self.value
 
 class Mode(Enum):
+    CHECK = "check"
     CONTRAST = "contrast"
     AXE = "axe"
     ACTIONS = "actions"
+
+    def __str__(self):
+        return self.value
+
+class Runner(Enum):
+    AXE = "axe"
+    CONTRAST = "contrast"
 
     def __str__(self):
         return self.value
@@ -42,6 +50,7 @@ class Config:
 
 @dataclass
 class ProcessingConfig(Config):
+    runner: Runner = Runner.AXE
     login: str = ""
     inputs: List[str] = field(default_factory=list)
     json: bool = True
@@ -51,6 +60,14 @@ class ProcessingConfig(Config):
     resolution: Tuple[int, int] = (1920, 1080)
     resolution_width: int = field(init=False)
     resolution_height: int = field(init=False)
+    axe_rules: Optional[str] = "wcag22aa"
+    selector: Optional[str] = "a, button:not([disabled])"
+    contrast_threshold: float = 4.5
+    use_canny_edge_detection: bool = False
+    use_antialias: bool = False
+    report_level: ReportLevel = ReportLevel.INVALID
+    alternate_color_suggestion: bool = False
+    color_source: ColorSource = ColorSource.ELEMENT
 
     def __post_init__(self):
         self.resolution_width, self.resolution_height = self.resolution

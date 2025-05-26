@@ -10,7 +10,7 @@ from src.logger_setup import logger
 from src.utils import define_get_path_script, get_csspath, set_window_size_to_viewport
 
 
-def own_mode_contrast(config: Config, driver: webdriver, results: list, screenshots_folder: Path, url_idx: int) -> Path|None:
+def own_mode_contrast(config: ProcessingConfig, driver: webdriver, results: list, screenshots_folder: Path, url_idx: int) -> Path|None:
     """
     This function checks the contrast of elements on a webpage using Selenium.
 
@@ -21,10 +21,6 @@ def own_mode_contrast(config: Config, driver: webdriver, results: list, screensh
     :param url_idx: Index of the URL being processed.
     :return: Path to the full-page screenshot with outlines of elements.
     """
-
-    if not isinstance(config, ContrastConfig):
-        logger.error("Config is not an instance of ContrastConfig. Cannot run contrast mode.")
-        return None
 
     # find visible elements on page
     elements = [element for element in driver.find_elements(By.CSS_SELECTOR, config.selector) if element.is_displayed()]

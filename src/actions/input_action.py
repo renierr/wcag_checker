@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.common import NoSuchElementException
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
@@ -44,6 +45,7 @@ special_chars = {
     "<COMMAND>": Keys.COMMAND,
     "<INSERT>": Keys.INSERT,
     "<SPACE>": Keys.SPACE,
+    "<PLUS>": Keys.ADD,
 }
 special_keys_doc = ", ".join([f"`{key}`" for key in special_chars.keys()])
 
@@ -151,3 +153,49 @@ def send_keys_action(config: ProcessingConfig, driver: webdriver, param: str | N
         logger.warning(f"No element found for send_keys action with selector: {selector}")
         return
 send_keys_action.__doc__ = send_keys_action.__doc__.format(special_keys_doc=special_keys_doc)
+
+@register_action("send_key_combination")
+def send_key_combination(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@send_key_combination <selector>=<key_combination>` or `@send_key_combination <key_combination>`
+
+    Sends a key combination to the element identified by the CSS selector `<selector>`.
+    Or if no selector is provided, it sends the key combination to the active element.
+
+    The key combination should be a string of keys separated by '+'.
+
+    You can use special keys via placeholders:
+    {special_keys_doc}
+
+    ```
+    @send_key_combination: #element-id=<CTRL>+<SHIFT>+x
+    @send_key_combination: <CTRL>+a
+    ```
+    """
+    if not param:
+        logger.warning("Invalid parameter for send_key_combination action.")
+        return
+
+    selector, key_combination = parse_param_to_key_value(param)
+    logger.debug(f"Sending key combination '{key_combination}' to element with selector '{selector}'")
+
+    try:
+        keys = key_combination.split('+')
+        action_chain = ActionChains(driver)
+        if selector:
+            element = driver.find_element(By.CSS_SELECTOR, selector)
+            action_chain.click(element)
+
+        # Press and hold special keys
+        for key in keys:
+            action_chain.key_down(special_chars.get(key, key))
+
+        # Release all keys
+        for key in keys:
+            action_chain.key_down(special_chars.get(key, key))
+
+        action_chain.perform()
+    except NoSuchElementException:
+        logger.warning(f"No element found for send_key_combination action with selector: {selector}")
+        return
+send_key_combination.__doc__ = send_key_combination.__doc__.format(special_keys_doc=special_keys_doc)

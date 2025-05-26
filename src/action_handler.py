@@ -154,8 +154,10 @@ def parse_param_to_key_value(param: str | None) -> tuple[str, str] | None:
     If the string contains '=', split it into key and value.
     Otherwise, return None.
     """
-    if not param or '=' not in param:
-        return None
+    if not param:
+        return None, None
+    if '=' not in param:
+        return None, param
     try:
         key, value = param.split('=', 1)
         # Replace any variables in the value with their values from action_context

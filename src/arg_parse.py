@@ -5,7 +5,8 @@ from rich_argparse import RawTextRichHelpFormatter
 from gettext import gettext as _
 from argparse import SUPPRESS, OPTIONAL, ZERO_OR_MORE
 
-from src.config import ColorSource, Mode, ReportLevel
+from src.config import ColorSource, Mode, ReportLevel, Runner
+
 
 class CustomArgparseFormatter(RawTextRichHelpFormatter):
 
@@ -70,7 +71,7 @@ def argument_parser() -> argparse.ArgumentParser:
                                           help="Enable or disable HTML Report output.", default=True)
     parent_processing_parser.add_argument("--simulate", "-s", type=str,
                                           help="Simulate checking; use JSON as base to generate reports (no website calls)")
-    parent_processing_parser.add_argument("--resolution", "-r", type=str,
+    parent_processing_parser.add_argument("--resolution", type=str,
                                           help="Set the Resolution the remote controlled Browser will default to. Format <width>x<height>", default="1920x1080")
 
     subparsers = parser.add_subparsers(dest="mode", required=False,
@@ -85,26 +86,29 @@ def argument_parser() -> argparse.ArgumentParser:
                                             parents=[parent_processing_parser],
                                             help="Run the WCAG checks for input with reporting.",
                                             formatter_class=CustomArgparseFormatter)
+    check_parser.add_argument("--runner", "-r", type=Runner,
+                              help="Default runner to check the pages, used unless overridden via action.",
+                              choices=list(Runner), nargs="?", default=Runner.AXE)
     check_parser.add_argument("--contrast_threshold", type=float,
-                                 help="The minimum contrast ratio to meet WCAG requirements.", nargs="?", default=4.5)
+                                 help="[bold yellow](for contrast runner)[/bold yellow]The minimum contrast ratio to meet WCAG requirements.", nargs="?", default=4.5)
     check_parser.add_argument("--use_canny_edge_detection", action="store_true",
-                                 help="Apply and use Canny edge detection on processed images.")
+                                 help="[bold yellow](for contrast runner)[/bold yellow]Apply and use Canny edge detection on processed images.")
     check_parser.add_argument("--use_antialias", action="store_true",
-                                 help="Apply and use antialias on processed images.")
+                                 help="[bold yellow](for contrast runner)[/bold yellow]Apply and use antialias on processed images.")
     check_parser.add_argument("--selector", type=str,
-                                 help="CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
+                                 help="[bold yellow](for contrast runner)[/bold yellow]CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
     check_parser.add_argument("--color_source", type=ColorSource,
-                                 help="The source to extract the colors from to check.",
+                                 help="[bold yellow](for contrast runner)[/bold yellow]The source to extract the colors from to check.",
                                  choices=list(ColorSource), nargs="?", default=ColorSource.ELEMENT)
     check_parser.add_argument("--alternate_color_suggestion", action="store_true",
-                                 help="Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
+                                 help="[bold yellow](for contrast runner)[/bold yellow]Use alternative color suggestion algorithm (RGB color basis and computation heavy) - default is HSL color spectrum.")
     check_parser.add_argument("--report_level", type=ReportLevel,
-                                 help="The level of which to report.",
+                                 help="[bold yellow](for contrast runner)[/bold yellow]The level of which to report.",
                                  choices=list(ReportLevel), nargs="?", default=ReportLevel.INVALID)
     check_parser.add_argument("--axe_rules", type=str,
                             default="wcag22aa",
                             help=textwrap.dedent("""\
-                                Define axe rules (comma separated) that should be checked. set empty to use all axe rules.
+                                [bold yellow](for axe runner)[/bold yellow]Define axe rules (comma separated) that should be checked. set empty to use all axe rules.
                                 see: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md#axe-core-tags for rule names
                                 example: --axe_rules "wcag2aa, wcag21aa, wcag22aa"
                                 """).strip())

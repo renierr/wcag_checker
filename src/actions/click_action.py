@@ -28,6 +28,27 @@ def click_action(config: ProcessingConfig, driver: webdriver, param: str | None)
         logger.warning(f"No element found for click action with selector: {param}")
         return
 
+@register_action("click_double")
+def click_double_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@click_double <selector>`
+
+    Double-Clicks the element identified by the CSS selector `<selector>`.
+    ```
+    @click_double: #double-click-item
+    ```
+    """
+    if not param:
+        logger.warning("No selector provided for click_double action.")
+        return
+    try:
+        elem = driver.find_element(By.CSS_SELECTOR, param)
+        webdriver.ActionChains(driver).double_click(elem).perform()
+    except NoSuchElementException as e:
+        logger.warning(f"No element found for click_double action with selector: {param}")
+        return
+
+
 @register_action("click_context")
 def click_context_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """

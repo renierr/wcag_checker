@@ -72,86 +72,81 @@ html_template = """
     <title>WCAG Report {{timestamp}}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, Arial, sans-serif;
             line-height: 1.6;
             margin: auto;
             padding: 20px;
             max-width: 1200px;
             color: #333;
-            background-color: #f9f9f9;
+            background-color: #f4f7fa;
         }
         table {
+            width: 100%;
             border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
+            text-align: left;
         }
         th {
-            background-color: #f4f4f4;
-            text-align: left;
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
         }
         img {
             max-width: 100%;
             height: auto;
-            border: 1px dashed #a1a1a1;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         img[alt^=\"Element\"] {
             cursor: pointer;
-            transition: transform 0.3s ease;
         }
         img.large {
             transform: scale(4);
-            transform-origin: left;
+            transform-origin: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
         .color-point {
             display: inline-block;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        .toc {
-            background-color: #f4f4f4;
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 5px;
-        }
-        .toc h2 {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        .toc ul {
-            list-style: none;
-            padding-left: 0;
-        }
-        .toc ul li {
-            margin: 5px 0;
-        }
-        .toc ul li a {
-            text-decoration: none;
-            color: #007bff;
-            font-size: 1em;
-            transition: color 0.3s ease;
-        }
-        .toc ul li a:hover {
-            color: #0056b3;
-        }
-        .toc ul li ul {
-            margin-left: 20px;
-            border-left: 2px solid #ddd;
-            padding-left: 10px;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
         }
         blockquote {
-          font-style: italic;
-          color: #555;
-          border-left: 4px solid #ccc;
-          margin: 1.5em 10px;
-          padding: 0.5em 10px;
-          background-color: #f9f9f9;
+            font-style: italic;
+            color: #555;
+            border-left: 4px solid #007bff;
+            margin: 1.5em 10px;
+            padding: 0.5em 10px;
+            background-color: #f9f9f9;
         }
-
         blockquote p {
           margin: 0;
+        }
+        li {
+            font-size: 14px;
+        }
+        li > p {
+            margin: 0;
+        }
+        a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>

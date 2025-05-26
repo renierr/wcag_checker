@@ -56,8 +56,6 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
         # if no param is given, we assume the current page is the one to analyse
         page_title = driver.title
 
-    browser_width, browser_height = driver.get_window_size().values()
-
     # take full-pagescreenshot
     full_page_screenshot_path = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot.png"
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path}")
@@ -71,6 +69,7 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
         full_page_screenshot_path_outline = runner_contrast(config, driver,
                                                             results, screenshots_folder, url_idx)
     # save results
+    browser_width, browser_height = driver.get_window_size().values()
     entry = {
         "url": param,
         "index": url_idx,

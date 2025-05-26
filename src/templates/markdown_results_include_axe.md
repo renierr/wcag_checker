@@ -16,20 +16,20 @@ No violations found.
 {% endif %}
 {%- if violation.nodes %}
 
-**Affected Elements:**
 {% for node in violation.nodes %}
-Element {{ node.element_info.index }} [ `{{ node.target | join(', ') }}` ]
+*Element {{ node.element_info.index }}*     
+`{{ node.target | join(', ') }}` 
 
 {{ node.failureSummary.replace("Fix any of the following:\n  ", "") }}
 
-{% if node.any and node.any[0] and node.any[0].data.fgColor -%}_Foreground Color:_ {{ node.any[0].data.fgColor | create_color_span }}    {% endif %}
-{% if node.any and node.any[0] and node.any[0].data.bgColor -%}_Background Color:_ {{ node.any[0].data.bgColor | create_color_span }}    {% endif %}
+{% if node.any and node.any[0] -%}
+{% if node.any[0].data.fgColor -%}Foreground: {{ node.any[0].data.fgColor | create_color_span }}, {% endif -%}
+{% if node.any[0].data.bgColor -%}Background: {{ node.any[0].data.bgColor | create_color_span }} {% endif %}
+{% endif %}
 
 {% if node.element_info.screenshot -%}
 ![Element Screenshot]({{node.element_info.screenshot.replace(output + '/', '')}})
-{% endif -%}
-
----
+{% endif %}
 
 {% endfor %}
 {% endif %}

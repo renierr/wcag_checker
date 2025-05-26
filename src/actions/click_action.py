@@ -8,7 +8,7 @@ from src.logger_setup import logger
 from src.utils import wait_page_loaded
 
 @register_action("click")
-def click_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
+def click_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
     """
     Syntax: `@click <selector>`
 
@@ -26,4 +26,24 @@ def click_action(config: ProcessingConfig, driver: webdriver, param: str) -> Non
         wait_page_loaded(driver)
     except NoSuchElementException as e:
         logger.warning(f"No element found for click action with selector: {param}")
+        return
+
+@register_action("click_context")
+def click_context_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@click_context <selector>`
+
+    Right Click (context) the element identified by the CSS selector `<selector>`.
+    ```
+    @click_context: #context-menu-item
+    ```
+    """
+    if not param:
+        logger.warning("No selector provided for click_context action.")
+        return
+    try:
+        elem = driver.find_element(By.CSS_SELECTOR, param)
+        webdriver.ActionChains(driver).context_click(elem).perform()
+    except NoSuchElementException as e:
+        logger.warning(f"No element found for click_context action with selector: {param}")
         return

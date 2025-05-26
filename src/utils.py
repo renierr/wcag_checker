@@ -325,3 +325,15 @@ def wait_page_loaded(driver: webdriver) -> None:
 def filter_args_for_dataclass(cls, args_dict):
     cls_fields = {f.name for f in fields(cls)}
     return {key: value for key, value in args_dict.items() if key in cls_fields}
+
+def trim_string_to_length(s: str, length: int) -> str:
+    """
+    Trim a string to a specified length, adding an ellipsis if it exceeds the length.
+
+    :param s: The string to trim.
+    :param length: The maximum length of the string.
+    :return: The trimmed string.
+    """
+    if len(s) > length:
+        return s[:length - 3] + "..."
+    return s

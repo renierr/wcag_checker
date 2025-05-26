@@ -11,3 +11,4 @@
 - **Report Level:** {{input_data.config.report_level}}
 {% endif %}
 - **Base Resolution:** {{input_data.config.resolution_width}}x{{input_data.config.resolution_height}}
+- **Browser Resolution:** {{input_data.browser_width}}x{{input_data.browser_height}}

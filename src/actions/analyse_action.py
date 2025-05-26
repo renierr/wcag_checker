@@ -56,6 +56,7 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
         # if no param is given, we assume the current page is the one to analyse
         page_title = driver.title
 
+    browser_width, browser_height = driver.get_window_size().values()
 
     # take full-pagescreenshot
     full_page_screenshot_path = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot.png"
@@ -76,6 +77,8 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
         "config": config.__dict__,
         "results": results,
         "title": page_title if 'page_title' in locals() else None,
+        "browser_width": browser_width,
+        "browser_height": browser_height
     }
     if full_page_screenshot_path:
         entry["screenshot"] = full_page_screenshot_path.as_posix()
@@ -98,8 +101,8 @@ def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: webdriver,
     # build new config object with options set
     base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
     check_config = ProcessingConfig(
-        **{key: value for key, value in vars(config).items() if key in base_fields},
-        **check_options
+        **{key: value for key, value in vars(config).items() if key in base_fields and key not in check_options},
+        **{key: value for key, value in check_options.items() if key in base_fields}
     )
     check_config.runner = runner
     # analyse the page with the given axe config

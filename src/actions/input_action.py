@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.common import NoSuchElementException
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
@@ -11,8 +12,40 @@ from src.utils import wait_page_loaded
 special_chars = {
     "<CR>": "\r",
     "<LF>": "\n",
-    "<TAB>": "\t"
+    "<TAB>": "\t",
+    "<ESC>": Keys.ESCAPE,
+    "<BACKSPACE>": Keys.BACKSPACE,
+    "<DELETE>": Keys.DELETE,
+    "<ENTER>": Keys.ENTER,
+    "<SHIFT>": Keys.SHIFT,
+    "<CTRL>": Keys.CONTROL,
+    "<ALT>": Keys.ALT,
+    "<F1>": Keys.F1,
+    "<F2>": Keys.F2,
+    "<F3>": Keys.F3,
+    "<F4>": Keys.F4,
+    "<F5>": Keys.F5,
+    "<F6>": Keys.F6,
+    "<F7>": Keys.F7,
+    "<F8>": Keys.F8,
+    "<F9>": Keys.F9,
+    "<F10>": Keys.F10,
+    "<F11>": Keys.F11,
+    "<F12>": Keys.F12,
+    "<ARROW_UP>": Keys.ARROW_UP,
+    "<ARROW_DOWN>": Keys.ARROW_DOWN,
+    "<ARROW_LEFT>": Keys.ARROW_LEFT,
+    "<ARROW_RIGHT>": Keys.ARROW_RIGHT,
+    "<HOME>": Keys.HOME,
+    "<END>": Keys.END,
+    "<PAGE_UP>": Keys.PAGE_UP,
+    "<PAGE_DOWN>": Keys.PAGE_DOWN,
+    "<META>": Keys.META,
+    "<COMMAND>": Keys.COMMAND,
+    "<INSERT>": Keys.INSERT,
+    "<SPACE>": Keys.SPACE,
 }
+special_keys_doc = ", ".join([f"`{key}`" for key in special_chars.keys()])
 
 @register_action("input")
 def input_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
@@ -20,10 +53,12 @@ def input_action(config: ProcessingConfig, driver: webdriver, param: str) -> Non
     Syntax: `@input <selector>=<text>`
 
     Types the given `<text>` into the input field identified by `<selector>`.
+
+    You can use special keys via placeholders: {special_keys_doc}
+
     ```
     @input #username-field=My input text<LF>
     ```
-    You can use special characters `<LF>` for new lines or `<TAB>` for tabs.
     """
     if not param or "=" not in param:
         logger.warning("Invalid parameter for input action. Expected format: 'selector=value'.")
@@ -41,6 +76,8 @@ def input_action(config: ProcessingConfig, driver: webdriver, param: str) -> Non
     except NoSuchElementException:
         logger.warning(f"Element with selector '{selector}' is not displayed.")
         return
+
+input_action.__doc__ = input_action.__doc__.format(special_keys_doc=special_keys_doc)
 
 @register_action("clear")
 def clear_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
@@ -84,3 +121,33 @@ def select_action(config: ProcessingConfig, driver: webdriver, param: str) -> No
     except NoSuchElementException:
         logger.warning(f"No element found for select action with selector: {selector}")
         return
+
+@register_action("send_keys")
+def send_keys_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@send_keys <selector>=<keys>`
+
+    Sends keys to the element identified by the CSS selector `<selector>`.
+
+    You can use special keys via placeholders:
+    {special_keys_doc}
+    ```
+    @send_keys: #element-id=Hello World<CR>
+    ```
+    """
+    if not param or "=" not in param:
+        logger.warning("Invalid parameter for send_keys action. Expected format: 'selector=keys'.")
+        return
+
+    selector, keys = parse_param_to_key_value(param)
+    logger.debug(f"Sending keys '{keys}' to element with selector '{selector}'")
+
+    try:
+        element = driver.find_element(By.CSS_SELECTOR, selector)
+        for placeholder, char in special_chars.items():
+            keys = keys.replace(placeholder, char)
+        element.send_keys(keys)
+    except NoSuchElementException:
+        logger.warning(f"No element found for send_keys action with selector: {selector}")
+        return
+send_keys_action.__doc__ = send_keys_action.__doc__.format(special_keys_doc=special_keys_doc)

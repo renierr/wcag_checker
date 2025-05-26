@@ -10,13 +10,13 @@ from src.config import Config, AxeConfig, ContrastConfig, ColorSource, ConfigEnc
 class CustomArgparseFormatter(RawTextRichHelpFormatter):
 
     def _get_help_string(self, action):
-        help = action.help or ''
-        if '%(default)' not in help:
+        _help = action.help or ''
+        if '%(default)' not in _help:
             if action.default is not SUPPRESS:
                 defaulting_nargs = [OPTIONAL, ZERO_OR_MORE]
                 if action.option_strings or action.nargs in defaulting_nargs:
-                    help += _('\n[argparse.prog](default: %(default)s)[/]')
-        return help
+                    _help += _('\n[argparse.prog](default: %(default)s)[/]')
+        return _help
 
 
 def argument_parser() -> argparse.ArgumentParser:
@@ -25,13 +25,13 @@ def argument_parser() -> argparse.ArgumentParser:
     ============
 
     This tool checks the WCAG rules or contrast ratio of elements on a webpage and generates reports.    
-    It has a Axe mode to use Axe WCAG checker on the provided pages (see mode option)
 
-    It uses Selenium WebDriver to interact with the webpage (a Chrome Browser is needed).
+    It uses Selenium WebDriver to interact with the webpage (a Chrome Browser is needed).    
+    Actions can be used to process the webpage and check for WCAG compliance or contrast issues.
 
     The report can be generated in JSON, Markdown and HTML format.
 
-    Select a mode to run the Tool with, call option --help after mode to see specific options for them.    
+    Select a mode to run the Tool, call --help after mode to see specific options for them.    
     Be aware that global options are defined before the mode.
     """)
 

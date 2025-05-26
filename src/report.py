@@ -38,7 +38,7 @@ def build_markdown(config: Config, json_data: dict) -> str:
     env.filters['create_color_span'] = create_color_span
     env.filters['count_violations'] = count_violations
 
-    template_name = "markdown_axe_report_template.md" if config.mode == Mode.AXE else "markdown_contrast_report_template.md"
+    template_name = "markdown_report.md"
     md = (env.get_template(template_name)
           .render(config=config, json_data=json_data, output=config.output))
     return md
@@ -53,13 +53,12 @@ def generate_markdown_report(config: Config, json_data: dict, markdown_data: str
     :param markdown_data: Optional markdown data to use instead of json_data. (pre build markdown)
     :return: None
     """
-    output = config.output
     if markdown_data is None:
-        report = build_markdown(output, json_data)
+        report = build_markdown(config, json_data)
     else:
         report = markdown_data
 
-    results_file = Path(output) /  f"{config.mode.value}_results.md"
+    results_file = Path(config.output) /  f"wcag_results.md"
     with results_file.open("w", encoding="utf-8") as markdown_file:
         markdown_file.write(report)
 
@@ -168,9 +167,8 @@ def generate_html_report(config: Config, json_data: dict, markdown_data: str = N
     :param markdown_data: Optional markdown data to use instead of json_data. (pre build markdown)
     :return: None
     """
-    output = config.output
     if markdown_data is None:
-        report = build_markdown(output, json_data)
+        report = build_markdown(config, json_data)
     else:
         report = markdown_data
 
@@ -178,7 +176,7 @@ def generate_html_report(config: Config, json_data: dict, markdown_data: str = N
     html_content = mistune.html(report)
 
     logger.debug("Generating HTML report from template direct to file")
-    html_file_path = Path(output) / f"{config.mode.value}_results.html"
+    html_file_path = Path(config.output) / f"wcag_results.html"
     with html_file_path.open("w", encoding="utf-8") as html_file:
         Template(html_template).stream(
             html_content=html_content,

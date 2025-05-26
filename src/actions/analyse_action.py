@@ -96,19 +96,19 @@ def analyse_axe_action(config: Config, driver: webdriver, param: str|None) -> di
     """
 
     axe_options = parse_param_to_json(param)
-    if not isinstance(config, AxeConfig) and not axe_options:
+    if not isinstance(config, AxeConfig) and axe_options is None:
         logger.error("No Axe configuration provided for @analyse_axe action.")
         return None
 
     # build new config object with options set
     base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
-    axe_config = ContrastConfig(
+    axe_config = AxeConfig(
         **{key: value for key, value in vars(config).items() if key in base_fields},
         **axe_options
     ) if axe_options else config
     axe_config.mode = Mode.AXE
     # analyse the page with the given axe config
-    analyse_action(axe_config, driver, None)
+    return analyse_action(axe_config, driver, None)
 
 
 
@@ -122,11 +122,12 @@ def analyse_contrast_action(config: Config, driver: webdriver, param: str|None) 
     or it can be omitted to use the default Contrast configuration if provided on startup.
     ```
     @analyse_contrast: {contrast_threshold: 4.5, selector: "a, button:not([disabled])"}
+    @analyse_axe: {}
     ```
     """
 
     contrast_options = parse_param_to_json(param)
-    if not isinstance(config, ContrastConfig) and not contrast_options:
+    if not isinstance(config, ContrastConfig) and contrast_options is None:
         logger.error("No Contrast configuration provided for @analyse_contrast action.")
         return None
 

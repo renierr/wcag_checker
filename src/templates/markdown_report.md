@@ -19,7 +19,8 @@ There are {{json_data.total_inputs}} pages in total.
 
 **Page Overview:**  
 {% for input_data in json_data.inputs -%}
-- [{{ input_data.index }}: {{ input_data.title if input_data.title else "Page " ~ input_data.index }}](#page-{{input_data.index}}) ({{ input_data.results | count_violations }} violations)
+{% set violations = input_data.results | count_violations %}
+- {% if violations > 0 %}⚠️{% else %}✅{% endif %} [{{ input_data.index }}: {{ input_data.title if input_data.title else "Page " ~ input_data.index }}](#page-{{input_data.index}}) ({{ violations }} violations)
 {% endfor %}
 
 {% for input_data in json_data.inputs -%}

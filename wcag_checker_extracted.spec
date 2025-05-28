@@ -36,7 +36,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='wcag_checker_extracted',
+    name='wcag_checker',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -57,3 +57,7 @@ coll = COLLECT(
     upx_exclude=[],
     name='main',
 )
+
+import zip_executable
+zip_executable.main()
+

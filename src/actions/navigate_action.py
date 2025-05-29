@@ -80,11 +80,25 @@ def back_action(config: ProcessingConfig, driver: webdriver, param: str | None) 
     Syntax: `@back`
 
     Navigates back to the previous page in the browser history.
+    Like pressing the back button in the Browser Navigation.
     ```
     @back
     ```
     """
     driver.back()
+
+@register_action("forward")
+def forward_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@forward`
+
+    Navigates forward to the next page in the browser history.
+    Like pressing the next button in the Browser Navigation.
+    ```
+    @forward
+    ```
+    """
+    driver.forward()
 
 @register_action("refresh")
 def refresh_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
@@ -92,6 +106,7 @@ def refresh_action(config: ProcessingConfig, driver: webdriver, param: str | Non
     Syntax: `@refresh`
 
     Refreshes the current page.
+    Like pressing the refresh button in the Browser Navigation.
     ```
     @refresh
     ```

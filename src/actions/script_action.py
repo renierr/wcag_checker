@@ -32,3 +32,27 @@ def script_action(config: ProcessingConfig, driver: webdriver, param: str | None
         driver.execute_script(parsed_param)
     except Exception as e:
         logger.error(f"Error executing script: {e}")
+
+# language=JS
+log_script = """console.log(arguments[0]);"""
+
+@register_action("log")
+def log_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@log: <message>`
+
+    Log a message to the console.
+    ```
+    @log: This is a log message.
+    ```
+    """
+    if not param:
+        logger.error("@log action: No message provided to log.")
+        return
+
+    try:
+        parsed_param = parse_param_to_string(param)
+        driver.execute_script(log_script, parsed_param)
+    except Exception as e:
+        logger.error(f"Error logging message: {e}")
+

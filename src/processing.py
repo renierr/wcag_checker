@@ -8,6 +8,7 @@ from selenium import webdriver
 
 from src.action_handler import action_registry
 from src.actions.analyse_action import analyse_action
+from src.browser_console_log_handler import browser_console_log, handle_browser_console_log, get_browser_console_log
 from src.config import Config, ProcessingConfig, ConfigEncoder, ReportLevel, Runner
 from src.logger_setup import logger
 from src.report import build_markdown, generate_markdown_report, generate_html_report
@@ -58,10 +59,13 @@ def check_run(config: ProcessingConfig) -> None:
             options.add_argument("--no-sandbox")
             options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--disable-gpu")
+            options.enable_bidi = True
             if config.browser == "edge":
                 driver = webdriver.Edge(options=options)
             else:
                 driver = webdriver.Chrome(options=options)
+
+            driver.script.add_console_message_handler(handle_browser_console_log)
             try:
                 # first go to login url if defined
                 if config.login:
@@ -108,6 +112,7 @@ def check_run(config: ProcessingConfig) -> None:
                     "base_url": base_url,
                     "total_inputs": len(url_data),
                     "inputs": url_data,
+                    "browser_console_log": get_browser_console_log(),
                 })
 
                 if config.json:

@@ -60,3 +60,16 @@ There are {{json_data.total_inputs}} pages in total.
 
 {% endfor -%}
 {% endfor -%}
+
+{% if json_data.browser_console_log %}
+<section>
+<details>
+<summary>Browser Logs</summary>
+
+```json
+{{ json_data.browser_console_log | tojson(indent=2) }}
+```
+
+</details>
+</section>
+{% endif %}

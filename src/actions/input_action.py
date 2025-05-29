@@ -199,3 +199,25 @@ def send_key_combination(config: ProcessingConfig, driver: webdriver, param: str
         logger.warning(f"No element found for send_key_combination action with selector: {selector}")
         return
 send_key_combination.__doc__ = send_key_combination.__doc__.format(special_keys_doc=special_keys_doc)
+
+
+@register_action("submit")
+def submit_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+    """
+    Syntax: `@submit <selector>`
+
+    Submits the form identified by the CSS selector `<selector>`.
+    ```
+    @submit: #form-id
+    ```
+    """
+    if not param:
+        logger.warning("No selector provided for submit action.")
+        return
+
+    try:
+        element = driver.find_element(By.CSS_SELECTOR, param)
+        element.submit()
+    except NoSuchElementException:
+        logger.warning(f"No element found for submit action with selector: {param}")
+        return

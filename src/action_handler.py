@@ -145,7 +145,7 @@ def parse_param_to_json(param: str | None) -> dict | None:
         logger.error(f"JSON decoding error: {e}")
         return None
 
-def parse_param_to_key_value(param: str | None) -> tuple[str, str] | None:
+def parse_param_to_key_value(param: str | None) -> tuple[str | None, str | None]:
     """
     Parse a parameter string to a key-value tuple.
     Use action_context to replace any variables with syntax ${...}.

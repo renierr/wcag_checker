@@ -92,7 +92,10 @@ def print_action_documentation():
     for action, func in action_registry.get_registered_actions().items():
         actions_by_func[func].append(action)
 
-    for func, actions in actions_by_func.items():
+    for func, actions in sorted(
+        {func: sorted(actions) for func, actions in actions_by_func.items()}.items(),
+        key=lambda item: item[1][0] if item[1] else ""
+    ):
         doc = func.__doc__ or "No description available"
         markdown_doc = Markdown(doc.strip())
         table.add_row(", ".join(actions), markdown_doc)

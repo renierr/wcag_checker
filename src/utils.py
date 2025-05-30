@@ -230,14 +230,14 @@ def set_window_size_to_viewport(driver: webdriver) -> None:
     :param driver: The Selenium WebDriver instance.
     """
     dimensions = driver.execute_script(script_viewport_size)
-    scrollWidth = dimensions["scrollWidth"]
-    scrollHeight = dimensions["scrollHeight"]
+    scroll_width = dimensions["scrollWidth"]
+    scroll_height = dimensions["scrollHeight"]
     browser_ui_height = dimensions["browserUIHeight"]
     browser_ui_width = dimensions["browserUIWidth"]
-    scrollWidth += browser_ui_width  # Adjust for browser UI width
-    scrollHeight += browser_ui_height  # Adjust for browser UI height
-    driver.set_window_size(scrollWidth, scrollHeight)
-    logger.debug(f"Browser window set to viewport size: {scrollWidth}x{scrollHeight} (including UI: {browser_ui_width}x{browser_ui_height})")
+    scroll_width += browser_ui_width  # Adjust for browser UI width
+    scroll_height += browser_ui_height  # Adjust for browser UI height
+    driver.set_window_size(scroll_width, scroll_height)
+    logger.debug(f"Browser window set to viewport size: {scroll_width}x{scroll_height} (including UI: {browser_ui_width}x{browser_ui_height})")
 
 def hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
     hex_color = hex_color.lstrip('#')

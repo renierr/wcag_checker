@@ -28,9 +28,9 @@ def get_element_colors_old(element: WebElement) -> tuple:
     return parse_color(foreground_color), parse_color(background_color)
 
 from selenium.webdriver.remote.webelement import WebElement
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 
-def get_element_colors(driver: webdriver, element: WebElement) -> tuple:
+def get_element_colors(driver: WebDriver, element: WebElement) -> tuple:
     """
     Ermittelt Vordergrund- und Hintergrundfarben eines Elements mit JavaScript.
 
@@ -121,7 +121,7 @@ def log_colored_char(color1: tuple[int, int, int], color2: tuple[int, int, int],
     log_message = f"\n\t{reset_color}⤷ Colors checked fg: {fg_color}{char}{reset_color} {hex_color1} | bg: {bg_color}{char}{reset_color} {hex_color2}"
     return log_message
 
-def define_get_path_script(driver: webdriver) -> None:
+def define_get_path_script(driver: WebDriver) -> None:
     """
     Defines the JavaScript function getXPath in the browser context, if it does not already exist."
 
@@ -179,7 +179,7 @@ def define_get_path_script(driver: webdriver) -> None:
     driver.execute_script(script)
 
 
-def get_xpath(driver: webdriver, element: WebElement) -> str:
+def get_xpath(driver: WebDriver, element: WebElement) -> str:
     """
     Determines the full XPath of a WebElement using JavaScript.
 
@@ -189,7 +189,7 @@ def get_xpath(driver: webdriver, element: WebElement) -> str:
     """
     return driver.execute_script("return getXPath(arguments[0]);", element)
 
-def get_csspath(driver: webdriver, element: WebElement) -> str:
+def get_csspath(driver: WebDriver, element: WebElement) -> str:
     """
     Determines the full CSS Path of a WebElement using JavaScript.
 
@@ -199,7 +199,7 @@ def get_csspath(driver: webdriver, element: WebElement) -> str:
     """
     return driver.execute_script("return getCSSPath(arguments[0]);", element)
 
-def reset_window_size(driver: webdriver, width: int = 1920, height: int = 1080) -> None:
+def reset_window_size(driver: WebDriver, width: int = 1920, height: int = 1080) -> None:
     """
     Reset the browser window size to the default dimensions.
 
@@ -222,7 +222,7 @@ window.scrollTo(0, 0);
 return dimensions;
 """
 
-def set_window_size_to_viewport(driver: webdriver) -> None:
+def set_window_size_to_viewport(driver: WebDriver) -> None:
     """
     Set the browser window size to match the viewport dimensions.
     This is necessary to capture the full page screenshot correctly.
@@ -291,7 +291,7 @@ def get_embedded_file_path(filename):
         return Path(sys._MEIPASS) / filename
     return filename
 
-def take_element_Screenshot(driver: webdriver, element: WebElement, index: int, screenshot_path: Path) -> None:
+def take_element_Screenshot(driver: WebDriver, element: WebElement, index: int, screenshot_path: Path) -> None:
     """
     Take a screenshot of a specific WebElement and save it to the specified path.
     :param driver: Selenium WebDriver instance.
@@ -305,12 +305,12 @@ def take_element_Screenshot(driver: webdriver, element: WebElement, index: int, 
     logger.debug(f"[Element {index}] Screenshot saved to: {screenshot_path}")
 
 
-def get_full_base_url(driver: webdriver) -> str:
+def get_full_base_url(driver: WebDriver) -> str:
     parsed_url = urlparse(driver.current_url)
     base_url = f"{parsed_url.scheme}://{parsed_url.netloc}"
     return base_url
 
-def call_url(driver: webdriver, url: str) -> None:
+def call_url(driver: WebDriver, url: str) -> None:
     """
     Call a URL in the browser.
     Wait until the page is fully loaded before proceeding.
@@ -329,7 +329,7 @@ def call_url(driver: webdriver, url: str) -> None:
     driver.get(url)
     wait_page_loaded(driver)
 
-def wait_page_loaded(driver: webdriver) -> None:
+def wait_page_loaded(driver: WebDriver) -> None:
     WebDriverWait(driver, 10).until(
         lambda d: d.execute_script(
             "return document.readyState === 'complete' && "

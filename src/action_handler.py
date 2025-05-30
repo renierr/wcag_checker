@@ -3,7 +3,8 @@ from collections import defaultdict
 from rich.markdown import Markdown
 from rich.table import Table
 from rich.console import Console
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
+
 
 from src.config import Config, ProcessingConfig
 from src.logger_setup import logger
@@ -40,7 +41,7 @@ class ActionRegistry:
             raise ValueError(f"Action '{name}' is already registered.")
         self._actions[name] = func
 
-    def execute(self, config: ProcessingConfig, driver: webdriver, action_str: str) -> dict | None:
+    def execute(self, config: ProcessingConfig, driver: WebDriver, action_str: str) -> dict | None:
         """Execute a registered action."""
         if not action_str.startswith("@"):
             logger.warning(f"Invalid action format: {action_str}")

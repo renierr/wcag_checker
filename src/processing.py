@@ -5,6 +5,7 @@ from pathlib import Path
 
 import selenium.common
 from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import action_registry
 from src.actions.analyse_action import analyse_action
@@ -170,7 +171,7 @@ def info_logs_of_config(config: ProcessingConfig) -> None:
         logger.info(f"Axe rules to check: {config.axe_rules if config.axe_rules else 'default'}")
 
 
-def handle_action(config: ProcessingConfig, driver: webdriver, action_str: str) -> dict | None:
+def handle_action(config: ProcessingConfig, driver: WebDriver, action_str: str) -> dict | None:
     """Delegates action handling to the ActionRegistry."""
     return action_registry.execute(config, driver, action_str)
 

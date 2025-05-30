@@ -1,6 +1,4 @@
-import time
-
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import register_action, parse_param_to_string
 from src.config import ProcessingConfig
@@ -9,7 +7,7 @@ from src.utils import trim_string_to_length
 
 
 @register_action("script")
-def script_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def script_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@script: <script>`
 
@@ -37,7 +35,7 @@ def script_action(config: ProcessingConfig, driver: webdriver, param: str | None
 log_script = """console.log(arguments[0]);"""
 
 @register_action("log")
-def log_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def log_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@log: <message>`
 

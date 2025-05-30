@@ -1,5 +1,5 @@
 import os
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 
@@ -8,7 +8,7 @@ from src.config import ProcessingConfig
 from src.logger_setup import logger
 
 @register_action("upload")
-def upload_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def upload_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@upload <selector>=<file_path>`
 

@@ -2,7 +2,7 @@ import logging
 import numpy as np
 import cv2
 from numpy import ndarray
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from sklearn.cluster import KMeans
 from pathlib import Path
 
@@ -125,7 +125,7 @@ def apply_canny_edge_detection(image_path: str, low_threshold: int = 50, high_th
 
     return img_rgb, non_edges_mask
 
-def check_contrast(driver: webdriver, config: Config, index: int, element: WebElement, image_path: Path, results: list[dict],
+def check_contrast(driver: WebDriver, config: Config, index: int, element: WebElement, image_path: Path, results: list[dict],
                    element_path: str = None, low_threshold=50, high_threshold=150) -> bool:
     """
     Check the contrast ratio of the element.

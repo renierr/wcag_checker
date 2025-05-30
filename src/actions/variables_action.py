@@ -1,11 +1,11 @@
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import register_action, parse_param_to_key_value
-from src.config import Config, ProcessingConfig
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 
 @register_action("var")
-def var_action(config: ProcessingConfig, driver: webdriver, param: str | None, context: dict) -> None:
+def var_action(config: ProcessingConfig, driver: WebDriver, param: str | None, context: dict) -> None:
     """
     Syntax: `@var <name>=<value>`
 

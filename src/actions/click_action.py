@@ -1,4 +1,4 @@
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
@@ -9,7 +9,7 @@ from src.logger_setup import logger
 from src.utils import wait_page_loaded
 
 @register_action("click")
-def click_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def click_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@click <selector>`
 
@@ -30,7 +30,7 @@ def click_action(config: ProcessingConfig, driver: webdriver, param: str | None)
         return
 
 @register_action("click_double")
-def click_double_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def click_double_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@click_double <selector>`
 
@@ -51,7 +51,7 @@ def click_double_action(config: ProcessingConfig, driver: webdriver, param: str 
 
 
 @register_action("click_context")
-def click_context_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def click_context_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@click_context <selector>`
 

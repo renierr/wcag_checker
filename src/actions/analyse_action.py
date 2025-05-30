@@ -1,7 +1,7 @@
 from dataclasses import fields
 from pathlib import Path
 
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import register_action, parse_param_to_json
 from src.config import ProcessingConfig, Runner
@@ -15,7 +15,7 @@ axe = None
 
 @register_action("analyze")
 @register_action("analyse")
-def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None) -> dict | None:
+def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
     """
     Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <url>`
 
@@ -85,7 +85,7 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
     return entry
 
 
-def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: webdriver, param: str | None) -> dict | None:
+def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: WebDriver, param: str | None) -> dict | None:
     """
     Internal function to handle the different analysis action runners.
     This is used to avoid code duplication in the `analyse_action` function.
@@ -108,7 +108,7 @@ def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: webdriver,
 
 
 @register_action("analyse_axe")
-def analyse_axe_action(config: ProcessingConfig, driver: webdriver, param: str|None) -> dict | None:
+def analyse_axe_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
     """
     Syntax: `@analyse_axe: <config>`
 
@@ -123,7 +123,7 @@ def analyse_axe_action(config: ProcessingConfig, driver: webdriver, param: str|N
 
 
 @register_action("analyse_contrast")
-def analyse_contrast_action(config: ProcessingConfig, driver: webdriver, param: str|None) -> dict | None:
+def analyse_contrast_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
     """
     Syntax: `@analyse_contrast: <config>`
 

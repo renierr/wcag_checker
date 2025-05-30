@@ -1,4 +1,4 @@
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -50,7 +50,7 @@ special_chars = {
 special_keys_doc = ", ".join([f"`{key}`" for key in special_chars.keys()])
 
 @register_action("input")
-def input_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
+def input_action(config: ProcessingConfig, driver: WebDriver, param: str) -> None:
     """
     Syntax: `@input <selector>=<text>`
 
@@ -82,7 +82,7 @@ def input_action(config: ProcessingConfig, driver: webdriver, param: str) -> Non
 input_action.__doc__ = input_action.__doc__.format(special_keys_doc=special_keys_doc)
 
 @register_action("clear")
-def clear_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
+def clear_action(config: ProcessingConfig, driver: WebDriver, param: str) -> None:
     """
     Syntax: `@clear <selector>`
 
@@ -102,7 +102,7 @@ def clear_action(config: ProcessingConfig, driver: webdriver, param: str) -> Non
         return
 
 @register_action("select")
-def select_action(config: ProcessingConfig, driver: webdriver, param: str) -> None:
+def select_action(config: ProcessingConfig, driver: WebDriver, param: str) -> None:
     """
     Syntax: `@select <selector>=<value>`
 
@@ -125,7 +125,7 @@ def select_action(config: ProcessingConfig, driver: webdriver, param: str) -> No
         return
 
 @register_action("send_keys")
-def send_keys_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def send_keys_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@send_keys <selector>=<keys>`
 
@@ -155,7 +155,7 @@ def send_keys_action(config: ProcessingConfig, driver: webdriver, param: str | N
 send_keys_action.__doc__ = send_keys_action.__doc__.format(special_keys_doc=special_keys_doc)
 
 @register_action("send_key_combination")
-def send_key_combination(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def send_key_combination(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@send_key_combination <selector>=<key_combination>` or `@send_key_combination <key_combination>`
 
@@ -202,7 +202,7 @@ send_key_combination.__doc__ = send_key_combination.__doc__.format(special_keys_
 
 
 @register_action("submit")
-def submit_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def submit_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@submit <selector>`
 

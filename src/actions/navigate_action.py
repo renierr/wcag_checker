@@ -1,4 +1,4 @@
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
@@ -10,7 +10,7 @@ from src.utils import call_url
 
 
 @register_action("scroll")
-def scroll_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def scroll_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@scroll <direction>` or `@scroll <selector>`
 
@@ -39,7 +39,7 @@ def scroll_action(config: ProcessingConfig, driver: webdriver, param: str | None
 
 
 @register_action("navigate")
-def navigate_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def navigate_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@navigate <url>`
 
@@ -56,7 +56,7 @@ def navigate_action(config: ProcessingConfig, driver: webdriver, param: str | No
 
 
 @register_action("hover")
-def hover_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def hover_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@hover <selector>`
 
@@ -76,7 +76,7 @@ def hover_action(config: ProcessingConfig, driver: webdriver, param: str | None)
         return
 
 @register_action("back")
-def back_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def back_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@back`
 
@@ -89,7 +89,7 @@ def back_action(config: ProcessingConfig, driver: webdriver, param: str | None) 
     driver.back()
 
 @register_action("forward")
-def forward_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def forward_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@forward`
 
@@ -102,7 +102,7 @@ def forward_action(config: ProcessingConfig, driver: webdriver, param: str | Non
     driver.forward()
 
 @register_action("refresh")
-def refresh_action(config: ProcessingConfig, driver: webdriver, param: str | None) -> None:
+def refresh_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
     Syntax: `@refresh`
 

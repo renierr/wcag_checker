@@ -1,5 +1,5 @@
 from pathlib import Path
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -10,7 +10,7 @@ from src.logger_setup import logger
 from src.utils import define_get_path_script, get_csspath, set_window_size_to_viewport
 
 
-def runner_contrast(config: ProcessingConfig, driver: webdriver, results: list, screenshots_folder: Path, url_idx: int) -> Path | None:
+def runner_contrast(config: ProcessingConfig, driver: WebDriver, results: list, screenshots_folder: Path, url_idx: int) -> Path | None:
     """
     This function checks the contrast of elements on a webpage using Selenium.
 
@@ -57,7 +57,7 @@ def runner_contrast(config: ProcessingConfig, driver: webdriver, results: list, 
     return full_page_screenshot_path_outline
 
 
-def outline_elements_for_screenshot(config: ProcessingConfig, driver: webdriver, elements: list[WebElement],
+def outline_elements_for_screenshot(config: ProcessingConfig, driver: WebDriver, elements: list[WebElement],
                                     missed_contrast_elements: list, url_idx: int) -> Path:
     set_window_size_to_viewport(driver)
     inject_outline_css(driver)

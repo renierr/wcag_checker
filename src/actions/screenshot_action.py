@@ -1,13 +1,13 @@
 from pathlib import Path
-from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
 from src.action_handler import register_action, parse_param_to_key_value
-from src.config import Config, ProcessingConfig
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 
 @register_action("screenshot")
-def screenshot_action(config: ProcessingConfig, driver: webdriver, param: str | None = None) -> None:
+def screenshot_action(config: ProcessingConfig, driver: WebDriver, param: str | None = None) -> None:
     """
     Syntax: `@screenshot <filename>=<selector>`
 

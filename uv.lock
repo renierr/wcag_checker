@@ -454,19 +454,6 @@ wheels = [
 ]
 
 [[package]]
-name = "selenium-axe-python"
-version = "2.2.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "selenium" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a4/fb/1ca393b5a90e2f46ec3c4dc2797b86f45797f7d630207fe96761e3c328ab/selenium_axe_python-2.2.0.tar.gz", hash = "sha256:1fa570caf984d4b5f81beb5108432212f1505defb18d23e5f8eefbd3def3356a", size = 166266, upload-time = "2025-02-20T18:59:32.602Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/65/3d/d7704cca9f220ab954000b13b2c8cb0831b42f0bf1a1b52043cba287136e/selenium_axe_python-2.2.0-py3-none-any.whl", hash = "sha256:b2c38b419e0cc4589c0b4d5d01938579bb95194eb748873e13cac7014e5546fd", size = 165749, upload-time = "2025-02-20T18:59:30.236Z" },
-]
-
-[[package]]
 name = "setuptools"
 version = "80.4.0"
 source = { registry = "https://pypi.org/simple" }
@@ -572,7 +559,6 @@ dependencies = [
     { name = "rich-argparse" },
     { name = "scikit-learn" },
     { name = "selenium" },
-    { name = "selenium-axe-python" },
 ]
 
 [package.metadata]
@@ -588,7 +574,6 @@ requires-dist = [
     { name = "rich-argparse", specifier = ">=1.7.0" },
     { name = "scikit-learn", specifier = ">=1.6.1" },
     { name = "selenium", specifier = ">=4.32.0" },
-    { name = "selenium-axe-python", specifier = ">=2.2.0" },
 ]
 
 [[package]]

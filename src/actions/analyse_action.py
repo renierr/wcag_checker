@@ -6,7 +6,7 @@ from selenium import webdriver
 from src.action_handler import register_action, parse_param_to_json
 from src.config import ProcessingConfig, Runner
 from src.logger_setup import logger
-from src.runner_axe import axe_mode_setup, runner_axe
+from src.runner_axe import runner_axe
 from src.runner_contrast import runner_contrast
 from src.utils import reset_window_size, call_url, set_window_size_to_viewport
 
@@ -31,9 +31,6 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
     Or a Url that first will be navigated to before the analysis is performed, e.g., `/my_sub_page/index.html`.
     """
     global url_idx
-    global axe
-    if config.runner == Runner.AXE and not axe:
-        axe = axe_mode_setup(config, driver)
 
     url_idx += 1
     logger.info(f"[{url_idx}] Analysing page '{param if param else 'current'}'")
@@ -65,7 +62,7 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
 
     # select runner to run the check
     if config.runner == Runner.AXE:
-        full_page_screenshot_path_outline = runner_axe(axe, config, driver,
+        full_page_screenshot_path_outline = runner_axe(config, driver,
                                                        results, screenshots_folder, url_idx)
     else:
         full_page_screenshot_path_outline = runner_contrast(config, driver,

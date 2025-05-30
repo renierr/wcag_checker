@@ -1,29 +1,69 @@
 from selenium import webdriver
+from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
-from selenium_axe_python import Axe
 from pathlib import Path
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.runner_contrast import outline_elements_for_screenshot
 
-
-def axe_mode_setup(config: ProcessingConfig, driver: webdriver) -> Axe:
+axe = None
+class Axe:
     """
-    Setup Axe
-    :param config: Configuration object containing settings.
-    :param driver: Selenium WebDriver instance.
+    Axe class to handle accessibility checks using the Axe library.
     """
-    logger.debug("Setting up axe")
-    axe = Axe(driver)
-    return axe
 
-def runner_axe(axe: Axe, config: ProcessingConfig, driver: webdriver, results: list,
+    def __init__(self, driver: WebDriver):
+        self.driver = driver
+
+        try:
+            axe_file = Path(__file__).parent / "axe-core" / "axe.min.js"
+            logger.debug(f"Loading Axe script from {axe_file}")
+            if not axe_file.exists():
+                raise FileNotFoundError("Axe script not found in the expected location.")
+            # Load the Axe script from the package
+            with axe_file.open("r", encoding="utf-8") as f:
+                self.script_data = f.read()
+        except FileNotFoundError:
+            logger.error("Axe script not found. Ensure the axe-core directory is present in the src folder.")
+            raise
+
+    def inject(self):
+        """
+        Inject the Axe script into the current page.
+        """
+        self.driver.execute_script(self.script_data)
+
+    def run(self, context: object = None, options: dict = None) -> dict:
+        """
+        Run Axe accessibility checks with the given options.
+
+        :param context: which page part(s) to analyze and/or what to exclude.
+        :param options: dictionary of Axe options.
+        """
+        args = ""
+
+        if context is not None:
+            args += f"{context}"
+            if options is not None:
+                args += ","
+
+        if options is not None:
+            args += f"{options}"
+
+        command = (
+            f"var callback = arguments[arguments.length - 1];"
+            f"axe.run({args}).then(results => callback(results))"
+        )
+        return self.driver.execute_async_script(command)
+
+def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
                screenshots_folder: Path, url_idx: int) -> Path|None:
+    global axe
     if axe is None:
-        logger.error("Axe is not initialized. Please call axe_mode_setup first.")
-        return None
+        logger.debug("Setting up axe")
+        axe = Axe(driver)
 
     logger.debug(f"Inject axe to url {url_idx}")
     axe.inject()

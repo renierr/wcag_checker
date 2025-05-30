@@ -20,7 +20,7 @@ a = Analysis(
     ['src\\main.py'],
     pathex=[],
     binaries=[],
-    datas=[('README.md', '.')] + template_files + axe_data_files,
+    datas=[('README.md', '.')] + template_files + axe_data_files + [('src/axe-core/axe.min.js', 'src/axe-core')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},

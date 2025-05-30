@@ -58,7 +58,7 @@ class ProcessingConfig(Config):
     resolution: Tuple[int, int] = (1920, 1080)
     resolution_width: int = field(init=False)
     resolution_height: int = field(init=False)
-    axe_rules: Optional[str] = "wcag22aa"
+    axe_rules: Optional[str] = "wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa"
     selector: Optional[str] = "a, button:not([disabled])"
     contrast_threshold: float = 4.5
     use_canny_edge_detection: bool = False

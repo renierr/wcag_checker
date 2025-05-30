@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.common import NoSuchElementException
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 
 from src.action_handler import register_action
@@ -69,7 +70,7 @@ def hover_action(config: ProcessingConfig, driver: webdriver, param: str | None)
         return
     try:
         element = driver.find_element(By.CSS_SELECTOR, param)
-        driver.ActionChains(driver).move_to_element(element).perform()
+        ActionChains(driver).move_to_element(element).perform()
     except NoSuchElementException:
         logger.warning(f"No element found for hover action with selector: {param}")
         return

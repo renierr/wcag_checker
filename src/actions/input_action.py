@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 
 from src.action_handler import register_action, parse_param_to_key_value
-from src.config import Config, ProcessingConfig
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.utils import wait_page_loaded
 

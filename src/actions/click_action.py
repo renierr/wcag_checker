@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.common import NoSuchElementException
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 
 from src.action_handler import register_action
@@ -43,7 +44,7 @@ def click_double_action(config: ProcessingConfig, driver: webdriver, param: str 
         return
     try:
         elem = driver.find_element(By.CSS_SELECTOR, param)
-        webdriver.ActionChains(driver).double_click(elem).perform()
+        ActionChains(driver).double_click(elem).perform()
     except NoSuchElementException as e:
         logger.warning(f"No element found for click_double action with selector: {param}")
         return
@@ -64,7 +65,7 @@ def click_context_action(config: ProcessingConfig, driver: webdriver, param: str
         return
     try:
         elem = driver.find_element(By.CSS_SELECTOR, param)
-        webdriver.ActionChains(driver).context_click(elem).perform()
+        ActionChains(driver).context_click(elem).perform()
     except NoSuchElementException as e:
         logger.warning(f"No element found for click_context action with selector: {param}")
         return

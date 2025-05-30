@@ -4,7 +4,6 @@ import time
 from pathlib import Path
 
 import selenium.common
-from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import action_registry
@@ -62,9 +61,9 @@ def check_run(config: ProcessingConfig) -> None:
             options.add_argument("--disable-gpu")
             options.enable_bidi = True
             if config.browser == "edge":
-                driver = webdriver.Edge(options=options)
+                driver = selenium.webdriver.Edge(options=options)
             else:
-                driver = webdriver.Chrome(options=options)
+                driver = selenium.webdriver.Chrome(options=options)
 
             driver.script.add_console_message_handler(handle_browser_console_log)
             try:

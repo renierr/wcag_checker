@@ -111,11 +111,11 @@ def argument_parser() -> argparse.ArgumentParser:
                                  help=f"{for_contrast_runner_hint}The level of which to report.",
                                  choices=list(ReportLevel), nargs="?", default=ReportLevel.INVALID)
     check_parser.add_argument("--axe_rules", type=str,
-                            default="wcag22aa",
+                            default="wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa",
                             help=textwrap.dedent(f"""\
                                 {for_axe_runner_hint}Define axe rules (comma separated) that should be checked.
                                 see: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md#axe-core-tags for rule names
-                                example: --axe_rules "wcag2aa, wcag21aa, wcag22aa"
+                                example: --axe_rules "wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa"
                                 """).strip())
 
     return parser

@@ -54,6 +54,8 @@ def analyse_action(config: ProcessingConfig, driver: webdriver, param: str|None)
             page_title = driver.title
     else:
         # if no param is given, we assume the current page is the one to analyse
+        reset_window_size(driver, width=config.resolution_width, height=config.resolution_height)
+        set_window_size_to_viewport(driver)
         page_title = driver.title
 
     # take full-pagescreenshot

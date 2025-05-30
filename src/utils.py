@@ -210,6 +210,17 @@ def reset_window_size(driver: webdriver, width: int = 1920, height: int = 1080) 
     driver.set_window_size(width, height)
     logger.debug(f"Browser window size reset to: {width}x{height}")
 
+# language=JS
+script_viewport_size = """
+const dimensions = {
+   fullWidth: document.body.scrollWidth,
+   fullHeight: document.body.scrollHeight,
+   browserUIHeight: window.outerHeight - window.innerHeight
+};
+window.scrollTo(0, 0);
+return dimensions;
+"""
+
 def set_window_size_to_viewport(driver: webdriver) -> None:
     """
     Set the browser window size to match the viewport dimensions.
@@ -217,9 +228,10 @@ def set_window_size_to_viewport(driver: webdriver) -> None:
 
     :param driver: The Selenium WebDriver instance.
     """
-    full_width = driver.execute_script("return document.body.scrollWidth")
-    full_height = driver.execute_script("return document.body.scrollHeight")
-    browser_ui_height = driver.execute_script("return window.outerHeight - window.innerHeight")
+    dimensions = driver.execute_script(script_viewport_size)
+    full_width = dimensions["fullWidth"]
+    full_height = dimensions["fullHeight"]
+    browser_ui_height = dimensions["browserUIHeight"]
     full_height += browser_ui_height  # Adjust for browser UI height
     driver.set_window_size(full_width, full_height)
     logger.debug(f"Browser window size set to: {full_width}x{full_height} (including UI: {browser_ui_height})")

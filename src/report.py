@@ -19,7 +19,8 @@ def count_violations(results):
     violations_count = 0
     for result in results:
         if 'violations' in result:
-            violations_count += len(result.get('violations', []))
+            for violation in result.get('violations', []):
+                violations_count += len(violation.get('nodes', []))
         else:
             return len(results)  # Contrast-Mode
     return violations_count  # Axe-Mode

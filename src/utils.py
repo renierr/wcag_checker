@@ -291,7 +291,7 @@ def get_embedded_file_path(filename):
         return Path(sys._MEIPASS) / filename
     return filename
 
-def take_element_Screenshot(driver: WebDriver, element: WebElement, index: int, screenshot_path: Path) -> None:
+def take_element_screenshot(driver: WebDriver, element: WebElement, index: int, screenshot_path: Path) -> None:
     """
     Take a screenshot of a specific WebElement and save it to the specified path.
     :param driver: Selenium WebDriver instance.

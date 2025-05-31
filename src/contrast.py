@@ -12,8 +12,8 @@ from selenium.webdriver.remote.webelement import WebElement
 from src.logger_setup import logger
 from src.recommend_colors import suggest_wcag_colors
 from src.utils import get_element_colors, log_colored_char, rgb_to_hex, contrast_ratio, relative_luminance, \
-    take_element_Screenshot
-from src.config import Config, ColorSource, ReportLevel
+    take_element_screenshot
+from src.config import Config, ColorSource, ReportLevel, ProcessingConfig
 
 
 def get_dominant_colors_from_element(driver, element: WebElement) -> list[tuple[int, int, int]]:
@@ -125,7 +125,7 @@ def apply_canny_edge_detection(image_path: str, low_threshold: int = 50, high_th
 
     return img_rgb, non_edges_mask
 
-def check_contrast(driver: WebDriver, config: Config, index: int, element: WebElement, image_path: Path, results: list[dict],
+def check_contrast(driver: WebDriver, config: ProcessingConfig, index: int, element: WebElement, image_path: Path, results: list[dict],
                    element_path: str = None, low_threshold=50, high_threshold=150) -> bool:
     """
     Check the contrast ratio of the element.
@@ -153,7 +153,7 @@ def check_contrast(driver: WebDriver, config: Config, index: int, element: WebEl
 
     # extract dominant colors
     if config.color_source == ColorSource.IMAGE:
-        take_element_Screenshot(driver, element, index, image_path)
+        take_element_screenshot(driver, element, index, image_path)
         logger.debug(f"[Element {index}] Extracting colors from image: {image_path}")
         if config.use_canny_edge_detection:
             processed_image, mask = apply_canny_edge_detection(image_path, low_threshold, high_threshold)
@@ -198,7 +198,7 @@ def check_contrast(driver: WebDriver, config: Config, index: int, element: WebEl
 
     # take screenshot of element if needed
     if config.color_source == ColorSource.ELEMENT and (not invalid_only or not meet_wcag):
-        take_element_Screenshot(driver, element, index, image_path)
+        take_element_screenshot(driver, element, index, image_path)
 
     if not meet_wcag:
         suggest_wcag_colors(config, result, color1, color2)

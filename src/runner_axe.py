@@ -6,6 +6,7 @@ from pathlib import Path
 from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.runner_contrast import outline_elements_for_screenshot
+from src.utils import take_element_screenshot
 
 axe = None
 class Axe:
@@ -103,8 +104,8 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
                         continue
                     elif element.is_displayed():
                         elements.append(element)
+                        take_element_screenshot(driver, element, elm_idx, screenshot_path)
                         element.screenshot(dat["screenshot"])
-                        logger.debug(f"Element Screenshot saved to {dat['screenshot']}")
                     else:
                         logger.debug(f"Element {elm_idx} is not displayed. Skipping screenshot.")
                         node["element_info"]["screenshot"] = None

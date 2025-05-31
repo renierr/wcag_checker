@@ -93,6 +93,7 @@ def check_run(config: ProcessingConfig) -> None:
                         # normal url navigation
                         call_url(driver, input)
                         entry = analyse_action(config, driver, None)
+                        entry["url"] = input  # ensure the URL is set in the entry
 
                     except Exception as e:
                         error_message = str(e).splitlines()[0]

@@ -10,7 +10,7 @@ from src.runner_axe import runner_axe
 from src.runner_contrast import runner_contrast
 from src.utils import reset_window_size, set_window_size_to_viewport
 
-url_idx = 0
+input_idx = 0
 axe = None
 
 @register_action("analyze")
@@ -30,10 +30,10 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
 
     Or a context CSS selector what on the page should be analysed.
     """
-    global url_idx
+    global input_idx
 
-    url_idx += 1
-    logger.info(f"[{url_idx}] Analysing page '{param if param else 'current'}'")
+    input_idx += 1
+    logger.info(f"[{input_idx}] Analysing page '{param if param else 'current'}'")
     results = []
     screenshots_folder = Path(config.output) / "screenshots"
 
@@ -59,19 +59,19 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
         page_title = driver.title
 
     # take full-pagescreenshot
-    full_page_screenshot_path = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot.png"
+    full_page_screenshot_path = Path(config.output) / f"{config.mode.value}_{input_idx}_full_page_screenshot.png"
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path}")
     driver.save_screenshot(full_page_screenshot_path)
 
     # select runner to run the check
     runner_function = runner_axe if config.runner == Runner.AXE else runner_contrast
-    full_page_screenshot_path_outline = runner_function(config, driver, results, screenshots_folder, url_idx)
+    full_page_screenshot_path_outline = runner_function(config, driver, results, screenshots_folder, input_idx)
 
     # save results
     browser_width, browser_height = driver.get_window_size().values()
     entry = {
         "url": param,
-        "index": url_idx,
+        "index": input_idx,
         "config": config.__dict__,
         "results": results,
         "title": page_title if 'page_title' in locals() else None,

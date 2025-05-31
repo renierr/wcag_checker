@@ -76,28 +76,28 @@ def check_run(config: ProcessingConfig) -> None:
                 logger.debug(f"Extracted Base URL: {base_url}")
 
                 url_data = []
-                for url_idx, url in enumerate(expanded_inputs):
+                for url_idx, input in enumerate(expanded_inputs):
                     url_idx += 1
-                    logger.info(f"[{url_idx}/{inputs_len}] Processing Input or Action: {url}")
+                    logger.info(f"[{url_idx}/{inputs_len}] Processing Input or Action: {input}")
                     entry = None
                     results = []
 
                     try:
                         # detect actions starting with @
-                        if isinstance(url, str) and url.startswith("@"):
-                            entry = handle_action(config, driver, url)
+                        if isinstance(input, str) and input.startswith("@"):
+                            entry = handle_action(config, driver, input)
                             if entry:
                                 url_data.append(entry)
                             continue
 
                         # normal url will get analysed directly
-                        entry = analyse_action(config, driver, url)
+                        entry = analyse_action(config, driver, input)
 
                     except Exception as e:
                         error_message = str(e).splitlines()[0]
-                        logger.error(f"Error processing Input or Action {url}: {error_message}")
+                        logger.error(f"Error processing Input or Action {input}: {error_message}")
                         results.append({
-                            "url": url,
+                            "url": input,
                             "error": error_message
                         })
                         if config.debug:

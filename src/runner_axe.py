@@ -51,7 +51,7 @@ class Axe:
 
         if options is not None:
             args += f"{options}"
-
+        logger.debug(f"Running Axe with args: {args}")
         command = (
             f"var callback = arguments[arguments.length - 1];"
             f"axe.run({args}).then(results => callback(results))"

@@ -1,10 +1,14 @@
 import mistune
 
+from datetime import datetime
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from src.config import Config
 from src.utils import create_color_span, get_embedded_file_path
 from src.logger_setup import logger
+
+def datetimeformat(value, format="%Y-%m-%d %H:%M:%S"):
+    return datetime.fromtimestamp(value / 1000).strftime(format)
 
 def join_color_span(colors):
     """
@@ -38,6 +42,7 @@ def build_markdown(config: Config, json_data: dict) -> str:
     env.filters['join_color_span'] = join_color_span
     env.filters['create_color_span'] = create_color_span
     env.filters['count_violations'] = count_violations
+    env.filters['datetimeformat'] = datetimeformat
 
     template_name = "markdown_report.md"
     md = (env.get_template(template_name)

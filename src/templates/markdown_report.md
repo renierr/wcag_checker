@@ -66,9 +66,11 @@ There are {{json_data.total_inputs}} pages in total.
 <details>
 <summary>Browser Logs</summary>
 
-```json
-{{ json_data.browser_console_log | tojson(indent=2) }}
-```
+| Time | Level | Message       |
+|------|-------|---------------|
+{% for log in json_data.browser_console_log -%}
+| {{ log.timestamp | datetimeformat("%Y-%m-%d %H:%M:%S") }} | {{ log.level }} | {{ log.text }} |
+{%- endfor %}
 
 </details>
 </section>

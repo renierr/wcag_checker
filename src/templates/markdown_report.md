@@ -33,6 +33,12 @@ There are {{json_data.total_inputs}} pages in total.
 [Link to url]({{input_data.url}})
 {{input_data.url}}
 {% endif %}
+{% if input_data.last_action %}
+**Last Action:** {{ input_data.last_action }}
+{% endif %}
+{% if input_data.action %}
+**Action:** {{ input_data.action }}
+{% endif %}
 {% if input_data.title %}
 **Title:** {{ input_data.title }}
 {% endif %}

@@ -76,6 +76,7 @@ def check_run(config: ProcessingConfig) -> None:
                 logger.debug(f"Extracted Base URL: {base_url}")
 
                 url_data = []
+                last_action = None
                 for url_idx, input in enumerate(expanded_inputs):
                     url_idx += 1
                     logger.info(f"[{url_idx}/{inputs_len}] Processing Input or Action: {input}")
@@ -87,7 +88,11 @@ def check_run(config: ProcessingConfig) -> None:
                         if isinstance(input, str) and input.startswith("@"):
                             entry = handle_action(config, driver, input)
                             if entry:
+                                if last_action:
+                                    entry["last_action"] = last_action
+                                entry["action"] = input
                                 url_data.append(entry)
+                            last_action = input
                             continue
 
                         # normal url navigation

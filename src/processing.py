@@ -90,8 +90,9 @@ def check_run(config: ProcessingConfig) -> None:
                                 url_data.append(entry)
                             continue
 
-                        # normal url will get analysed directly
-                        entry = analyse_action(config, driver, input)
+                        # normal url navigation
+                        call_url(driver, input)
+                        entry = analyse_action(config, driver, None)
 
                     except Exception as e:
                         error_message = str(e).splitlines()[0]

@@ -6,7 +6,7 @@ from rich.console import Console
 from selenium.webdriver.remote.webdriver import WebDriver
 
 
-from src.config import Config, ProcessingConfig
+from src.config import ProcessingConfig
 from src.logger_setup import logger
 
 action_context = {}
@@ -171,4 +171,4 @@ def parse_param_to_key_value(param: str | None) -> tuple[str | None, str | None]
         return key.strip(), value.strip()
     except ValueError as e:
         logger.error(f"Error parsing key-value pair: {e}")
-        return None
+        return None, None

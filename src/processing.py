@@ -8,7 +8,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import action_registry
 from src.actions.analyse_action import analyse_action
-from src.browser_console_log_handler import browser_console_log, handle_browser_console_log, get_browser_console_log
+from src.browser_console_log_handler import handle_browser_console_log, get_browser_console_log
 from src.config import Config, ProcessingConfig, ConfigEncoder, ReportLevel, Runner
 from src.logger_setup import logger
 from src.report import build_markdown, generate_markdown_report, generate_html_report

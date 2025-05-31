@@ -2,41 +2,19 @@ import sys
 from dataclasses import fields
 from urllib.parse import urlparse
 from pathlib import Path
-from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from src.logger_setup import logger
-
-def get_element_colors_old(element: WebElement) -> tuple:
-    """
-    Extract the foreground and background colors of a WebElement.
-
-    :param element: The WebElement from which the colors should be extracted.
-    :return: A tuple with foreground and background colors as RGB values.
-    """
-    foreground_color = element.value_of_css_property("color")
-    background_color = element.value_of_css_property("background-color")
-
-    # convert color rgba() in rgb - if transparent or a channel return None
-    def parse_color(color: str) -> tuple|None:
-        if color == "transparent" or "rgba(0, 0, 0, 0)" in color:
-            return None
-        rgba = color.replace("rgba(", "").replace("rgb(", "").replace(")", "").split(",")
-        if len(rgba) == 4 and float(rgba[3].strip()) == 0:  # check alpha channel
-            return None
-        return tuple(map(int, rgba[:3]))
-
-    return parse_color(foreground_color), parse_color(background_color)
 
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.remote.webdriver import WebDriver
 
 def get_element_colors(driver: WebDriver, element: WebElement) -> tuple:
     """
-    Ermittelt Vordergrund- und Hintergrundfarben eines Elements mit JavaScript.
+    Determines the foreground and background colors of an element using JavaScript.
 
-    :param driver: Selenium WebDriver-Instanz.
-    :param element: Das WebElement, dessen Farben abgerufen werden sollen.
-    :return: Ein Tupel mit Vordergrund- und Hintergrundfarben als RGB-Werte.
+    :param driver: The Selenium WebDriver instance.
+    :param element: The WebElement for which to get the colors.
+    :return: A tuple containing the foreground and background colors as RGB tuples.
     """
 
     # language=JS
@@ -271,7 +249,7 @@ def relative_luminance(color: tuple[int, int, int]) -> float:
     :param color: The color as an RGB tuple (R, G, B).
     :return: The relative luminance of the color.
     """
-    r, g, b = [c / 255.0 for c in color]  # narmalization to 0-1 for calculation
+    r, g, b = [c / 255.0 for c in color]  # normalization to 0-1 for calculation
     r, g, b = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in (r, g, b)]
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 

@@ -1,11 +1,11 @@
 import colorsys
 import numpy as np
 
-from src.config import Config
+from src.config import ProcessingConfig
 from src.utils import hex_to_rgb, rgb_to_hex, relative_luminance, contrast_ratio
 
 
-def suggest_wcag_colors(config: Config, result_dict: dict,
+def suggest_wcag_colors(config: ProcessingConfig, result_dict: dict,
                         color1: tuple[int, int, int], color2: tuple[int, int, int]) -> list:
     """
     Suggests WCAG-compliant color combinations that are close to the original colors.

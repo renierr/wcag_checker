@@ -13,15 +13,16 @@ from src.logger_setup import logger
 from src.recommend_colors import suggest_wcag_colors
 from src.utils import get_element_colors, log_colored_char, rgb_to_hex, contrast_ratio, relative_luminance, \
     take_element_screenshot
-from src.config import Config, ColorSource, ReportLevel, ProcessingConfig
+from src.config import ColorSource, ReportLevel, ProcessingConfig
 
 
-def get_dominant_colors_from_element(driver, element: WebElement) -> list[tuple[int, int, int]]:
+def get_dominant_colors_from_element(driver: WebDriver, element: WebElement) -> list[tuple[int, int, int]]:
     """
     Get the dominant colors of a WebElement.
     This function uses the WebElement's CSS properties to get the foreground and background colors.
     The function returns the foreground and background colors as RGB values.
 
+    :param driver: The Selenium WebDriver instance.
     :param element: The WebElement to get the colors from.
     :return: A tuple with the foreground and background colors as RGB values.
     """
@@ -53,7 +54,8 @@ def get_dominant_colors_from_image(image: ndarray, mask: ndarray=None, n_colors=
         raise ValueError("No valid Pixels available to find dominant colors.")
 
     # K-Means-Clustering - use additional of n_colors to account for color anti aliasing, we choose the top 2
-    kmeans = KMeans(n_clusters=n_colors+1, random_state=0).fit(pixels)
+    kmeans = KMeans(n_clusters=n_colors+1, random_state=0)
+    kmeans.fit(pixels)
     dominant_colors = kmeans.cluster_centers_.astype(int)
 
     # sort dominant colors by frequency
@@ -64,7 +66,7 @@ def get_dominant_colors_from_image(image: ndarray, mask: ndarray=None, n_colors=
 
     return [tuple(color) for color in dominant_colors]
 
-def apply_antialias(image_path):
+def apply_antialias(image_path: Path) -> tuple[ndarray, None]:
     """
     Apply anti-aliasing to an image_path.
     This function uses OpenCV to apply anti-aliasing to an image.
@@ -72,7 +74,7 @@ def apply_antialias(image_path):
     :param image_path: The path to the image file.
     :return: The processed image and the mask, mask is always None.
     """
-    img = cv2.imread(image_path)
+    img = cv2.imread(image_path.as_posix())
     img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
 
     # Apply edge-preserving smoothing (bilateral filter)
@@ -84,7 +86,8 @@ def apply_antialias(image_path):
 
     return smoothed_img, None
 
-def apply_canny_edge_detection(image_path: str, low_threshold: int = 50, high_threshold: int = 150, blur_size: int = 5):
+def apply_canny_edge_detection(image_path: Path, low_threshold: int = 50,
+                               high_threshold: int = 150, blur_size: int = 5) -> tuple[ndarray, ndarray]:
     """
     Apply Canny edge detection to an image_path.
     This function uses the Canny edge detection algorithm to find the edges in an image.
@@ -102,7 +105,7 @@ def apply_canny_edge_detection(image_path: str, low_threshold: int = 50, high_th
     :return: the processed image and the mask.
     """
     # load image (BGR-Format)
-    img = cv2.imread(image_path)
+    img = cv2.imread(image_path.as_posix())
     # convert to grayscale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     # Gauss Blur to reduce noise
@@ -160,7 +163,7 @@ def check_contrast(driver: WebDriver, config: ProcessingConfig, index: int, elem
         elif config.use_antialias:
             processed_image, mask = apply_antialias(image_path)
         else:
-            processed_image = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
+            processed_image = cv2.cvtColor(cv2.imread(image_path.as_posix()), cv2.COLOR_BGR2RGB)
             mask = None
         colors = get_dominant_colors_from_image(processed_image, mask, n_colors=2)
     else:

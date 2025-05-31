@@ -64,12 +64,9 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     driver.save_screenshot(full_page_screenshot_path)
 
     # select runner to run the check
-    if config.runner == Runner.AXE:
-        full_page_screenshot_path_outline = runner_axe(config, driver,
-                                                       results, screenshots_folder, url_idx)
-    else:
-        full_page_screenshot_path_outline = runner_contrast(config, driver,
-                                                            results, screenshots_folder, url_idx)
+    runner_function = runner_axe if config.runner == Runner.AXE else runner_contrast
+    full_page_screenshot_path_outline = runner_function(config, driver, results, screenshots_folder, url_idx)
+
     # save results
     browser_width, browser_height = driver.get_window_size().values()
     entry = {

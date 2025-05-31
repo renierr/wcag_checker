@@ -8,7 +8,7 @@ from src.config import ProcessingConfig, Runner
 from src.logger_setup import logger
 from src.runner_axe import runner_axe
 from src.runner_contrast import runner_contrast
-from src.utils import reset_window_size, call_url, set_window_size_to_viewport
+from src.utils import reset_window_size, set_window_size_to_viewport
 
 url_idx = 0
 axe = None
@@ -17,7 +17,7 @@ axe = None
 @register_action("analyse")
 def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
     """
-    Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <url>`
+    Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <context selector>`
 
     Triggers an analysis of the current page (e.g., WCAG or contrast check).
     With the default runner and configuration set on startup.
@@ -28,7 +28,7 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
 
     Where text in brackets `"My page Title"` is used as the title in the report.
 
-    Or a Url that first will be navigated to before the analysis is performed, e.g., `/my_sub_page/index.html`.
+    Or a context CSS selector what on the page should be analysed.
     """
     global url_idx
 
@@ -38,16 +38,19 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     screenshots_folder = Path(config.output) / "screenshots"
 
     if param:
-        # analyse param is considered a new url to change to except it begins with " or ' then it is the page title
+        # analyse param is considered a context css selector, except it begins with " or ' then it is the page title
         if param.startswith('"') and param.endswith('"') or param.startswith("'") and param.endswith("'"):
             # remove the quotes
             param = param[1:-1]
             logger.info(f"Page title: {param}")
             page_title = param
         else:
-            reset_window_size(driver, width=config.resolution_width, height=config.resolution_height)
-            call_url(driver, param)
-            set_window_size_to_viewport(driver)
+            # build a new config object, copy from existing with the given context selector
+            logger.debug(f"Using context selector: {param}")
+            base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
+            config = ProcessingConfig(
+                **{key: value for key, value in vars(config).items() if key in base_fields and key not in ["context"]},
+                **{"context": param})
             page_title = driver.title
     else:
         # if no param is given, we assume the current page is the one to analyse

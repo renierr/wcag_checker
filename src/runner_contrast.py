@@ -23,7 +23,17 @@ def runner_contrast(config: ProcessingConfig, driver: WebDriver, results: list, 
     """
 
     # find visible elements on page
-    elements = [element for element in driver.find_elements(By.CSS_SELECTOR, config.selector) if element.is_displayed()]
+    if config.context:
+        context = driver.find_elements(By.CSS_SELECTOR, config.context)
+        if context:
+            elements = []
+            for element in context:
+                elements += [element for element in element.find_elements(By.CSS_SELECTOR, config.selector) if element.is_displayed()]
+        else:
+            logger.warning(f"No context found for selector {config.context}. Using all visible elements.")
+            elements = [element for element in driver.find_elements(By.CSS_SELECTOR, config.selector) if element.is_displayed()]
+    else:
+        elements = [element for element in driver.find_elements(By.CSS_SELECTOR, config.selector) if element.is_displayed()]
     define_get_path_script(driver)  # will later be used in JavaScript for element XPath
     missed_contrast_elements = []
     logger.info(f"Found {len(elements)} elements on page.")

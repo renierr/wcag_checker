@@ -97,6 +97,8 @@ def argument_parser() -> argparse.ArgumentParser:
                                  help=f"{for_contrast_runner_hint}Apply and use Canny edge detection on processed images.")
     check_parser.add_argument("--use_antialias", action="store_true",
                                  help=f"{for_contrast_runner_hint}Apply and use antialias on processed images.")
+    check_parser.add_argument("--context", type=str,
+                              help=f"CSS selector from what to check, which page part(s) to analyze (context for runner).", nargs="?", default="")
     check_parser.add_argument("--selector", type=str,
                                  help=f"{for_contrast_runner_hint}CSS selector to find elements on the page.", nargs="?", default="a, button:not([disabled])")
     check_parser.add_argument("--color_source", type=ColorSource,

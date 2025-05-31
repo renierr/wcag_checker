@@ -43,8 +43,8 @@ class Axe:
         """
         args = ""
 
-        if context is not None:
-            args += f"{context}"
+        if context:
+            args += f"'{context}'"
             if options is not None:
                 args += ","
 
@@ -76,7 +76,7 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
         rules = [rule.strip() for rule in config.axe_rules.split(",")]
         logger.debug(f"Setting axe rules: {rules}")
         options["runOnly"] = dict(type="tag", values=rules)  # type: ignore
-    axe_data = axe.run(options=options)
+    axe_data = axe.run(context=config.context, options=options)
 
     # extract violation elements
     elements: list[WebElement] = []

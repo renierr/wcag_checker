@@ -99,6 +99,7 @@ def check_run(config: ProcessingConfig) -> None:
                         call_url(driver, input)
                         entry = analyse_action(config, driver, None)
                         entry["url"] = input  # ensure the URL is set in the entry
+                        last_action = "direct url analyse for: " + input
 
                     except Exception as e:
                         error_message = str(e).splitlines()[0]

@@ -47,11 +47,18 @@ log_script = """console.log(arguments[0]);"""
 @register_action("log")
 def log_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
     """
-    Syntax: `@log: <message>`
+    Syntax: `@log: "<message>"`
 
-    Log a message to the console.
+    Log a message to the browser console.
+    Use " to treat the message as a string.
+    Anything else will be treated as code passed to the console log.
+
+    Context variables can be used in the message by using the syntax `${variable_name}`.
+
     ```
-    @log: This is a log message.
+    @log: "This is a log message."
+    @log: "The value of my variable is: ${my_variable}"
+    @log: document.title
     ```
     """
     if not param:
@@ -59,8 +66,14 @@ def log_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -
         return
 
     try:
-        parsed_param = parse_param_to_string(param)
-        driver.execute_script(log_script, parsed_param)
+        parsed_param = parse_param_to_string(param).strip()
+        if parsed_param.startswith('"') and parsed_param.endswith('"'):
+            # remove the quotes from the string
+            parsed_param = parsed_param[1:-1]
+            driver.execute_script(log_script, parsed_param)
+        else:
+            # If the message is not a string, we assume it's code to be executed
+            driver.execute_script(log_script.replace("arguments[0]", parsed_param))
     except Exception as e:
         logger.error(f"Error logging message: {e}")
 

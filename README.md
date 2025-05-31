@@ -106,7 +106,8 @@ uv run src/main.py
 To see the help message for the script, run the tool with the `-h` or `--help` option
 
 The script will analyse the website and generate a report based on the selected format.    
-It has 2 modes `axe` or `contrast`. Dependent on the mode other options are needed or not used. 
+It has runners to analyse the inputs (`axe` or `contrast`).     
+Dependent on the runner other options are needed or not used. 
 
 You can also use the `--debug` flag to enable debugging mode, which provides additional information about the script's execution.
 
@@ -114,18 +115,18 @@ If you want to simulate the script's behavior without actually checking a websit
 use the `--simulate` flag with a pre generated JSON file as argument.
     
 ```bash
-python .\src\main.py axe --simulate "output/contrast_result.json"
+python .\src\main.py check --simulate "output/contrast_result.json"
 ```
 This command will simulate the checking process using the predefined JSON data from `output/contrast_result.json`.    
 All reports are generated for the JSON file.
 
 ```bash
-python .\src\main.py axe --inputs "http://example.com"
+python .\src\main.py check --inputs "http://example.com"
 ```
 This command use axe to check the page on `http://example.com`, 
 
 ```bash
-python .\src\main.py contrast --inputs "config:inputs.txt" --use_antialias --color_source element
+python .\src\main.py check --runner contrast --inputs "config:inputs.txt" --use_antialias --color_source element
 ```
 This command will check the contrast ratio on all inputs listed in `inputs.txt`,
 use the elements as color source.

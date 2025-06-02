@@ -76,7 +76,7 @@ There are {{json_data.total_inputs}} pages in total.
 |------|-------|---------------|
 {% for log in json_data.browser_console_log -%}
 | {{ log.timestamp | datetimeformat("%Y-%m-%d %H:%M:%S") }} | {{ log.level }} | {{ log.text }} |
-{%- endfor %}
+{% endfor %}
 
 </details>
 </section>

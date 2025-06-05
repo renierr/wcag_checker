@@ -278,7 +278,7 @@ def take_element_screenshot(driver: WebDriver, element: WebElement, index: int, 
     :param screenshot_path: Path where the screenshot will be saved.
     """
     logger.debug(f"[Element {index}] Take screenshot of element")
-    driver.execute_script("arguments[0].scrollIntoView({ behavior: 'instant', block: 'center' });", element)
+    driver.execute_script("arguments[0].scrollIntoView({ behavior: 'instant'});", element)
     element.screenshot(str(screenshot_path))
     logger.debug(f"[Element {index}] Screenshot saved to: {screenshot_path}")
 

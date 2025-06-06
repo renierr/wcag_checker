@@ -3,8 +3,6 @@ name: Build Windows Executable with PyInstaller
 on:
   push:
     tags: [ 'v*.*.*' ]
-  release:
-    types: [ published ]
   workflow_dispatch:
 
 permissions:
@@ -38,7 +36,7 @@ jobs:
       - name: Upload Windows executable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wcag_checker_windows.zip
+          name: wcag_checker_windows
           path: dist/wcag_checker.zip
 
   build-linux:
@@ -66,7 +64,7 @@ jobs:
       - name: Upload Linux executable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wcag_checker_linux.zip
+          name: wcag_checker_linux
           path: dist/wcag_checker.zip
 
   release:
@@ -74,8 +72,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wcag_checker_windows
+          path: dist/
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: wcag_checker_linux
+          path: dist/
+
+      - name: Rename artifact files
+        run: |
+          mv dist/wcag_checker_windows/wcag_checker.zip dist/wcag_checker_windows.zip
+          mv dist/wcag_checker_linux/wcag_checker.zip dist/wcag_checker_linux.zip
+        shell: bash
 
       - name: Create Release and Upload Artifacts
         if: startsWith(github.ref, 'refs/tags/v')

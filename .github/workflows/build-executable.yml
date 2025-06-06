@@ -13,10 +13,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
-        artifact_name: [wcag_checker_windows, wcag_checker_linux, wcag_checker_macos]
-        output_file: [wcag_checker_windows.zip, wcag_checker_linux.zip, wcag_checker_macos.zip]
-        shell: [ bash ]
         include:
           - os: windows-latest
             artifact_name: wcag_checker_windows

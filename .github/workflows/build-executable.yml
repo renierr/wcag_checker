@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
 
     steps:
@@ -30,21 +30,60 @@ jobs:
           uv sync
         shell: bash
 
-      - name: Build executable with PyInstaller
+      - name: Build Windows executable with PyInstaller
         run: |
           uv run pyinstaller ./wcag_checker_extracted.spec
         shell: bash
 
-      - name: Upload executable artifact
+      - name: Upload Windows executable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: wcag_checker.zip
+          name: wcag_checker_windows.zip
           path: dist/wcag_checker.zip
-      - name: Create Release and Upload Artifact
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install uv
+          uv sync
+
+      - name: Build Linux executable with PyInstaller
+        run: |
+          uv run pyinstaller ./wcag_checker_extracted.spec
+
+      - name: Upload Linux executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wcag_checker_linux.zip
+          path: dist/wcag_checker.zip
+
+  release:
+    needs: [build-windows, build-linux]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Release and Upload Artifacts
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/wcag_checker.zip
+          files: |
+            dist/wcag_checker_windows.zip
+            dist/wcag_checker_linux.zip
           draft: false
           prerelease: false
           name: Release ${{ github.ref_name }}

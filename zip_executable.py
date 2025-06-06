@@ -3,7 +3,7 @@ import zipfile
 from pathlib import Path
 
 def main():
-    print("Erstelle ZIP-Datei für die WCAG Checker Anwendung...")
+    print("Create ZIP package for WCAG Checker...")
 
     # Pfade definieren
     dist_folder = Path('dist')
@@ -15,19 +15,19 @@ def main():
 
     # Sicherstellen, dass der dist-Ordner existiert
     if not os.path.exists(zip_folder):
-        raise FileNotFoundError(f"Der Ordner '{zip_folder}' wurde nicht gefunden.")
+        raise FileNotFoundError(f"Folder '{zip_folder}' not found.")
 
     # ZIP-Datei erstellen
     with zipfile.ZipFile(output_zip, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for root, dirs, files in os.walk(zip_folder):
             for file in files:
-                print(f"Füge Datei '{file}' zum ZIP hinzu...")
+                print(f"Add '{file}' to ZIP...")
                 file_path = os.path.join(root, file)
                 # Relativen Pfad anpassen, um den Ordnernamen im ZIP zu ändern
                 arcname = os.path.join(folder_name_in_zip, os.path.relpath(file_path, zip_folder))
                 zipf.write(file_path, arcname)
 
-    print(f"ZIP-Datei '{output_zip}' wurde erfolgreich erstellt.")
+    print(f"ZIP-File '{output_zip}' created.")
 
 if __name__ == "__main__":
     main()

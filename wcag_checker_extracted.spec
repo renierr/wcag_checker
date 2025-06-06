@@ -15,7 +15,7 @@ hiddenimports = [
 ]
 
 a = Analysis(
-    ['src\\main.py'],
+    ['src/main.py'],
     pathex=[],
     binaries=[],
     datas=[('README.md', '.')] + template_files + [('src/axe-core/axe.min.js', 'src/axe-core')],

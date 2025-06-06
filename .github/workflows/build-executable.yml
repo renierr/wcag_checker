@@ -2,7 +2,6 @@ name: Build Windows Executable with PyInstaller
 
 on:
   push:
-    branches: [ main ]
     tags: [ 'v*.*.*' ]
   release:
     types: [ published ]

@@ -7,9 +7,7 @@ sys.path.append(os.path.abspath(os.path.dirname('.')))
 import glob
 import pkgutil
 import src.actions
-from PyInstaller.utils.hooks import collect_data_files
 
-axe_data_files = collect_data_files('selenium_axe_python')
 template_files = [(file, 'src/templates') for file in glob.glob('src/templates/*.*')]
 hiddenimports = [
     f"src.actions.{module_name}"
@@ -20,7 +18,7 @@ a = Analysis(
     ['src\\main.py'],
     pathex=[],
     binaries=[],
-    datas=[('README.md', '.')] + template_files + axe_data_files + [('src/axe-core/axe.min.js', 'src/axe-core')],
+    datas=[('README.md', '.')] + template_files + [('src/axe-core/axe.min.js', 'src/axe-core')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},

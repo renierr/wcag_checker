@@ -33,5 +33,5 @@ jobs:
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: myapp-executable
+          name: wcag_checker.zip
           path: dist/wcag_checker.zip

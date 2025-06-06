@@ -27,7 +27,7 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller .\wcag_checker_extracted.spec
+          pyinstaller ./wcag_checker_extracted.spec
         shell: bash
 
       - name: Upload executable artifact

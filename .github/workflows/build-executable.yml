@@ -16,13 +16,17 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
         artifact_name: [wcag_checker_windows, wcag_checker_linux, wcag_checker_macos]
         output_file: [wcag_checker_windows.zip, wcag_checker_linux.zip, wcag_checker_macos.zip]
+        shell: [ bash ]
         include:
           - os: windows-latest
-            shell: bash
+            artifact_name: wcag_checker_windows
+            output_file: wcag_checker_windows.zip
           - os: ubuntu-latest
-            shell: bash
+            artifact_name: wcag_checker_linux
+            output_file: wcag_checker_linux.zip
           - os: macos-latest
-            shell: bash
+            artifact_name: wcag_checker_macos
+            output_file: wcag_checker_macos.zip
 
     steps:
       - name: Checkout repository
@@ -38,17 +42,17 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install uv
           uv sync
-        shell: ${{ matrix.shell }}
+        shell: bash
 
       - name: Build executable with PyInstaller
         run: |
           uv run pyinstaller ./wcag_checker_extracted.spec
-        shell: ${{ matrix.shell }}
+        shell: bash
 
       - name: Rename artifact
         run: |
           mv dist/wcag_checker.zip dist/${{ matrix.output_file }}
-        shell: ${{ matrix.shell }}
+        shell: bash
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4

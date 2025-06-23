@@ -2,6 +2,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from pathlib import Path
+import re
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
@@ -25,6 +26,15 @@ class Axe:
             # Load the Axe script from the package
             with axe_file.open("r", encoding="utf-8") as f:
                 self.script_data = f.read()
+
+            # Extract Axe version using regex.
+            version_pattern = re.compile(r'\! axe v([\d.]+)')
+            match = version_pattern.search(self.script_data)
+            if match:
+                version = match.group(1)
+                logger.info(f"Using Axe version: {version}")
+            else:
+                logger.warning("Axe version not found in the script.")
         except FileNotFoundError:
             logger.error("Axe script not found. Ensure the axe-core directory is present in the src folder.")
             raise

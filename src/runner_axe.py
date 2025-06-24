@@ -64,7 +64,9 @@ class Axe:
         logger.debug(f"Running Axe with args: {args}")
         command = (
             f"var callback = arguments[arguments.length - 1];"
-            f"axe.run({args}).then(results => callback(results))"
+            "setTimeout(() => {"
+            f"axe.run({args}).then(results => callback(results));"
+            "});"
         )
         return self.driver.execute_async_script(command)
 

@@ -95,10 +95,33 @@
     svg.style.top = '0';
     svg.style.left = '0';
     svg.style.width = '100%';
-    svg.style.height = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight) + 'px';
     svg.style.pointerEvents = 'none';
     svg.style.zIndex = '10000';
     document.body.appendChild(svg);
+
+    // Set initial height
+    updateSvgHeight();
+
+    // Recalculate height after a short delay to ensure all elements are rendered
+    setTimeout(updateSvgHeight, 100);
+
+    // Add a resize handler to update height when window size changes
+    window.addEventListener('resize', updateSvgHeight);
+
+    // Function to calculate and set the appropriate SVG height
+    function updateSvgHeight() {
+      const docHeight = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight,
+        document.body.offsetHeight,
+        document.documentElement.offsetHeight,
+        document.body.clientHeight,
+        document.documentElement.clientHeight
+      );
+
+      // Add extra buffer to prevent cut-off
+      svg.style.height = (docHeight + 200) + 'px';
+    }
 
     // Arrowhead definition
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
@@ -137,6 +160,7 @@
       number.style.zIndex = '10001';
       number.style.left = '-10px';
       number.style.top = '-10px';
+      number.style.boxShadow = '2px 2px 4px rgba(0, 0, 0, 0.5)';
       el.appendChild(number);
     });
 
@@ -144,6 +168,18 @@
     // Draw connecting lines
     const centers = tabElements.map(el => getElementCenter(el));
     for (let i = 0; i < centers.length - 1; i++) {
+      // Add shadow effect line
+      const shadowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      shadowLine.setAttribute('data-tabpath', 'true');
+      shadowLine.setAttribute('x1', centers[i].x);
+      shadowLine.setAttribute('y1', centers[i].y);
+      shadowLine.setAttribute('x2', centers[i + 1].x);
+      shadowLine.setAttribute('y2', centers[i + 1].y);
+      shadowLine.setAttribute('stroke', 'rgba(0, 0, 0, 0.3)');
+      shadowLine.setAttribute('stroke-width', '4');
+      shadowLine.setAttribute('filter', 'blur(3px)');
+      svg.appendChild(shadowLine);
+
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttribute('data-tabpath', 'true');
       line.setAttribute('x1', centers[i].x);

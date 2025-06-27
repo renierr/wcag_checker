@@ -26,6 +26,7 @@ class Mode(Enum):
 class Runner(Enum):
     AXE = "axe"
     CONTRAST = "contrast"
+    TAB = "tab"
 
     def __str__(self):
         return self.value

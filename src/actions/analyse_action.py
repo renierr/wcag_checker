@@ -8,10 +8,17 @@ from src.config import ProcessingConfig, Runner
 from src.logger_setup import logger
 from src.runner_axe import runner_axe
 from src.runner_contrast import runner_contrast
+from src.runner_tab import runner_tab
 from src.utils import reset_window_size, set_window_size_to_viewport
 
+runner_function_map = {
+    Runner.AXE: runner_axe,
+    Runner.CONTRAST: runner_contrast,
+    Runner.TAB: runner_tab,
+}
+
 input_idx = 0
-axe = None
+tabpath_checker = None
 
 @register_action("analyze")
 @register_action("analyse")
@@ -33,7 +40,7 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     global input_idx
 
     input_idx += 1
-    logger.info(f"[{input_idx}] Analysing page '{param if param else 'current'}'")
+    logger.info(f"[{input_idx}] Analysing page '{param if param else 'current'}' with runner '{config.runner.value}'")
     results = []
     screenshots_folder = Path(config.output) / "screenshots"
 
@@ -64,7 +71,9 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     driver.save_screenshot(full_page_screenshot_path)
 
     # select runner to run the check
-    runner_function = runner_axe if config.runner == Runner.AXE else runner_contrast
+    runner_function = runner_function_map.get(config.runner)
+    if runner_function is None:
+        raise ValueError(f"Invalid runner: {config.runner}")
     full_page_screenshot_path_outline = runner_function(config, driver, results, screenshots_folder, input_idx)
 
     # save results

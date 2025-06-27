@@ -9,6 +9,8 @@ import pkgutil
 import src.actions
 
 template_files = [(file, 'src/templates') for file in glob.glob('src/templates/*.*')]
+js_files = [(file, 'src/js') for file in glob.glob('src/js/*.js')]
+
 hiddenimports = [
     f"src.actions.{module_name}"
     for _, module_name, _ in pkgutil.iter_modules(src.actions.__path__)
@@ -18,7 +20,7 @@ a = Analysis(
     ['src/main.py'],
     pathex=[],
     binaries=[],
-    datas=[('README.md', '.')] + template_files + [('src/axe-core/axe.min.js', 'src/axe-core')],
+    datas=[('README.md', '.')] + template_files + js_files + [('src/axe-core/axe.min.js', 'src/axe-core')],
     hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},

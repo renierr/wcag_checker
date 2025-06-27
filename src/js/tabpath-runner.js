@@ -329,11 +329,23 @@
     svg.appendChild(defs);
   }
 
-  function buildPotentialElements() {
-    // This function is a placeholder for future implementation
-    // It can be used to build a list of potential elements based on specific criteria
-    return getTabOrder();
-  }
+async function buildPotentialElements() {
+  const tabbedElements = await getTabOrder();
+  const clickableElements = Array.from(document.querySelectorAll('*')).filter(el => {
+    if (el.hasAttribute('onclick')) return true;
+    const role = el.getAttribute('role');
+    if (role) {
+      const interactiveRoles = ['link', 'button', 'checkbox', 'radio', 'switch', 'tab', 'menuitem', 'option'];
+      if (interactiveRoles.includes(role.toLowerCase())) return true;
+    }
+    if (el.hasAttribute('aria-haspopup')) return true;
+
+    return false;
+  });
+
+  console.log(clickableElements);
+  return Array.from(new Set([...tabbedElements, ...clickableElements]));
+}
 
   /**
    * Runs the tab path analysis.

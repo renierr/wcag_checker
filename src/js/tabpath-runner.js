@@ -214,12 +214,27 @@
       const adjustedX2 = centers[i + 1].x - nx * gapSize;
       const adjustedY2 = centers[i + 1].y - ny * gapSize;
 
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      // Calculate control points for the curved path
+      // Use 30% of the distance as the curve amount
+      const curveAmount = Math.min(length * 0.3, 50);
+
+      // Create a slight offset perpendicular to the line direction
+      const perpX = -ny; // Perpendicular vector
+      const perpY = nx;
+
+      // Create control point (use perpendicular vector for a nice curve)
+      const controlX = centers[i].x + dx / 2 + perpX * curveAmount;
+      const controlY = centers[i].y + dy / 2 + perpY * curveAmount;
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       line.setAttribute('data-tabpath', 'true');
-      line.setAttribute('x1', centers[i].x);
-      line.setAttribute('y1', centers[i].y);
-      line.setAttribute('x2', adjustedX2);
-      line.setAttribute('y2', adjustedY2);
+      line.setAttribute('d', `M ${centers[i].x} ${centers[i].y} Q ${controlX} ${controlY} ${adjustedX2} ${adjustedY2}`);
+      line.setAttribute('fill', 'none');
+
+      //line.setAttribute('x1', centers[i].x);
+      //line.setAttribute('y1', centers[i].y);
+      //line.setAttribute('x2', adjustedX2);
+      //line.setAttribute('y2', adjustedY2);
       line.setAttribute('stroke', currentColor);
       line.setAttribute('stroke-width', '1.5');
       line.setAttribute('marker-end', 'url(#arrow)');

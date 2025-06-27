@@ -161,7 +161,14 @@
       number.style.left = '-10px';
       number.style.top = '-10px';
       number.style.boxShadow = '2px 2px 4px rgba(0, 0, 0, 0.5)';
-      el.appendChild(number);
+
+      // Position at the element's top-left corner
+      const rect = el.getBoundingClientRect();
+      number.style.left = (rect.left + window.scrollX - 10) + 'px';
+      number.style.top = (rect.top + window.scrollY - 10) + 'px';
+
+      // Add to body instead of the element itself
+      document.body.appendChild(number);
     });
 
 

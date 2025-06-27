@@ -72,7 +72,7 @@
   }
 
   // Main function
-  async function tabpath_runner() {
+  async function tabpathRunner(elements = null) {
     console.debug("Tabpath Runner started");
     // Get all potentially focusable elements
     const potentialElements = Array.from(
@@ -81,8 +81,8 @@
     const idCache = new Map();
 
     // Get tab order using shared idCache
-    const tabElements = await getTabOrder(idCache);
-    const tabElementIds = new Set(tabElements.map(el => getElementIdentifier(el, idCache)));
+    //const tabElements = await getTabOrder(idCache);
+    const tabElements = elements || await getTabOrder(idCache);
 
     // Collect element info
     const elementInfo = [];
@@ -162,8 +162,6 @@
       number.setAttribute('data-tabpath', 'true');
       number.textContent = (index + 1).toString();
       number.style.position = 'absolute';
-      number.style.background = 'rgba(255, 0, 0, 0.6)';
-      number.style.color = 'white';
       number.style.padding = '2px 5px';
       number.style.borderRadius = '50%';
       number.style.fontSize = '12px';
@@ -171,6 +169,22 @@
       number.style.left = '-10px';
       number.style.top = '-10px';
       number.style.boxShadow = '2px 2px 4px rgba(0, 0, 0, 0.5)';
+      // Style based on position in tab order
+      if (index === 0) {
+        // First element - green label
+        number.style.background = 'rgba(0, 150, 0, 0.8)';
+        number.style.color = 'white';
+        number.style.border = '2px solid lightgreen';
+      } else if (index === tabElements.length - 1) {
+        // Last element - darker label
+        number.style.background = 'rgba(80, 40, 0, 0.9)';
+        number.style.color = 'white';
+        number.style.border = '2px solid #A06020';
+      } else {
+        // Normal elements - original red label
+        number.style.background = 'rgba(255, 0, 0, 0.6)';
+        number.style.color = 'white';
+      }
 
       // Position at the element's top-left corner
       const rect = el.getBoundingClientRect();
@@ -247,9 +261,6 @@
   }
 
 
-  // Keep the original function private
-  const tabpathRunner = tabpath_runner;
-
   function cleanTabpathVisualization() {
     document.querySelectorAll('[data-tabpath="true"]').forEach(el => {
       el.remove();
@@ -268,9 +279,9 @@
   window.cleanTabpathVisualization = cleanTabpathVisualization;
 
   // Expose it to the global scope
-  window.runTabpathAnalysis = async function() {
+  window.runTabpathAnalysis = async function(elements= null) {
     try {
-      const results = await tabpathRunner();
+      const results = await tabpathRunner(elements);
       console.debug("Tab order analysis complete", results);
       return results;
     } catch (error) {

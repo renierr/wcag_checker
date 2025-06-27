@@ -36,7 +36,7 @@ class TabRunnerScript:
         """
         self.driver.execute_script(self.script_data)
 
-    def run(self, options: dict = None) -> dict:
+    def run(self, tab_elements: list[WebElement] = None) -> dict:
         """
         Run tabpath script with the given options.
 
@@ -44,11 +44,12 @@ class TabRunnerScript:
         """
         command = (
             f"var callback = arguments[arguments.length - 1];"
+            f"var elements = arguments[0];"
             "setTimeout(() => {"
-            f"runTabpathAnalysis().then(results => callback(results));"
+            f"runTabpathAnalysis(elements).then(results => callback(results));"
             "});"
         )
-        return self.driver.execute_async_script(command)
+        return self.driver.execute_async_script(command, tab_elements)
 
     def cleanup(self):
         """
@@ -125,16 +126,15 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
         tabpath_checker = TabRunnerScript(driver)
 
     # send tab keys to page to collect all elements focusable by tab key
-    #tab_elements = _collect_elements_by_tab_key(driver)
-    #logger.info(f"Found {len(tab_elements)} tabbable elements on page.")
-
+    tab_elements = _collect_elements_by_tab_key(driver)
+    logger.info(f"Found {len(tab_elements)} tabbable elements on page.")
 
     logger.debug(f"Inject tab script to url {url_idx}")
     tabpath_checker.inject()
 
     logger.debug(f"Run tab script for url {url_idx}")
     options = { }
-    tabpath_data = tabpath_checker.run(options=options)
+    tabpath_data = tabpath_checker.run(tab_elements=None) # for now we don't use the collected elements FIXME
 
     results.append(tabpath_data)
     logger.info(f"Found {len(tabpath_data)} tabbings on page.")

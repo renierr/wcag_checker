@@ -148,7 +148,7 @@
     const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     polyline.setAttribute('data-tabpath', 'true');
     polyline.setAttribute('points', '0,0 10,5 0,10 2,5');
-    polyline.setAttribute('fill', 'rgba(0, 0, 255, 0.7)');
+    polyline.setAttribute('fill', 'rgba(30, 80, 255, 0.85)');
     marker.appendChild(polyline);
     defs.appendChild(marker);
     svg.appendChild(defs);
@@ -162,7 +162,7 @@
       number.setAttribute('data-tabpath', 'true');
       number.textContent = (index + 1).toString();
       number.style.position = 'absolute';
-      number.style.background = 'red';
+      number.style.background = 'rgba(255, 0, 0, 0.6)';
       number.style.color = 'white';
       number.style.padding = '2px 5px';
       number.style.borderRadius = '50%';
@@ -186,19 +186,15 @@
     const centers = tabElements.map(el => getElementCenter(el));
     // Define an array of colors to iterate through
     const lineColors = [
-      'rgba(30, 80, 255, 0.7)',    // bright blue
-      'rgba(65, 105, 225, 0.7)',    // royal blue
-      'rgba(100, 149, 237, 0.7)'    // cornflower blue
+      'rgba(30, 80, 255, 0.85)',    // bright blue
+      'rgba(65, 105, 225, 0.85)',    // royal blue
+      'rgba(100, 149, 237, 0.85)'    // cornflower blue
     ];
 
     for (let i = 0; i < centers.length - 1; i++) {
       // Get color from the array using modulo to cycle through colors
       const colorIndex = i % lineColors.length;
       const currentColor = lineColors[colorIndex];
-
-      // Shadow color should match the line color but with transparency
-      const shadowColor = currentColor.replace('0.7', '0.3');
-
 
       // Calculate the direction vector
       const dx = centers[i + 1].x - centers[i].x;
@@ -218,19 +214,6 @@
       const adjustedX2 = centers[i + 1].x - nx * gapSize;
       const adjustedY2 = centers[i + 1].y - ny * gapSize;
 
-
-      // Add shadow effect line
-      const shadowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      shadowLine.setAttribute('data-tabpath', 'true');
-      shadowLine.setAttribute('x1', centers[i].x);
-      shadowLine.setAttribute('y1', centers[i].y);
-      shadowLine.setAttribute('x2', adjustedX2);
-      shadowLine.setAttribute('y2', adjustedY2);
-      shadowLine.setAttribute('stroke', shadowColor);
-      shadowLine.setAttribute('stroke-width', '4');
-      shadowLine.setAttribute('filter', 'blur(2px)');
-      svg.appendChild(shadowLine);
-
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line.setAttribute('data-tabpath', 'true');
       line.setAttribute('x1', centers[i].x);
@@ -238,8 +221,9 @@
       line.setAttribute('x2', adjustedX2);
       line.setAttribute('y2', adjustedY2);
       line.setAttribute('stroke', currentColor);
-      line.setAttribute('stroke-width', '2');
+      line.setAttribute('stroke-width', '1.5');
       line.setAttribute('marker-end', 'url(#arrow)');
+      line.setAttribute('filter', 'drop-shadow(0 0 1px black)');
       svg.appendChild(line);
     }
 

@@ -49,10 +49,9 @@
   /**
    * This function collects all potential focusable elements in the document, sorts them by their tabindex
    *
-   * @param {Map} idCache - Cache to store unique identifiers for elements
    * @return {Promise<HTMLElement[]>} - Promise resolving to an array of focusable elements in tab order
    */
-  function getTabOrder(idCache) {
+  function getTabOrder() {
     const elements = [];
 
     return new Promise(resolve => {
@@ -111,6 +110,40 @@
       });
     });
     return elementInfo;
+  }
+
+  /**
+   * Visualizes the missed elements in the tab order by adding a styled outline and a label.
+   *
+   * @param {HTMLElement[]} missedElements - Array of elements that were missed in the tab order
+   */
+  function visualizeMissedElements(missedElements) {
+    missedElements.forEach((el, index) => {
+      el.style.outline = '2px solid rgba(255, 0, 0, 0.8)';
+      el.style.position = 'relative';
+      el.setAttribute('data-tabpath-styled', 'true');
+      const number = document.createElement('span');
+      number.setAttribute('data-tabpath', 'true');
+      number.textContent = 'X' + (index + 1).toString();
+      number.style.position = 'absolute';
+      number.style.padding = '2px 5px';
+      number.style.borderRadius = '50%';
+      number.style.fontSize = '12px';
+      number.style.zIndex = '10001';
+      number.style.left = '-10px';
+      number.style.top = '-10px';
+      number.style.background = 'rgba(255, 0, 0, 0.6)';
+      number.style.color = 'white';
+      number.style.boxShadow = '2px 2px 4px rgba(0, 0, 0, 0.5)';
+
+      // Position at the element's top-left corner
+      const rect = el.getBoundingClientRect();
+      number.style.left = (rect.left + window.scrollX - 10) + 'px';
+      number.style.top = (rect.top + window.scrollY - 10) + 'px';
+
+      // Add to body instead of the element itself
+      document.body.appendChild(number);
+    });
   }
 
   /**
@@ -302,6 +335,12 @@
     svg.appendChild(defs);
   }
 
+  function buildPotentialElements() {
+    // This function is a placeholder for future implementation
+    // It can be used to build a list of potential elements based on specific criteria
+    return getTabOrder();
+  }
+
   /**
    * Runs the tab path analysis.
    *
@@ -315,21 +354,26 @@
    */
   async function tabpathRunner(elements = null) {
     console.debug("Tab path Runner started");
-    // Get all potentially focusable elements
-    const potentialElements = Array.from(
-      document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]')
-    );
     const idCache = new Map();
-
     const tabElements = elements || await getTabOrder(idCache);
-    const elementInfo = collectElementInfo(tabElements, idCache);
+    const potentialElements = elements ? await buildPotentialElements() : tabElements;
+    console.debug("Tab path Runner found", tabElements.length, "tabbed elements and", potentialElements.length, "potential elements");
     const svg = createSvgContainer();
     arrowHeadDefinition(svg);
     visualizeElements(tabElements);
     drawTabLines(tabElements, svg);
+
+    // compare tabElements and potentialElements and output the differences as missed elements
+    const missedElements = potentialElements.filter(pe => !tabElements.includes(pe));
+    if (missedElements.length > 0) {
+      visualizeMissedElements(missedElements)
+      console.warn("Missed elements in tab order:", missedElements.length);
+    }
+
     return {
-      tabbed_elements: elementInfo,
-      potential_elements: [],
+      tabbed_elements: collectElementInfo(tabElements, idCache),
+      potential_elements: collectElementInfo(potentialElements, idCache),
+      missed_elements: collectElementInfo(missedElements, idCache)
     };
   }
 

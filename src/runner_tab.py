@@ -133,11 +133,13 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
     tabpath_checker.inject()
 
     logger.debug(f"Run tab script for url {url_idx}")
-    options = { }
     tabpath_data = tabpath_checker.run(tab_elements=tab_elements) # for now we don't use the collected elements FIXME
 
     results.append(tabpath_data)
-    # take full-pagescreenshot
+    # log warning on missed_elements
+    if 'missed_elements' in tabpath_data and tabpath_data['missed_elements']:
+        logger.warning(f"Tab path analysis found {len(tabpath_data['missed_elements'])} missed elements.")
+
     set_window_size_to_viewport(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path_outline}")

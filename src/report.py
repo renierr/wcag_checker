@@ -25,7 +25,7 @@ def count_violations(results):
     for result in results:
         # tab runner
         if isinstance(result, dict) and 'tabbed_elements' in result:
-            violations_count += len(result.get('missed', []))
+            violations_count += len(result.get('missed_elements', []))
         # axe runner
         elif 'violations' in result:
             for violation in result.get('violations', []):

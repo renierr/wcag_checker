@@ -245,10 +245,6 @@
       line.setAttribute('d', `M ${centers[i].x} ${centers[i].y} Q ${controlX} ${controlY} ${adjustedX2} ${adjustedY2}`);
       line.setAttribute('fill', 'none');
 
-      //line.setAttribute('x1', centers[i].x);
-      //line.setAttribute('y1', centers[i].y);
-      //line.setAttribute('x2', adjustedX2);
-      //line.setAttribute('y2', adjustedY2);
       line.setAttribute('stroke', currentColor);
       line.setAttribute('stroke-width', '1.5');
       line.setAttribute('marker-end', 'url(#arrow)');
@@ -257,7 +253,10 @@
     }
 
     // Return results
-    return elementInfo;
+    return {
+      tabbed_elements: elementInfo,
+      potential_elements: [],
+    };
   }
 
 

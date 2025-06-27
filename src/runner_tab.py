@@ -137,7 +137,6 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
     tabpath_data = tabpath_checker.run(tab_elements=tab_elements) # for now we don't use the collected elements FIXME
 
     results.append(tabpath_data)
-    logger.info(f"Found {len(tabpath_data)} tabbings on page.")
     # take full-pagescreenshot
     set_window_size_to_viewport(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"

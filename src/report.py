@@ -22,16 +22,19 @@ def join_color_span(colors):
 def count_violations(results):
     violations_count = 0
 
-    # for tab runner we return 0 if a result contains only an array
-    if isinstance(results, list) and len(results) == 1 and isinstance(results[0], list):
-        return 0
     for result in results:
-        if 'violations' in result:
+        # tab runner
+        if isinstance(result, dict) and 'tabbed_elements' in result:
+            violations_count += len(result.get('missed', []))
+        # axe runner
+        elif 'violations' in result:
             for violation in result.get('violations', []):
                 violations_count += len(violation.get('nodes', []))
+        # contrast runner
         else:
-            return len(results)  # Contrast runner
-    return violations_count  # Axe runner
+            return len(results)
+
+    return violations_count
 
 def build_markdown(config: Config, json_data: dict) -> str:
     """

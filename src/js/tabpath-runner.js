@@ -362,6 +362,12 @@
     const cursorElements = Array.from(document.querySelectorAll('*')).filter(el => {
       if (elementsFoundSoFar.has(el)) return false;
 
+      let parent = el.parentElement;
+      while (parent) {
+        if (elementsFoundSoFar.has(parent)) return false;
+        parent = parent.parentElement;
+      }
+
       const style = window.getComputedStyle(el);
       if (style.cursor === 'pointer' && style.display !== 'none' && style.visibility !== 'hidden') {
         const isHiddenByParent = isElementHiddenByParents(el);

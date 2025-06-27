@@ -1,9 +1,12 @@
+from time import sleep
+
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from pathlib import Path
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
+from src.utils import set_window_size_to_viewport
 
 tabpath_checker = None
 class TabRunnerScript:
@@ -46,6 +49,12 @@ class TabRunnerScript:
         )
         return self.driver.execute_async_script(command)
 
+    def cleanup(self):
+        """
+        Cleanup the tabpath script.
+        """
+        self.driver.execute_script("cleanTabpathVisualization();")
+
 def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
                screenshots_folder: Path, url_idx: int) -> Path|None:
     global tabpath_checker
@@ -58,20 +67,17 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
 
     logger.debug(f"Run tab script for url {url_idx}")
     options = { }
-    driver.set_script_timeout(7200)
     tabpath_data = tabpath_checker.run(options=options)
 
     # extract some info
-    elements: list[WebElement] = []
-    elm_idx = 0
 
     results.append(tabpath_data)
-    #logger.info(f"Found {len(tabpath_data)} tabbings on page.")
+    logger.info(f"Found {len(tabpath_data)} tabbings on page.")
     # take full-pagescreenshot
+    set_window_size_to_viewport(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path_outline}")
-    driver.save_screenshot(full_page_screenshot_path_outline)
-
-    # TODO cleanup the tabpath data
+    driver.save_screenshot(full_page_screenshot_path_outline.as_posix())
+    tabpath_checker.cleanup()
 
     return full_page_screenshot_path_outline

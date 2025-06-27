@@ -10,7 +10,7 @@
     };
   }
 
-// Generate unique identifier once per element
+  // Generate unique identifier once per element
   function getElementIdentifier(element, cache) {
     if (cache.has(element)) {
       return cache.get(element);
@@ -35,18 +35,6 @@
     return id;
   }
 
-// Check why an element is not focusable
-  function getMissingReason(element) {
-    if (element.getAttribute('tabindex') === '-1') return 'tabindex="-1"';
-    if (element.disabled) return 'disabled';
-    const style = window.getComputedStyle(element);
-    if (style.display === 'none') return 'display: none';
-    if (style.visibility === 'hidden') return 'visibility: hidden';
-    if (!element.offsetParent) return 'outside visible area';
-    return 'unknown';
-  }
-
-  // Replace your getTabOrder function with this improved version
   function getTabOrder(idCache) {
     const elements = [];
 
@@ -75,7 +63,7 @@
 
   // Main function
   async function tabpath_runner() {
-    console.log("Tabpath Runner started");
+    console.debug("Tabpath Runner started");
     // Get all potentially focusable elements
     const potentialElements = Array.from(
       document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]')
@@ -86,40 +74,23 @@
     const tabElements = await getTabOrder(idCache);
     const tabElementIds = new Set(tabElements.map(el => getElementIdentifier(el, idCache)));
 
-    // Identify missing elements
-    const missingElements = potentialElements.filter(el => !tabElementIds.has(getElementIdentifier(el, idCache)));
-
     // Collect element info
     const elementInfo = [];
     tabElements.forEach((el, index) => {
       elementInfo.push({
         index: index + 1,
+        id: getElementIdentifier(el, idCache),
         tag: el.tagName.toLowerCase(),
         text: el.textContent.trim().slice(0, 50),
         href: el.getAttribute('href') || '',
-        id: el.id || '',
         class: el.className || '',
-        status: 'found',
-        reason: '',
-        position: getElementCenter(el)
-      });
-    });
-    missingElements.forEach((el, index) => {
-      elementInfo.push({
-        index: `X${index + 1}`,
-        tag: el.tagName.toLowerCase(),
-        text: el.textContent.trim().slice(0, 50),
-        href: el.getAttribute('href') || '',
-        id: el.id || '',
-        class: el.className || '',
-        status: 'missing',
-        reason: getMissingReason(el),
         position: getElementCenter(el)
       });
     });
 
     // Create SVG container
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('data-tabpath', 'true');
     svg.style.position = 'absolute';
     svg.style.top = '0';
     svg.style.left = '0';
@@ -132,6 +103,8 @@
     // Arrowhead definition
     const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
     const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    marker.setAttribute('data-tabpath', 'true');
+    defs.setAttribute('data-tabpath', 'true');
     marker.setAttribute('id', 'arrow');
     marker.setAttribute('viewBox', '0 0 10 10');
     marker.setAttribute('refX', '5');
@@ -140,6 +113,7 @@
     marker.setAttribute('markerHeight', '6');
     marker.setAttribute('orient', 'auto-start-reverse');
     const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    polyline.setAttribute('data-tabpath', 'true');
     polyline.setAttribute('points', '0,0 10,5 0,10 2,5');
     polyline.setAttribute('fill', 'blue');
     marker.appendChild(polyline);
@@ -150,7 +124,9 @@
     tabElements.forEach((el, index) => {
       el.style.outline = '3px solid yellow';
       el.style.position = 'relative';
+      el.setAttribute('data-tabpath-styled', 'true');
       const number = document.createElement('span');
+      number.setAttribute('data-tabpath', 'true');
       number.textContent = (index + 1).toString();
       number.style.position = 'absolute';
       number.style.background = 'red';
@@ -164,28 +140,12 @@
       el.appendChild(number);
     });
 
-    // Visualize missing elements
-    missingElements.forEach((el, index) => {
-      el.style.outline = '3px solid red';
-      el.style.position = 'relative';
-      const number = document.createElement('span');
-      number.textContent = `X${index + 1}`;
-      number.style.position = 'absolute';
-      number.style.background = 'gray';
-      number.style.color = 'white';
-      number.style.padding = '2px 5px';
-      number.style.borderRadius = '50%';
-      number.style.fontSize = '12px';
-      number.style.zIndex = '10001';
-      number.style.left = '-10px';
-      number.style.top = '-10px';
-      el.appendChild(number);
-    });
 
     // Draw connecting lines
     const centers = tabElements.map(el => getElementCenter(el));
     for (let i = 0; i < centers.length - 1; i++) {
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('data-tabpath', 'true');
       line.setAttribute('x1', centers[i].x);
       line.setAttribute('y1', centers[i].y);
       line.setAttribute('x2', centers[i + 1].x);
@@ -203,6 +163,23 @@
 
   // Keep the original function private
   const tabpathRunner = tabpath_runner;
+
+  function cleanTabpathVisualization() {
+    document.querySelectorAll('[data-tabpath="true"]').forEach(el => {
+      el.remove();
+    });
+
+    // Reset element styles
+    document.querySelectorAll('[data-tabpath-styled="true"]').forEach(el => {
+      el.style.outline = '';
+      el.removeAttribute('data-tabpath-styled');
+    });
+
+    console.debug("Tabpath visualization cleaned");
+  }
+
+  // Expose the clean function to the global scope
+  window.cleanTabpathVisualization = cleanTabpathVisualization;
 
   // Expose it to the global scope
   window.runTabpathAnalysis = async function() {

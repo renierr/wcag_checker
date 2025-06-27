@@ -199,13 +199,33 @@
       // Shadow color should match the line color but with transparency
       const shadowColor = currentColor.replace('0.7', '0.3');
 
+
+      // Calculate the direction vector
+      const dx = centers[i + 1].x - centers[i].x;
+      const dy = centers[i + 1].y - centers[i].y;
+
+      // Calculate the length of the line
+      const length = Math.sqrt(dx * dx + dy * dy);
+
+      // If the line is too short, skip the gap
+      const gapSize = 8; // Size of the gap in pixels
+
+      // Normalize the direction vector
+      const nx = dx / length;
+      const ny = dy / length;
+
+      // Calculate adjusted end point with a gap
+      const adjustedX2 = centers[i + 1].x - nx * gapSize;
+      const adjustedY2 = centers[i + 1].y - ny * gapSize;
+
+
       // Add shadow effect line
       const shadowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       shadowLine.setAttribute('data-tabpath', 'true');
       shadowLine.setAttribute('x1', centers[i].x);
       shadowLine.setAttribute('y1', centers[i].y);
-      shadowLine.setAttribute('x2', centers[i + 1].x);
-      shadowLine.setAttribute('y2', centers[i + 1].y);
+      shadowLine.setAttribute('x2', adjustedX2);
+      shadowLine.setAttribute('y2', adjustedY2);
       shadowLine.setAttribute('stroke', shadowColor);
       shadowLine.setAttribute('stroke-width', '4');
       shadowLine.setAttribute('filter', 'blur(2px)');
@@ -215,8 +235,8 @@
       line.setAttribute('data-tabpath', 'true');
       line.setAttribute('x1', centers[i].x);
       line.setAttribute('y1', centers[i].y);
-      line.setAttribute('x2', centers[i + 1].x);
-      line.setAttribute('y2', centers[i + 1].y);
+      line.setAttribute('x2', adjustedX2);
+      line.setAttribute('y2', adjustedY2);
       line.setAttribute('stroke', currentColor);
       line.setAttribute('stroke-width', '2');
       line.setAttribute('marker-end', 'url(#arrow)');

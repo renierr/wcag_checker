@@ -48,14 +48,24 @@
       function getFocusableElements() {
         return Array.from(document.querySelectorAll(
           'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), ' +
-          'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), ' +
+          '[contenteditable="true"]'
         )).filter(el => {
           const style = window.getComputedStyle(el);
           return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
         }).sort((a, b) => {
-          const aTabIndex = a.tabIndex || 0;
-          const bTabIndex = b.tabIndex || 0;
-          return aTabIndex - bTabIndex;
+          // Explicitly handle tabindex order:
+          // 1. Elements with positive tabindex (sorted in ascending order)
+          // 2. Elements with tabindex="0" or naturally focusable without tabindex
+          const aTabIndex = a.tabIndex > 0 ? a.tabIndex : 0;
+          const bTabIndex = b.tabIndex > 0 ? b.tabIndex : 0;
+
+          if (aTabIndex > 0 && bTabIndex > 0) return aTabIndex - bTabIndex;
+          if (aTabIndex > 0) return -1;
+          if (bTabIndex > 0) return 1;
+
+          // For elements with same effective tabindex, maintain DOM order
+          return 0;
         });
       }
     });
@@ -138,7 +148,7 @@
     const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
     polyline.setAttribute('data-tabpath', 'true');
     polyline.setAttribute('points', '0,0 10,5 0,10 2,5');
-    polyline.setAttribute('fill', 'blue');
+    polyline.setAttribute('fill', 'rgba(0, 0, 255, 0.7)');
     marker.appendChild(polyline);
     defs.appendChild(marker);
     svg.appendChild(defs);
@@ -184,7 +194,7 @@
       shadowLine.setAttribute('y2', centers[i + 1].y);
       shadowLine.setAttribute('stroke', 'rgba(0, 0, 0, 0.3)');
       shadowLine.setAttribute('stroke-width', '4');
-      shadowLine.setAttribute('filter', 'blur(3px)');
+      shadowLine.setAttribute('filter', 'blur(2px)');
       svg.appendChild(shadowLine);
 
       const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -193,7 +203,7 @@
       line.setAttribute('y1', centers[i].y);
       line.setAttribute('x2', centers[i + 1].x);
       line.setAttribute('y2', centers[i + 1].y);
-      line.setAttribute('stroke', 'blue');
+      line.setAttribute('stroke', 'rgba(0, 0, 255, 0.7)');
       line.setAttribute('stroke-width', '2');
       line.setAttribute('marker-end', 'url(#arrow)');
       svg.appendChild(line);

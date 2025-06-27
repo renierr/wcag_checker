@@ -190,14 +190,42 @@ def reset_window_size(driver: WebDriver, width: int = 1920, height: int = 1080) 
 
 # language=JS
 script_viewport_size = """
-const dimensions = {
-    scrollWidth:  document.body.scrollWidth,
-    scrollHeight: document.body.scrollHeight,
-    browserUIWidth: window.outerWidth - window.innerWidth,
-    browserUIHeight: window.outerHeight - window.innerHeight
-};
+function getMaxDimensions() {
+    // Get all elements in the document
+    const allElements = document.querySelectorAll('*');
+    
+    // Track maximum dimensions
+    let maxRight = 0;
+    let maxBottom = 0;
+    
+    // Process each element to find maximum extents
+    allElements.forEach(element => {
+        const rect = element.getBoundingClientRect();
+        
+        // Calculate absolute position by adding scroll position
+        const absoluteRight = rect.right + window.scrollX;
+        const absoluteBottom = rect.bottom + window.scrollY;
+        
+        // Update maxima if needed
+        maxRight = Math.max(maxRight, absoluteRight);
+        maxBottom = Math.max(maxBottom, absoluteBottom);
+    });
+    
+    // Compare with regular body dimensions
+    const bodyWidth = document.body.scrollWidth;
+    const bodyHeight = document.body.scrollHeight;
+    
+    return {
+        scrollWidth: Math.max(maxRight, bodyWidth),
+        scrollHeight: Math.max(maxBottom, bodyHeight),
+        browserUIWidth: window.outerWidth - window.innerWidth,
+        browserUIHeight: window.outerHeight - window.innerHeight
+    };
+}
+
+// Reset scroll position and return dimensions
 window.scrollTo(0, 0);
-return dimensions;
+return getMaxDimensions();
 """
 
 def set_window_size_to_viewport(driver: WebDriver) -> None:

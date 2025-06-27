@@ -329,23 +329,55 @@
     svg.appendChild(defs);
   }
 
-async function buildPotentialElements() {
-  const tabbedElements = await getTabOrder();
-  const clickableElements = Array.from(document.querySelectorAll('*')).filter(el => {
-    if (el.hasAttribute('onclick')) return true;
-    const role = el.getAttribute('role');
-    if (role) {
-      const interactiveRoles = ['link', 'button', 'checkbox', 'radio', 'switch', 'tab', 'menuitem', 'option'];
-      if (interactiveRoles.includes(role.toLowerCase())) return true;
+  function isElementHiddenByParents(element) {
+    let parent = element.parentElement;
+    while (parent) {
+      const parentStyle = window.getComputedStyle(parent);
+      if (parentStyle.display === 'none' || parentStyle.visibility === 'hidden' || parentStyle.opacity === '0') {
+        return true;
+      }
+      parent = parent.parentElement;
     }
-    if (el.hasAttribute('aria-haspopup')) return true;
-
     return false;
-  });
+  }
 
-  console.log(clickableElements);
-  return Array.from(new Set([...tabbedElements, ...clickableElements]));
-}
+  async function buildPotentialElements() {
+    const tabbedElements = await getTabOrder();
+    const clickableElements = Array.from(document.querySelectorAll('*')).filter(el => {
+      const eventAttrs = ['onclick', 'onmousedown', 'onmouseup'];
+      if (eventAttrs.some(attr => el.hasAttribute(attr))) {
+        return true;
+      }
+      const role = el.getAttribute('role');
+      if (role) {
+        const interactiveRoles = ['link', 'button', 'checkbox', 'radio', 'switch', 'tab', 'menuitem', 'option'];
+        if (interactiveRoles.includes(role.toLowerCase())) return true;
+      }
+      if (el.hasAttribute('aria-haspopup')) return true;
+
+      return false;
+    });
+
+    const elementsFoundSoFar = new Set([...tabbedElements, ...clickableElements]);
+    const cursorElements = Array.from(document.querySelectorAll('*')).filter(el => {
+      if (elementsFoundSoFar.has(el)) return false;
+
+      const style = window.getComputedStyle(el);
+      if (style.cursor === 'pointer' && style.display !== 'none' && style.visibility !== 'hidden') {
+        const isHiddenByParent = isElementHiddenByParents(el);
+        if (isHiddenByParent) return false;
+
+        const children = Array.from(el.children || []);
+        const hasRelevantChild = children.some(child =>
+          elementsFoundSoFar.has(child) || window.getComputedStyle(child).cursor === 'pointer');
+        return !hasRelevantChild;
+      }
+      return false;
+    });
+
+    cursorElements.forEach(el => elementsFoundSoFar.add(el));
+    return Array.from(elementsFoundSoFar);
+  }
 
   /**
    * Runs the tab path analysis.

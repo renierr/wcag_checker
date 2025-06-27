@@ -184,7 +184,21 @@
 
     // Draw connecting lines
     const centers = tabElements.map(el => getElementCenter(el));
+    // Define an array of colors to iterate through
+    const lineColors = [
+      'rgba(30, 80, 255, 0.7)',    // bright blue
+      'rgba(65, 105, 225, 0.7)',    // royal blue
+      'rgba(100, 149, 237, 0.7)'    // cornflower blue
+    ];
+
     for (let i = 0; i < centers.length - 1; i++) {
+      // Get color from the array using modulo to cycle through colors
+      const colorIndex = i % lineColors.length;
+      const currentColor = lineColors[colorIndex];
+
+      // Shadow color should match the line color but with transparency
+      const shadowColor = currentColor.replace('0.7', '0.3');
+
       // Add shadow effect line
       const shadowLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       shadowLine.setAttribute('data-tabpath', 'true');
@@ -192,7 +206,7 @@
       shadowLine.setAttribute('y1', centers[i].y);
       shadowLine.setAttribute('x2', centers[i + 1].x);
       shadowLine.setAttribute('y2', centers[i + 1].y);
-      shadowLine.setAttribute('stroke', 'rgba(0, 0, 0, 0.3)');
+      shadowLine.setAttribute('stroke', shadowColor);
       shadowLine.setAttribute('stroke-width', '4');
       shadowLine.setAttribute('filter', 'blur(2px)');
       svg.appendChild(shadowLine);
@@ -203,7 +217,7 @@
       line.setAttribute('y1', centers[i].y);
       line.setAttribute('x2', centers[i + 1].x);
       line.setAttribute('y2', centers[i + 1].y);
-      line.setAttribute('stroke', 'rgba(0, 0, 255, 0.7)');
+      line.setAttribute('stroke', currentColor);
       line.setAttribute('stroke-width', '2');
       line.setAttribute('marker-end', 'url(#arrow)');
       svg.appendChild(line);

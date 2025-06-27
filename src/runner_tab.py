@@ -74,13 +74,13 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
     max_tabs = 10000  # Limit the number of tabs to prevent infinite loops
     current_tab_count = 0
 
-    # Store an initially focused element to detect cycling
-    body_element = driver.find_element("tag name", "body")
-    action = ActionChains(driver)
-    action.click(body_element).perform()  # Focus on body first
+    # Reset focus by clicking at (0,0) or sending the page to the top first
+    driver.execute_script("window.scrollTo(0, 0);")
+    # Send Escape key to clear any potential focus
+    ActionChains(driver).send_keys(Keys.ESCAPE).perform()
 
     first_element_signature = None
-
+    action = ActionChains(driver)
     while current_tab_count < max_tabs:
         # Press the Tab key
         action.send_keys(Keys.TAB).perform()
@@ -134,7 +134,7 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
 
     logger.debug(f"Run tab script for url {url_idx}")
     options = { }
-    tabpath_data = tabpath_checker.run(tab_elements=None) # for now we don't use the collected elements FIXME
+    tabpath_data = tabpath_checker.run(tab_elements=tab_elements) # for now we don't use the collected elements FIXME
 
     results.append(tabpath_data)
     logger.info(f"Found {len(tabpath_data)} tabbings on page.")

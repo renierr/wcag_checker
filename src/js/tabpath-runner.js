@@ -1,7 +1,11 @@
-// Wrap the tabpath_runner function to make it globally accessible
 (function() {
 
-  // Calculate element center
+  /**
+   * Calculates the center position of an element in the document.
+   *
+   * @param {HTMLElement} element - The element for which to calculate the center position.
+   * @returns {{x: number, y: number}}
+   */
   function getElementCenter(element) {
     const rect = element.getBoundingClientRect();
     return {
@@ -10,7 +14,14 @@
     };
   }
 
-  // Generate unique identifier once per element
+  /**
+   * Generates a unique identifier for an element based on its ID, tag name, class names,
+   * and its position in the DOM.
+   *
+   * @param {HTMLElement} element
+   * @param {Map} cache - Map to cache identifiers for elements
+   * @returns {*|string}
+   */
   function getElementIdentifier(element, cache) {
     if (cache.has(element)) {
       return cache.get(element);
@@ -35,9 +46,14 @@
     return id;
   }
 
+  /**
+   * This function collects all potential focusable elements in the document, sorts them by their tabindex
+   *
+   * @param {Map} idCache - Cache to store unique identifiers for elements
+   * @return {Promise<HTMLElement[]>} - Promise resolving to an array of focusable elements in tab order
+   */
   function getTabOrder(idCache) {
     const elements = [];
-
 
     return new Promise(resolve => {
 
@@ -71,20 +87,17 @@
     });
   }
 
-  // Main function
-  async function tabpathRunner(elements = null) {
-    console.debug("Tabpath Runner started");
-    // Get all potentially focusable elements
-    const potentialElements = Array.from(
-      document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]')
-    );
-    const idCache = new Map();
-
-    // Get tab order using shared idCache
-    //const tabElements = await getTabOrder(idCache);
-    const tabElements = elements || await getTabOrder(idCache);
-
-    // Collect element info
+  /**
+   * Collects information about each element in the tab order.
+   * This includes its index, unique identifier, tag name, text content,
+   * href attribute (if applicable), class names, and position.
+   * This information is stored in an array for further processing or visualization.
+   *
+   * @param tabElements - Array of elements in tab order
+   * @param idCache - Cache to store unique identifiers for elements
+   * @returns {[]} - Array of objects containing information about each element
+   */
+  function collectElementInfo(tabElements, idCache) {
     const elementInfo = [];
     tabElements.forEach((el, index) => {
       elementInfo.push({
@@ -97,63 +110,19 @@
         position: getElementCenter(el)
       });
     });
+    return elementInfo;
+  }
 
-    // Create SVG container
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('data-tabpath', 'true');
-    svg.style.position = 'absolute';
-    svg.style.top = '0';
-    svg.style.left = '0';
-    svg.style.width = '100%';
-    svg.style.pointerEvents = 'none';
-    svg.style.zIndex = '10000';
-    document.body.appendChild(svg);
-
-    // Set initial height
-    updateSvgHeight();
-
-    // Recalculate height after a short delay to ensure all elements are rendered
-    setTimeout(updateSvgHeight, 100);
-
-    // Add a resize handler to update height when window size changes
-    window.addEventListener('resize', updateSvgHeight);
-
-    // Function to calculate and set the appropriate SVG height
-    function updateSvgHeight() {
-      const docHeight = Math.max(
-        document.body.scrollHeight,
-        document.documentElement.scrollHeight,
-        document.body.offsetHeight,
-        document.documentElement.offsetHeight,
-        document.body.clientHeight,
-        document.documentElement.clientHeight
-      );
-
-      // Add extra buffer to prevent cut-off
-      svg.style.height = (docHeight) + 'px';
-    }
-
-    // Arrowhead definition
-    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-    marker.setAttribute('data-tabpath', 'true');
-    defs.setAttribute('data-tabpath', 'true');
-    marker.setAttribute('id', 'arrow');
-    marker.setAttribute('viewBox', '0 0 10 10');
-    marker.setAttribute('refX', '5');
-    marker.setAttribute('refY', '5');
-    marker.setAttribute('markerWidth', '6');
-    marker.setAttribute('markerHeight', '6');
-    marker.setAttribute('orient', 'auto-start-reverse');
-    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-    polyline.setAttribute('data-tabpath', 'true');
-    polyline.setAttribute('points', '0,0 10,5 0,10 2,5');
-    polyline.setAttribute('fill', 'rgba(30, 80, 255, 0.85)');
-    marker.appendChild(polyline);
-    defs.appendChild(marker);
-    svg.appendChild(defs);
-
-    // Visualize found elements
+  /**
+   * Visualizes the elements in the tab order by adding a styled outline and a number label.
+   * Each element is outlined with a dotted style, and a number label is added
+   * to indicate its position in the tab order.
+   * The first element is styled with a green label, the last element with a darker label,
+   * and all other elements with a red label.
+   *
+   * @param {HTMLElement[]} tabElements - Array of elements in tab order to visualize
+   */
+  function visualizeElements(tabElements) {
     tabElements.forEach((el, index) => {
       el.style.outline = '2px dotted rgba(255, 223, 128, 1)';
       el.style.position = 'relative';
@@ -195,8 +164,17 @@
       document.body.appendChild(number);
     });
 
+  }
 
-    // Draw connecting lines
+  /**
+   * Draws curved lines between the centers of the tabbed elements.
+   * Each line is drawn with a slight curve and an arrowhead at the end.
+   * The lines are styled with different colors to enhance visibility.
+   *
+   * @param {HTMLElement[]} tabElements - Array of elements in tab order to connect with lines
+   * @param {SVGElement} svg - The SVG container where the lines will be drawn
+   */
+  function drawTabLines(tabElements, svg) {
     const centers = tabElements.map(el => getElementCenter(el));
     // Define an array of colors to iterate through
     const lineColors = [
@@ -251,8 +229,104 @@
       line.setAttribute('filter', 'drop-shadow(0 0 1px black)');
       svg.appendChild(line);
     }
+  }
 
-    // Return results
+  /**
+   * Creates an SVG container to hold the visualization.
+   * This container is positioned absolutely to cover the entire viewport,
+   * ensuring it does not interfere with user interactions.
+   * The SVG is styled to be transparent and has a high z-index
+   * to appear above other content.
+   *
+   * @returns {SVGElement}
+   */
+  function createSvgContainer() {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('data-tabpath', 'true');
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.width = '100%';
+    svg.style.pointerEvents = 'none';
+    svg.style.zIndex = '10000';
+    document.body.appendChild(svg);
+
+    // Set initial height
+    updateSvgHeight();
+
+    // Add a resize handler to update height when window size changes
+    window.addEventListener('resize', updateSvgHeight);
+
+    // Function to calculate and set the appropriate SVG height
+    function updateSvgHeight() {
+      const docHeight = Math.max(
+          document.body.scrollHeight,
+          document.documentElement.scrollHeight,
+          document.body.offsetHeight,
+          document.documentElement.offsetHeight,
+          document.body.clientHeight,
+          document.documentElement.clientHeight
+      );
+      svg.style.height = (docHeight) + 'px';
+    }
+    return svg;
+  }
+
+  /**
+   * Defines the arrowhead marker used for the SVG paths.
+   * This function creates a marker element with a polyline
+   * that represents the arrowhead shape.
+   * The marker is added to the SVG definitions section
+   * and is used to style the end of the lines drawn between elements.
+   *
+   * @param {SVGElement} svg - The SVG container where the marker will be defined
+   */
+  function arrowHeadDefinition(svg) {
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    marker.setAttribute('data-tabpath', 'true');
+    defs.setAttribute('data-tabpath', 'true');
+    marker.setAttribute('id', 'arrow');
+    marker.setAttribute('viewBox', '0 0 10 10');
+    marker.setAttribute('refX', '5');
+    marker.setAttribute('refY', '5');
+    marker.setAttribute('markerWidth', '6');
+    marker.setAttribute('markerHeight', '6');
+    marker.setAttribute('orient', 'auto-start-reverse');
+    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    polyline.setAttribute('data-tabpath', 'true');
+    polyline.setAttribute('points', '0,0 10,5 0,10 2,5');
+    polyline.setAttribute('fill', 'rgba(30, 80, 255, 0.85)');
+    marker.appendChild(polyline);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+  }
+
+  /**
+   * Runs the tab path analysis.
+   *
+   * This function creates an SVG container to draw lines between elements
+   * and adds number labels to each element.
+   * It returns an object containing the tabbed elements and potential elements.
+   *
+   * @param {HTMLElement[]} elements - Optional array of elements to analyze.
+   * If provided, these elements will be used instead of collecting them from the document via a CSS selector.
+   * @returns {Promise<{tabbed_elements: [], potential_elements: *[]}>}
+   */
+  async function tabpathRunner(elements = null) {
+    console.debug("Tab path Runner started");
+    // Get all potentially focusable elements
+    const potentialElements = Array.from(
+      document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]')
+    );
+    const idCache = new Map();
+
+    const tabElements = elements || await getTabOrder(idCache);
+    const elementInfo = collectElementInfo(tabElements, idCache);
+    const svg = createSvgContainer();
+    arrowHeadDefinition(svg);
+    visualizeElements(tabElements);
+    drawTabLines(tabElements, svg);
     return {
       tabbed_elements: elementInfo,
       potential_elements: [],
@@ -260,6 +334,9 @@
   }
 
 
+  /**
+   * Cleans up the tabpath visualization by removing all elements that were added during the analysis.
+   */
   function cleanTabpathVisualization() {
     document.querySelectorAll('[data-tabpath="true"]').forEach(el => {
       el.remove();

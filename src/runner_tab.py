@@ -1,7 +1,8 @@
-from time import sleep
-
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.common.exceptions import StaleElementReferenceException
 from pathlib import Path
 
 from src.config import ProcessingConfig
@@ -55,6 +56,67 @@ class TabRunnerScript:
         """
         self.driver.execute_script("cleanTabpathVisualization();")
 
+def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
+    """
+    Collects all elements that are focusable by the tab key on the current page.
+    This function simulates pressing the Tab key to navigate through focusable elements
+    and collects them in a list.
+
+    :param driver: The Selenium WebDriver instance.
+    :return: A list of WebElement objects that are focusable by the tab key.
+    """
+
+    # send tab keys to page to collect all elements focusable by tab key
+    logger.info("Sending tab keys to page to collect focusable elements, this may take a while")
+    focusable_elements: list[WebElement] = []
+    seen_elements = set()  # Track elements by a hash of their properties
+    max_tabs = 10000  # Limit the number of tabs to prevent infinite loops
+    current_tab_count = 0
+
+    # Store an initially focused element to detect cycling
+    body_element = driver.find_element("tag name", "body")
+    action = ActionChains(driver)
+    action.click(body_element).perform()  # Focus on body first
+
+    first_element_signature = None
+
+    while current_tab_count < max_tabs:
+        # Press the Tab key
+        action.send_keys(Keys.TAB).perform()
+        current_tab_count += 1
+
+        # Get the currently focused element
+        current_element: WebElement = driver.switch_to.active_element
+
+        try:
+            # Create a unique signature for this element
+            element_signature = (
+                current_element.tag_name,
+                current_element.location['x'],
+                current_element.location['y']
+            )
+
+            print(".", end="", flush=True)  # Print dots to indicate progress
+
+            # Store the first element signature to detect cycling
+            if first_element_signature is None:
+                first_element_signature = element_signature
+            elif element_signature == first_element_signature and current_tab_count > 1:
+                logger.debug(f"Tab cycle detected after {current_tab_count} tabs")
+                break
+
+            # Check if we've already seen this element
+            if element_signature not in seen_elements:
+                seen_elements.add(element_signature)
+                focusable_elements.append(current_element)
+
+        except StaleElementReferenceException:
+            logger.debug("Encountered stale element reference")
+            continue
+
+    return focusable_elements
+
+
 def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
                screenshots_folder: Path, url_idx: int) -> Path|None:
     global tabpath_checker
@@ -62,14 +124,17 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
         logger.debug("Setting up tab runner")
         tabpath_checker = TabRunnerScript(driver)
 
+    # send tab keys to page to collect all elements focusable by tab key
+    #tab_elements = _collect_elements_by_tab_key(driver)
+    #logger.info(f"Found {len(tab_elements)} tabbable elements on page.")
+
+
     logger.debug(f"Inject tab script to url {url_idx}")
     tabpath_checker.inject()
 
     logger.debug(f"Run tab script for url {url_idx}")
     options = { }
     tabpath_data = tabpath_checker.run(options=options)
-
-    # extract some info
 
     results.append(tabpath_data)
     logger.info(f"Found {len(tabpath_data)} tabbings on page.")

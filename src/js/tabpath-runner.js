@@ -155,7 +155,7 @@
 
     // Visualize found elements
     tabElements.forEach((el, index) => {
-      el.style.outline = '3px solid yellow';
+      el.style.outline = '2px dotted rgba(255, 223, 128, 1)';
       el.style.position = 'relative';
       el.setAttribute('data-tabpath-styled', 'true');
       const number = document.createElement('span');

@@ -49,60 +49,12 @@
   // Replace your getTabOrder function with this improved version
   function getTabOrder(idCache) {
     const elements = [];
-    const seenElements = new Set();
 
-    // First focus the document body to start from the beginning
-    document.body.focus();
 
     return new Promise(resolve => {
-      let maxAttempts = 1000;
 
-      // Add event listener for real tab key presses (if you want to allow manual tabbing)
-      const tabListener = (e) => {
-        if (e.key === 'Tab') {
-          e.preventDefault(); // Prevent default browser tab behavior
-          console.log("Tab key intercepted");
-          // Record the current element before moving to next
-          recordAndAdvance();
-        }
-      };
-
-      document.addEventListener('keydown', tabListener);
-
-      function recordAndAdvance() {
-        const activeElement = document.activeElement;
-        const id = getElementIdentifier(activeElement, idCache);
-
-        console.log("Active element:", activeElement, "ID:", id);
-
-        if (seenElements.has(id) || maxAttempts-- <= 0) {
-          console.log("Max attempts reached or element already seen, resolving.");
-          document.removeEventListener('keydown', tabListener);
-          resolve(elements);
-          return;
-        }
-
-        elements.push(activeElement);
-        seenElements.add(id);
-
-        // Get all focusable elements
-        const focusables = getFocusableElements();
-        const currentIndex = focusables.indexOf(activeElement);
-
-        // Move to next element
-        if (currentIndex >= 0 && currentIndex < focusables.length - 1) {
-          // Focus the next element
-          setTimeout(() => {
-            focusables[currentIndex + 1].focus();
-            setTimeout(recordAndAdvance, 50);  // Continue with next element
-          }, 50);
-        } else {
-          // Reached end of focusable elements
-          console.log("Reached end of tab sequence");
-          document.removeEventListener('keydown', tabListener);
-          resolve(elements);
-        }
-      }
+      elements.push(...getFocusableElements());
+      resolve(elements);
 
       // Helper function to get all focusable elements in tab order
       function getFocusableElements() {
@@ -118,9 +70,6 @@
           return aTabIndex - bTabIndex;
         });
       }
-
-      // Start the process
-      recordAndAdvance();
     });
   }
 
@@ -132,7 +81,6 @@
       document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, [tabindex]')
     );
     const idCache = new Map();
-    const potentialIds = new Map(potentialElements.map(el => [el, getElementIdentifier(el, idCache)]));
 
     // Get tab order using shared idCache
     const tabElements = await getTabOrder(idCache);

@@ -42,7 +42,10 @@ There are {{json_data.total_inputs}} pages in total.
 {% if input_data.title %}
 **Title:** {{ input_data.title }}
 {% endif %}
-**Violations count for this URL:** {{ input_data.results | count_violations }}
+{% set violations = input_data.results | count_violations %}
+{% if violations > 0 %}
+**Violations count for this URL:** {{ violations }}
+{% endif %}
 
 {% if input_data.index > 1 -%}
 [⬅️ Prev ({{input_data.index - 1}})](#page-{{input_data.index - 1}})
@@ -60,6 +63,8 @@ There are {{json_data.total_inputs}} pages in total.
 {% include 'markdown_results_include_axe.md' %}
 {% elif input_data.config.runner|string == "contrast" %}
 {% include 'markdown_results_include_contrast.md' %}
+{% elif input_data.config.runner|string == "tab" %}
+{% include 'markdown_results_include_tab.md' %}
 {% endif %}
 
 ---

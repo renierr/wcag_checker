@@ -21,13 +21,17 @@ def join_color_span(colors):
 
 def count_violations(results):
     violations_count = 0
+
+    # for tab runner we return 0 if a result contains only an array
+    if isinstance(results, list) and len(results) == 1 and isinstance(results[0], list):
+        return 0
     for result in results:
         if 'violations' in result:
             for violation in result.get('violations', []):
                 violations_count += len(violation.get('nodes', []))
         else:
-            return len(results)  # Contrast-Mode
-    return violations_count  # Axe-Mode
+            return len(results)  # Contrast runner
+    return violations_count  # Axe runner
 
 def build_markdown(config: Config, json_data: dict) -> str:
     """

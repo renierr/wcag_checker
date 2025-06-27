@@ -146,3 +146,17 @@ def analyse_contrast_action(config: ProcessingConfig, driver: WebDriver, param: 
     """
     return _analyse_runner(Runner.CONTRAST, config, driver, param)
 
+@register_action("analyse_tab")
+def analyse_tab_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
+    """
+    Syntax: `@analyse_tab: <config>`
+
+    Triggers an analysis of the current page using the tab runner.
+    The `<config>` parameter can be a JSON string with options,
+    or it can be omitted to use the defaults.
+    ```
+    @analyse_tab
+    ```
+    """
+    return _analyse_runner(Runner.TAB, config, driver, param)
+

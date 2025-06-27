@@ -130,7 +130,7 @@
       );
 
       // Add extra buffer to prevent cut-off
-      svg.style.height = (docHeight + 200) + 'px';
+      svg.style.height = (docHeight) + 'px';
     }
 
     // Arrowhead definition

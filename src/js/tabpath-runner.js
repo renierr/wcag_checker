@@ -140,26 +140,55 @@
     const createSvgContainer = () => {
         const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
         svg.setAttribute('data-tabpath', 'true');
+
+        const docWidth = Math.max(
+            document.body.scrollWidth,
+            document.documentElement.scrollWidth,
+            document.body.offsetWidth,
+            document.documentElement.offsetWidth
+        );
+        const docHeight = Math.max(
+            document.body.scrollHeight,
+            document.documentElement.scrollHeight,
+            document.body.offsetHeight,
+            document.documentElement.offsetHeight
+        );
+
+        // Setze viewBox für relative Positionierung
+        svg.setAttribute('viewBox', `0 0 ${docWidth} ${docHeight}`);
+        svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+        svg.setAttribute('width', docWidth);
+        svg.setAttribute('height', docHeight);
+
         Object.assign(svg.style, {
             position: 'absolute',
             top: '0',
             left: '0',
-            width: '100%',
             pointerEvents: 'none',
             zIndex: '10002',
         });
         document.body.appendChild(svg);
 
-        const updateSvgHeight = () => {
-            svg.style.height = `${Math.max(
+        const updateSvgDimensions = () => {
+            const newDocWidth = Math.max(
+                document.body.scrollWidth,
+                document.documentElement.scrollWidth,
+                document.body.offsetWidth,
+                document.documentElement.offsetWidth
+            );
+            const newDocHeight = Math.max(
                 document.body.scrollHeight,
                 document.documentElement.scrollHeight,
                 document.body.offsetHeight,
                 document.documentElement.offsetHeight
-            )}px`;
+            );
+
+            svg.setAttribute('viewBox', `0 0 ${newDocWidth} ${newDocHeight}`);
+            svg.setAttribute('width', newDocWidth);
+            svg.setAttribute('height', newDocHeight);
         };
-        updateSvgHeight();
-        window.addEventListener('resize', updateSvgHeight);
+
+        window.addEventListener('resize', updateSvgDimensions);
         return svg;
     };
 

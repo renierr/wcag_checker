@@ -13,30 +13,39 @@
     };
 
     /**
-     * Generates a unique identifier for an element.
+     * Generates a unique identifier for an element via CSS path.
      * @param {HTMLElement} element
      * @param {Map} cache
      * @returns {string}
      */
-    const getElementIdentifier = (element, cache) => {
+    const getEnhancedCSSPath = (element, cache = new Map()) => {
+        if (!(element instanceof Element)) return '';
         if (cache.has(element)) return cache.get(element);
-        if (element.id) {
-            cache.set(element, element.id);
-            return element.id;
-        }
-        const tag = element.tagName.toLowerCase();
-        const classes = element.className ? `.${element.className.replace(/\s+/g, '.')}` : '';
+
         const path = [];
-        let current = element;
-        let depth = 0;
-        while (current && current !== document.body && depth < 10) { // Reduced depth limit
-            path.push(`${current.tagName.toLowerCase()}[${Array.from(current.parentElement.children).indexOf(current)}]`);
-            current = current.parentElement;
-            depth++;
+        while (element && element.nodeType === Node.ELEMENT_NODE && path.length < 10) {
+            let selector = element.nodeName.toLowerCase();
+            if (element.id) {
+                selector = `#${element.id}`;
+                path.unshift(selector);
+                break;
+            }
+            if (element.className) {
+                const classes = element.className.trim().replace(/\s+/g, '.');
+                selector += `.${classes}`;
+            }
+            let sib = element, nth = 1;
+            while (sib.previousElementSibling) {
+                sib = sib.previousElementSibling;
+                if (sib.nodeName.toLowerCase() === element.nodeName.toLowerCase()) nth++;
+            }
+            if (nth !== 1) selector += `:nth-child(${nth})`;
+            path.unshift(selector);
+            element = element.parentNode;
         }
-        const id = `${tag}${classes}:${path.reverse().join('>')}`;
-        cache.set(element, id);
-        return id;
+        const result = path.join(' > ');
+        cache.set(element, result);
+        return result;
     };
 
     /**
@@ -67,7 +76,7 @@
      */
     const collectElementInfo = (elements, cache) => elements.map((el, index) => ({
         index: index + 1,
-        id: getElementIdentifier(el, cache),
+        id: getEnhancedCSSPath(el, cache),
         tag: el.tagName.toLowerCase(),
         text: (el.getAttribute('aria-label') || el.textContent.trim()).slice(0, 50),
         href: el.getAttribute('href') || '',

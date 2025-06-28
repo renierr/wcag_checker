@@ -267,7 +267,7 @@
      */
     const drawTabLines = (elements, svg) => {
         const centers = elements.map(getElementCenter);
-        const lineColors = ['rgba(30, 80, 255, 0.85)', 'rgba(65, 105, 225, 0.85)', 'rgba(100, 149, 237, 0.85)'];
+        const lineColors = ['rgba(30, 80, 255, 0.85)', 'rgba(100, 149, 237, 0.85)'];
 
         for (let i = 0; i < centers.length - 1; i++) {
             const currentColor = lineColors[i % lineColors.length];

@@ -390,7 +390,6 @@
     window.runTabpathAnalysis = async (elements = null) => {
         try {
             const results = await tabpathRunner(elements);
-            console.debug('Tab order analysis complete', results);
             return {
                 success: true,
                 data: results

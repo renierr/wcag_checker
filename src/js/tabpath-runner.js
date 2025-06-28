@@ -206,11 +206,9 @@
         marker.setAttribute('markerWidth', '6');
         marker.setAttribute('markerHeight', '6');
         marker.setAttribute('orient', 'auto-start-reverse');
-        marker.setAttribute('data-tabpath', 'true');
         const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
         polyline.setAttribute('points', '0,0 10,5 0,10 2,5');
         polyline.setAttribute('fill', 'rgba(30, 80, 255, 0.7)');
-        polyline.setAttribute('data-tabpath', 'true');
         marker.appendChild(polyline);
         defs.appendChild(marker);
         svg.appendChild(defs);
@@ -240,7 +238,6 @@
             const center = getElementCenter(el);
 
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('data-tabpath', 'true');
             circle.setAttribute('cx', center.x);
             circle.setAttribute('cy', center.y);
             circle.setAttribute('r', '10');
@@ -256,9 +253,7 @@
             circle.setAttribute('filter', 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))');
             svg.appendChild(circle);
 
-            // Erstelle das Text-Element für die Nummer
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('data-tabpath', 'true');
             text.setAttribute('x', center.x);
             text.setAttribute('y', center.y);
             text.setAttribute('text-anchor', 'middle');
@@ -285,7 +280,6 @@
             const y = rect.top + window.scrollY;
 
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('data-tabpath', 'true');
             circle.setAttribute('cx', x);
             circle.setAttribute('cy', y);
             circle.setAttribute('r', '10');
@@ -294,7 +288,6 @@
             svg.appendChild(circle);
 
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-            text.setAttribute('data-tabpath', 'true');
             text.setAttribute('x', x);
             text.setAttribute('y', y);
             text.setAttribute('text-anchor', 'middle');
@@ -331,7 +324,6 @@
             const controlY = start.y + dy / 2 + nx * curveAmount;
 
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            line.setAttribute('data-tabpath', 'true');
             line.setAttribute('d', `M ${start.x} ${start.y} Q ${controlX} ${controlY} ${adjustedX2} ${adjustedY2}`);
             line.setAttribute('fill', 'none');
             line.setAttribute('stroke', currentColor);

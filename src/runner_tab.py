@@ -82,7 +82,6 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
     # Send Escape key to clear any potential focus
     ActionChains(driver).send_keys(Keys.ESCAPE).perform()
 
-    first_element_signature = None
     action = ActionChains(driver)
     while current_tab_count < max_tabs:
         # Press the Tab key
@@ -102,17 +101,13 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
 
             print(".", end="", flush=True)  # Print dots to indicate progress
 
-            # Store the first element signature to detect cycling
-            if first_element_signature is None:
-                first_element_signature = element_signature
-            elif element_signature == first_element_signature and current_tab_count > 1:
+            # check for recent elements to detect cycles
+            if element_signature in seen_elements and current_tab_count > 1:
                 logger.debug(f"Tab cycle detected after {current_tab_count} tabs")
                 break
 
-            # Check if we've already seen this element
-            if element_signature not in seen_elements:
-                seen_elements.add(element_signature)
-                focusable_elements.append(current_element)
+            seen_elements.add(element_signature)
+            focusable_elements.append(current_element)
 
         except StaleElementReferenceException:
             logger.debug("Encountered stale element reference")

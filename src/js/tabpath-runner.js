@@ -205,10 +205,8 @@
             Object.assign(el.style, { outline: config.outline, position: 'relative' });
             el.setAttribute('data-tabpath-styled', 'true');
             const number = document.createElement('span');
-            Object.assign(number, {
-                textContent: (index + 1).toString(),
-                'data-tabpath': 'true',
-            });
+            number.setAttribute('data-tabpath', 'true');
+            number.textContent = (index + 1).toString();
             Object.assign(number.style, {
                 position: 'absolute',
                 padding: '2px 5px',
@@ -237,10 +235,8 @@
             Object.assign(el.style, { outline: '2px solid rgba(255, 0, 0, 0.8)', position: 'relative' });
             el.setAttribute('data-tabpath-styled', 'true');
             const number = document.createElement('span');
-            Object.assign(number, {
-                textContent: `X${index + 1}`,
-                'data-tabpath': 'true',
-            });
+            number.setAttribute('data-tabpath', 'true');
+            number.textContent = `X${index + 1}`;
             Object.assign(number.style, {
                 position: 'absolute',
                 padding: '2px 5px',

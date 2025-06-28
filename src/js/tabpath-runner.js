@@ -232,8 +232,10 @@
         };
 
         elements.forEach((el, index) => {
-            Object.assign(el.style, { outline: config.outline, position: 'relative' });
-            el.setAttribute('data-tabpath-styled', 'true');
+            if (el !== document.body && el !== document.documentElement) {
+                Object.assign(el.style, {outline: config.outline, position: 'relative'});
+                el.setAttribute('data-tabpath-styled', 'true');
+            }
 
             const center = getElementCenter(el);
 

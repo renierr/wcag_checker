@@ -146,7 +146,7 @@
             left: '0',
             width: '100%',
             pointerEvents: 'none',
-            zIndex: '10000',
+            zIndex: '10002',
         });
         document.body.appendChild(svg);
 
@@ -180,7 +180,7 @@
         marker.setAttribute('data-tabpath', 'true');
         const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
         polyline.setAttribute('points', '0,0 10,5 0,10 2,5');
-        polyline.setAttribute('fill', 'rgba(30, 80, 255, 0.85)');
+        polyline.setAttribute('fill', 'rgba(30, 80, 255, 0.7)');
         polyline.setAttribute('data-tabpath', 'true');
         marker.appendChild(polyline);
         defs.appendChild(marker);
@@ -216,11 +216,15 @@
                 boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
                 ...(index === 0 ? config.labelStyles.first :
                     index === elements.length - 1 ? config.labelStyles.last : config.labelStyles.default),
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                transform: 'translate(-50%, -50%)',
             });
-            const rect = el.getBoundingClientRect();
+            const center = getElementCenter(el);
             Object.assign(number.style, {
-                left: `${rect.left + window.scrollX - 10}px`,
-                top: `${rect.top + window.scrollY - 10}px`,
+                left: `${center.x}px`,
+                top: `${center.y}px`,
             });
             document.body.appendChild(number);
         });
@@ -232,7 +236,7 @@
      */
     const visualizeMissedElements = (elements) => {
         elements.forEach((el, index) => {
-            Object.assign(el.style, { outline: '2px solid rgba(255, 0, 0, 0.8)', position: 'relative' });
+            Object.assign(el.style, { outline: '2px dotted rgba(255, 0, 0, 0.8)', position: 'relative' });
             el.setAttribute('data-tabpath-styled', 'true');
             const number = document.createElement('span');
             number.setAttribute('data-tabpath', 'true');

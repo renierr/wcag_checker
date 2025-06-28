@@ -103,6 +103,7 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
 
             # check for recent elements to detect cycles
             if element_signature in seen_elements and current_tab_count > 1:
+                print("!", flush=True) # Print final char to indicate completion
                 logger.debug(f"Tab cycle detected after {current_tab_count} tabs")
                 break
 

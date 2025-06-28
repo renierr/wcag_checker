@@ -1,5 +1,6 @@
 #### Configuration
 - **Mode:** {{input_data.config.mode}}
+- **Runner:** {{input_data.config.runner}}
 {% if input_data.config.runner|string == "axe" %}
 - **Axe Rules:** {{input_data.config.axe_rules}}
 {% elif input_data.config.runner|string == "contrast" %}

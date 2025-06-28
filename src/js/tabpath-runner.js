@@ -23,23 +23,20 @@
         if (cache.has(element)) return cache.get(element);
 
         const path = [];
-        while (element && element.nodeType === Node.ELEMENT_NODE && path.length < 10) {
+        while (element && element.nodeType === Node.ELEMENT_NODE) {
             let selector = element.nodeName.toLowerCase();
             if (element.id) {
                 selector = `#${element.id}`;
                 path.unshift(selector);
                 break;
+            } else {
+                let sib = element, nth = 1;
+                while (sib.previousElementSibling) {
+                    sib = sib.previousElementSibling;
+                    if (sib.nodeName.toLowerCase() === selector) nth++;
+                }
+                if (nth !== 1) selector += `:nth-child(${nth})`;
             }
-            if (element.className) {
-                const classes = element.className.trim().replace(/\s+/g, '.');
-                selector += `.${classes}`;
-            }
-            let sib = element, nth = 1;
-            while (sib.previousElementSibling) {
-                sib = sib.previousElementSibling;
-                if (sib.nodeName.toLowerCase() === element.nodeName.toLowerCase()) nth++;
-            }
-            if (nth !== 1) selector += `:nth-child(${nth})`;
             path.unshift(selector);
             element = element.parentNode;
         }

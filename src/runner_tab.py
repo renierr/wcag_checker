@@ -137,7 +137,17 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
         logger.error("Tab path analysis returned no data. Skipping further processing.")
         return None
     if tabpath_data['success']:
+        # save svg tab path as file
+        logger.debug("Exporting SVG from tab path analysis")
+        svg_data = tabpath_checker.exportSVG()
+        if svg_data:
+            svg_path = screenshots_folder / f"{config.mode.value}_{url_idx}_tabpath.svg"
+            logger.debug(f"Saving SVG to {svg_path}")
+            with svg_path.open("w", encoding="utf-8") as svg_file:
+                svg_file.write(svg_data)
+
         data = tabpath_data.get('data', tabpath_data)
+        data.update({ "tab_path_svg": svg_path.as_posix() })
         results.append(data)
         if 'missed_elements' in data and data['missed_elements']:
             logger.warning(f"Tab path analysis found {len(data['missed_elements'])} missed elements.")
@@ -146,14 +156,6 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
         logger.error(f"Tab-Analyse error: {error_info['message']}")
         logger.debug(f"Error Details: {error_info.get('details', 'No details available')}")
         results.append({'error': error_info['message'], 'status': 'failed'})
-
-    logger.debug("Exporting SVG from tab path analysis")
-    svg_data = tabpath_checker.exportSVG()
-    if svg_data:
-        svg_path = screenshots_folder / f"{config.mode.value}_{url_idx}_tabpath.svg"
-        logger.debug(f"Saving SVG to {svg_path}")
-        with svg_path.open("w", encoding="utf-8") as svg_file:
-            svg_file.write(svg_data)
 
     set_window_size_to_viewport(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"

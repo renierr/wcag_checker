@@ -1,5 +1,7 @@
 ***Tabbings on page***
 
+![Tab Path SVG]({{result.tab_path_svg.replace(output + '/', '')}})
+
 {% if "error" in result %}
 **Error:** {{ result.error }}
 {%- else %}

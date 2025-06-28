@@ -352,6 +352,17 @@
         console.debug('Tabpath visualization cleaned');
     };
 
+    /**
+     * Exports the tab path visualization as an SVG file.
+     * @param {SVGElement} svg - The SVG element to export
+     * @returns {string} - SVG als String
+     */
+    const exportTabpathAsSVG = (svg) => {
+        const serializer = new XMLSerializer();
+        const svgString = serializer.serializeToString(svg);
+        return svgString;
+    };
+
     // Expose global functions
     window.runTabpathAnalysis = async (elements = null) => {
         try {
@@ -373,5 +384,9 @@
             };
         }
     };
+    window.exportTabpathAsSVG = (svg) => {
+        return exportTabpathAsSVG(svg || document.querySelector('svg[data-tabpath="true"]'));
+    };
     window.cleanTabpathVisualization = cleanTabpathVisualization;
+
 })();

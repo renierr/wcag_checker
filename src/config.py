@@ -44,6 +44,7 @@ class Config:
     debug: bool
     browser: str
     browser_visible: bool
+    browser_leave_open: bool
     output: str
 
 @dataclass

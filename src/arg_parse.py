@@ -44,6 +44,8 @@ def argument_parser() -> argparse.ArgumentParser:
                         help="Select Browser for Selenium webdriver (chrome or edge).")
     parser.add_argument("--browser_visible", "-bv", action="store_true",
                         help="Make the remote controlled browser visible - keep in mind that this prevent resolution to be set correctly use it only for debugging.")
+    parser.add_argument("--browser_leave_open", "-blo", action="store_true",
+                        help="Leave the Browser open after finishing all. only if browser is visible.")
     parser.add_argument("--output", "-o", type=str,
                         help="The base folder for output files.", nargs="?", default="output")
     parser.add_argument("--debug", "-d", action="store_true",

@@ -140,10 +140,15 @@ def check_run(config: ProcessingConfig) -> None:
                 raise e
             finally:
                 # close bowser
-                driver.quit()
+                if config.browser_leave_open and config.browser_visible:
+                    logger.warning("Leave Browser open by user request - close it yourself or things happen.")
+                else:
+                    driver.quit()
 
     reporting(config, json_data)
     logger.info("Finished.")
+    if config.browser_leave_open and config.browser_visible:
+        logger.warning("The browser has been left open - remember to close it later to close the tool.")
 
 
 def info_logs_of_config(config: ProcessingConfig) -> None:

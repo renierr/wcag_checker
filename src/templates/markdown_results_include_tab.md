@@ -1,7 +1,7 @@
 ***Tabbings on page***
 
-{%- if "error" in result -%}
-- **Error:** {{ result.error }}
+{% if "error" in result %}
+**Error:** {{ result.error }}
 {%- else %}
 
 - **Page Tabbings:** {{ result.tabbed_elements | length }}

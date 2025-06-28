@@ -133,12 +133,20 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
     tabpath_checker.inject()
 
     logger.debug(f"Run tab script for url {url_idx}")
-    tabpath_data = tabpath_checker.run(tab_elements=tab_elements) # for now we don't use the collected elements FIXME
-
-    results.append(tabpath_data)
-    # log warning on missed_elements
-    if 'missed_elements' in tabpath_data and tabpath_data['missed_elements']:
-        logger.warning(f"Tab path analysis found {len(tabpath_data['missed_elements'])} missed elements.")
+    tabpath_data = tabpath_checker.run(tab_elements=tab_elements)
+    if not tabpath_data:
+        logger.error("Tab path analysis returned no data. Skipping further processing.")
+        return None
+    if tabpath_data['success']:
+        data = tabpath_data.get('data', tabpath_data)
+        results.append(data)
+        if 'missed_elements' in data and data['missed_elements']:
+            logger.warning(f"Tab path analysis found {len(data['missed_elements'])} missed elements.")
+    else:
+        error_info = tabpath_data.get('error', {'message': 'Unbekannter Fehler'})
+        logger.error(f"Tab-Analyse error: {error_info['message']}")
+        logger.debug(f"Error Details: {error_info.get('details', 'No details available')}")
+        results.append({'error': error_info['message'], 'status': 'failed'})
 
     set_window_size_to_viewport(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"

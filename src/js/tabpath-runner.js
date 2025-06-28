@@ -342,10 +342,20 @@
         try {
             const results = await tabpathRunner(elements);
             console.debug('Tab order analysis complete', results);
-            return results;
+            return {
+                success: true,
+                data: results
+            };
         } catch (error) {
-            console.error('Tabpath analysis error:', error);
-            throw error;
+            console.error('Tabpath analysis error:', error.message);
+            return {
+                success: false,
+                error: {
+                    message: error.message || 'Unknown Error during analyse',
+                    details: error.stack || '',
+                    originalError: error
+                }
+            };
         }
     };
     window.cleanTabpathVisualization = cleanTabpathVisualization;

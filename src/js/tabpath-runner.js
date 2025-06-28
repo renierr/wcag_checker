@@ -190,73 +190,88 @@
     /**
      * Visualizes elements in the tab order.
      * @param {HTMLElement[]} elements
+     * @param {SVGElement} svg - SVG container for visualization
      */
-    const visualizeElements = (elements) => {
+    const visualizeElements = (elements, svg) => {
         const config = {
             outline: '2px dotted rgba(255, 223, 128, 1)',
             labelStyles: {
-                first: { background: 'rgba(0, 150, 0, 0.8)', color: 'white', border: '2px solid lightgreen' },
-                last: { background: 'rgba(80, 40, 0, 0.9)', color: 'white', border: '2px solid #A06020' },
-                default: { background: 'rgba(255, 0, 0, 0.6)', color: 'white' },
+                first: { fill: 'rgba(0, 150, 0, 0.8)', stroke: 'lightgreen', strokeWidth: '2' },
+                last: { fill: 'rgba(80, 40, 0, 0.9)', stroke: '#A06020', strokeWidth: '2' },
+                default: { fill: 'rgba(255, 0, 0, 0.6)', stroke: 'none' },
             },
         };
 
         elements.forEach((el, index) => {
             Object.assign(el.style, { outline: config.outline, position: 'relative' });
             el.setAttribute('data-tabpath-styled', 'true');
-            const number = document.createElement('span');
-            number.setAttribute('data-tabpath', 'true');
-            number.textContent = (index + 1).toString();
-            Object.assign(number.style, {
-                position: 'absolute',
-                padding: '2px 5px',
-                borderRadius: '50%',
-                fontSize: '12px',
-                zIndex: '10001',
-                boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-                ...(index === 0 ? config.labelStyles.first :
-                    index === elements.length - 1 ? config.labelStyles.last : config.labelStyles.default),
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                transform: 'translate(-50%, -50%)',
-            });
+
             const center = getElementCenter(el);
-            Object.assign(number.style, {
-                left: `${center.x}px`,
-                top: `${center.y}px`,
-            });
-            document.body.appendChild(number);
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('data-tabpath', 'true');
+            circle.setAttribute('cx', center.x);
+            circle.setAttribute('cy', center.y);
+            circle.setAttribute('r', '10');
+
+            const style = index === 0 ? config.labelStyles.first :
+                index === elements.length - 1 ? config.labelStyles.last :
+                    config.labelStyles.default;
+
+            circle.setAttribute('fill', style.fill);
+            if (style.stroke) circle.setAttribute('stroke', style.stroke);
+            if (style.strokeWidth) circle.setAttribute('stroke-width', style.strokeWidth);
+
+            circle.setAttribute('filter', 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))');
+            svg.appendChild(circle);
+
+            // Erstelle das Text-Element für die Nummer
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('data-tabpath', 'true');
+            text.setAttribute('x', center.x);
+            text.setAttribute('y', center.y);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'central');
+            text.setAttribute('font-size', '12');
+            text.setAttribute('fill', 'white');
+            text.textContent = (index + 1).toString();
+            svg.appendChild(text);
         });
     };
 
     /**
      * Visualizes missed elements.
      * @param {HTMLElement[]} elements
+     * @param {SVGElement} svg - SVG container for visualization
      */
-    const visualizeMissedElements = (elements) => {
+    const visualizeMissedElements = (elements, svg) => {
         elements.forEach((el, index) => {
             Object.assign(el.style, { outline: '2px dotted rgba(255, 0, 0, 0.8)', position: 'relative' });
             el.setAttribute('data-tabpath-styled', 'true');
-            const number = document.createElement('span');
-            number.setAttribute('data-tabpath', 'true');
-            number.textContent = `X${index + 1}`;
-            Object.assign(number.style, {
-                position: 'absolute',
-                padding: '2px 5px',
-                borderRadius: '50%',
-                fontSize: '12px',
-                zIndex: '10001',
-                background: 'rgba(171, 77, 187, 0.6)',
-                color: 'white',
-                boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.5)',
-            });
+
             const rect = el.getBoundingClientRect();
-            Object.assign(number.style, {
-                left: `${rect.left + window.scrollX - 10}px`,
-                top: `${rect.top + window.scrollY - 10}px`,
-            });
-            document.body.appendChild(number);
+            const x = rect.left + window.scrollX;
+            const y = rect.top + window.scrollY;
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('data-tabpath', 'true');
+            circle.setAttribute('cx', x);
+            circle.setAttribute('cy', y);
+            circle.setAttribute('r', '10');
+            circle.setAttribute('fill', 'rgba(171, 77, 187, 0.6)');
+            circle.setAttribute('filter', 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))');
+            svg.appendChild(circle);
+
+            const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            text.setAttribute('data-tabpath', 'true');
+            text.setAttribute('x', x);
+            text.setAttribute('y', y);
+            text.setAttribute('text-anchor', 'middle');
+            text.setAttribute('dominant-baseline', 'central');
+            text.setAttribute('font-size', '12');
+            text.setAttribute('fill', 'white');
+            text.textContent = `X${index + 1}`;
+            svg.appendChild(text);
         });
     };
 
@@ -311,9 +326,9 @@
 
         const svg = createSvgContainer();
         arrowHeadDefinition(svg);
-        visualizeElements(tabElements);
+        visualizeElements(tabElements, svg);
         if (missedElements.length) {
-            visualizeMissedElements(missedElements);
+            visualizeMissedElements(missedElements, svg);
             console.warn(`Missed ${missedElements.length} elements in tab order`);
         }
         drawTabLines(tabElements, svg);

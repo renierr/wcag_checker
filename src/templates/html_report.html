@@ -42,7 +42,7 @@
     }
 
     /* Dark mode */
-    #theme-toggle:checked ~ .content {
+    .dark-mode {
       --bg-color: #212121;
       --text-color: #e0e0e0;
       --header-bg: #333;
@@ -90,9 +90,6 @@
       padding: 0;
       color: var(--text-color);
       background-color: var(--bg-color);
-    }
-    .content {
-      color: var(--text-color);
     }
     header {
       background: var(--header-bg);
@@ -295,21 +292,29 @@
 <body>
 <input type="checkbox" id="theme-toggle" style="display: none">
 <label for="theme-toggle" class="theme-switch">Dark Mode</label>
-<div class="content">
-  <header>
-    <h1>WCAG Report</h1>
-    <p>Generated on {{timestamp}}</p>
-  </header>
-  <main>
-    {{html_content}}
-  </main>
-  <footer>
-    &copy; {{timestamp.split('-')[0]}} WCAG Checker. All rights reserved.
-  </footer>
-</div>
+<header>
+  <h1>WCAG Report</h1>
+  <p>Generated on {{timestamp}}</p>
+</header>
+<main>
+  {{html_content}}
+</main>
+<footer>
+  &copy; {{timestamp.split('-')[0]}} WCAG Checker. All rights reserved.
+</footer>
 
 <button class="fab" id="scrollToTop" title="Scroll to top">&#8679;</button>
 <script>
+  const themeToggle = document.getElementById('theme-toggle');
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    document.body.classList.add('dark-mode');
+    themeToggle.checked = true;
+  }
+
+  themeToggle.addEventListener('change', () => {
+    document.body.classList.toggle('dark-mode', themeToggle.checked);
+  });
+
   const images = document.querySelectorAll('img[alt^="Element"]');
   images.forEach((image) => {
     image.addEventListener('click', () => {

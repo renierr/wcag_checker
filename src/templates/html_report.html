@@ -42,41 +42,57 @@
     }
 
     /* Dark mode */
-    .dark-mode {
-      --bg-color: #212121;
-      --text-color: #e0e0e0;
-      --header-bg: #333;
-      --header-text: #e0e0e0;
-      --main-bg: #2e2e2e;
-      --footer-bg: #333;
-      --footer-text: #bbb;
+    @container root style(--darkmode: 1) {
+      body {
+        --bg-color: #212121;
+        --text-color: #e0e0e0;
+        --header-bg: #333;
+        --header-text: #e0e0e0;
+        --main-bg: #2e2e2e;
+        --footer-bg: #333;
+        --footer-text: #bbb;
 
-      --table-border: #555;
-      --table-even-bg: #212121;
-      --table-hover-bg: #3a3a3a;
+        --table-border: #555;
+        --table-even-bg: #212121;
+        --table-hover-bg: #3a3a3a;
 
-      --img-border: #888;
+        --img-border: #888;
 
-      --blockquote-text: #bbb;
-      --blockquote-bg: #212121;
-      --blockquote-border: #0056b3;
+        --blockquote-text: #bbb;
+        --blockquote-bg: #212121;
+        --blockquote-border: #0056b3;
 
-      --details-bg: #212121;
-      --details-border: #555;
+        --details-bg: #212121;
+        --details-border: #555;
 
-      --pre-bg: #1e1e1e;
-      --pre-text: #dcdcdc;
+        --pre-bg: #1e1e1e;
+        --pre-text: #dcdcdc;
 
-      --inline-code-bg: #3a3a3a;
+        --inline-code-bg: #3a3a3a;
 
-      --fab-bg: #0056b3;
-      --fab-hover-bg: #004494;
+        --fab-bg: #0056b3;
+        --fab-hover-bg: #004494;
 
-      --link-color: #66aaff;
-      --th-bg: #0056b3;
-      --th-text: #fff;
-      --link-hover-color: #004494;
+        --link-color: #66aaff;
+        --th-bg: #0056b3;
+        --th-text: #fff;
+        --link-hover-color: #004494;
+      }
     }
+
+    :where(html) {
+      --darkmode: 0;
+      container-name: root;
+      container-type: normal;
+    }
+    @media (prefers-color-scheme: dark) {
+      html { --darkmode: 1; }
+    }
+    @media (prefers-color-scheme: light) {
+      html { --darkmode: 0; }
+    }
+    html:has(#color-scheme-light:checked) { --darkmode: 0; }
+    html:has(#color-scheme-dark:checked) { --darkmode: 1; }
 
     body {
       font-family: system-ui, sans-serif;
@@ -276,70 +292,54 @@
       background-color: var(--fab-hover-bg);
     }
 
-    .switch {
+    .toggle-group {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      display: inline-block;
-      width: 50px;
-      height: 24px;
-    }
-    .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    .slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #ccc;
-      transition: 0.4s;
+      right: 5px;
+      top: 3px;
+      border: 2px solid #CCC;
       border-radius: 24px;
+      inline-size: fit-content;
+      padding: 3px;
+      color: var(--header-text);
     }
-    .slider:before {
+    .toggle-group label {
+      border-radius: 21px;
+      cursor: pointer;
+      display: inline-flex;
+      padding: 0.1em 0.5em;
+      text-align: center;
+      user-select: none;
+    }
+    .toggle-group label:has(input:checked) {
+      background-color: #CCC;
+      color: #333;
+    }
+    [data-sr] {
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
       position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      border-radius: 50%;
-      transition: 0.4s;
-    }
-    .slider:after {
-      content: '☀';
-      position: absolute;
-      top: 50%;
-      left: auto;
-      right: 6px;
-      transform: translateY(-50%);
-      font-size: 14px;
-      color: #daab40;
-    }
-    #theme-toggle:checked + .slider {
-      background-color: #007bff;
-    }
-    #theme-toggle:checked + .slider:before {
-      transform: translateX(26px);
-    }
-    #theme-toggle:checked + .slider:after {
-      content: '🌙';
-      color: #7540a3;
-      left: 3px;
-      right: auto;
+      white-space: nowrap;
+      width: 1px;
     }
   </style>
 </head>
 <body>
-<label class="switch">
-  <input type="checkbox" id="theme-toggle">
-  <span class="slider"></span>
-</label>
+<fieldset class="toggle-group" id="colorScheme">
+  <label>
+    <input type="radio" name="color-scheme" id="color-scheme-light" value="0" data-sr>
+    &#9788; Light
+  </label>
+  <label>
+    <input type="radio" name="color-scheme" value="auto" checked data-sr>
+    &#9881; Auto
+  </label>
+  <label>
+    <input type="radio" name="color-scheme" id="color-scheme-dark" value="1" data-sr>
+    &#9790; Dark
+  </label>
+</fieldset>
 <header>
   <h1>WCAG Report</h1>
   <p>Generated on {{timestamp}}</p>
@@ -353,16 +353,6 @@
 
 <button class="fab" id="scrollToTop" title="Scroll to top">&#8679;</button>
 <script>
-  const themeToggle = document.getElementById('theme-toggle');
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    document.body.classList.add('dark-mode');
-    themeToggle.checked = true;
-  }
-
-  themeToggle.addEventListener('change', () => {
-    document.body.classList.toggle('dark-mode', themeToggle.checked);
-  });
-
   const images = document.querySelectorAll('img[alt^="Element"]');
   images.forEach((image) => {
     image.addEventListener('click', () => {

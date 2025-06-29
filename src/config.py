@@ -27,6 +27,7 @@ class Runner(Enum):
     AXE = "axe"
     CONTRAST = "contrast"
     TAB = "tab"
+    CUSTOM = "custom"
 
     def __str__(self):
         return self.value

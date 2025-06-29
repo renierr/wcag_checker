@@ -15,6 +15,7 @@ runner_function_map = {
     Runner.AXE: runner_axe,
     Runner.CONTRAST: runner_contrast,
     Runner.TAB: runner_tab,
+    Runner.CUSTOM: None  # FIXME Placeholder for custom runner, if needed
 }
 
 input_idx = 0
@@ -151,12 +152,28 @@ def analyse_tab_action(config: ProcessingConfig, driver: WebDriver, param: str|N
     """
     Syntax: `@analyse_tab: <config>`
 
-    Triggers an analysis of the current page using the tab runner.
+    Triggers an analysis of the current page using the custom runner.
     The `<config>` parameter can be a JSON string with options,
     or it can be omitted to use the defaults.
+
+    You have to provide a custom runner script and a markdown template.
+
     ```
     @analyse_tab
     ```
     """
     return _analyse_runner(Runner.TAB, config, driver, param)
 
+@register_action("analyse_custom")
+def analyse_custom_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
+    """
+    Syntax: `@analyse_custom: <config>`
+
+    Triggers an analysis of the current page using the tab runner.
+    The `<config>` parameter can be a JSON string with options,
+    or it can be omitted to use the defaults.
+    ```
+    @analyse_custom
+    ```
+    """
+    return _analyse_runner(Runner.CUSTOM, config, driver, param)

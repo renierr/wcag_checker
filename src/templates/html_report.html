@@ -85,7 +85,12 @@
       padding: 0;
       color: var(--text-color);
       background-color: var(--bg-color);
+      color-scheme: light;
     }
+    body.dark-mode {
+        color-scheme: dark;
+    }
+
     header {
       background: var(--header-bg);
       color: var(--header-text);
@@ -310,10 +315,11 @@
       content: '☀';
       position: absolute;
       top: 50%;
-      right: 3px;
+      left: auto;
+      right: 6px;
       transform: translateY(-50%);
       font-size: 14px;
-      color: white;
+      color: #daab40;
     }
     #theme-toggle:checked + .slider {
       background-color: #007bff;
@@ -323,6 +329,9 @@
     }
     #theme-toggle:checked + .slider:after {
       content: '🌙';
+      color: #7540a3;
+      left: 3px;
+      right: auto;
     }
   </style>
 </head>

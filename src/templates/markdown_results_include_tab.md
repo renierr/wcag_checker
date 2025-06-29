@@ -1,8 +1,31 @@
 ***Tabbings on page***
+
+<style>
+  .tab-image-container {
+    position: relative;
+    margin: 10px 0;
+  }
+  .toggle-background {
+    margin-bottom: 5px;
+  }
+  .tabbing-path-image {
+    background-repeat: no-repeat;
+    background-size: contain;
+  }
+  .toggle-bg-checkbox:not(:checked) ~ .tabbing-path-image {
+    background-image: none !important;
+  }
+</style>
+
 {% for result in input_data.results %}
 
-<img src="{{result.tab_path_svg.replace(output + '/', '')}}" alt="Tab Path SVG" 
-style="background-image: url('{{input_data.get('screenshot','').replace(output + '/', '')}}'); background-repeat: no-repeat; background-size: contain;" class="tabbing-path-image" />
+{% set tab_image_svg = result.tab_path_svg.replace(output + '/', '') %}
+{% set tab_image_background = input_data.get('screenshot','').replace(output + '/', '') %}
+<div class="tab-image-container">
+  <input type="checkbox" checked="checked" id="toggle-bg-{{ loop.index }}" class="toggle-bg-checkbox">
+  <label for="toggle-bg-{{ loop.index }}">Show Page Background</label>
+  <img src="{{ tab_image_svg }}" style="background-image: url('{{ tab_image_background }}')" alt="Tab Path SVG" class="tabbing-path-image">
+</div>
 
 {% if "error" in result %}
 **Error:** {{ result.error }}

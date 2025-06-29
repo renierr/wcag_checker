@@ -77,11 +77,6 @@
       --th-text: #fff;
       --link-hover-color: #004494;
     }
-    #theme-toggle:checked + .theme-switch::after {
-      content: "\2714";
-      margin-left: 8px;
-      color: green;
-    }
 
     body {
       font-family: system-ui, sans-serif;
@@ -108,17 +103,6 @@
       margin: 5px 0 0;
       font-size: 0.7rem;
       opacity: 0.9;
-    }
-    .theme-switch {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      cursor: pointer;
-      background-color: var(--main-bg);
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 5px 10px;
-      font-size: 0.8rem;
     }
     main {
       padding: 30px;
@@ -287,11 +271,66 @@
       background-color: var(--fab-hover-bg);
     }
 
+    .switch {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+    .slider:after {
+      content: '☀';
+      position: absolute;
+      top: 50%;
+      right: 3px;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: white;
+    }
+    #theme-toggle:checked + .slider {
+      background-color: #007bff;
+    }
+    #theme-toggle:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    #theme-toggle:checked + .slider:after {
+      content: '🌙';
+    }
   </style>
 </head>
 <body>
-<input type="checkbox" id="theme-toggle" style="display: none">
-<label for="theme-toggle" class="theme-switch">Dark Mode</label>
+<label class="switch">
+  <input type="checkbox" id="theme-toggle">
+  <span class="slider"></span>
+</label>
 <header>
   <h1>WCAG Report</h1>
   <p>Generated on {{timestamp}}</p>

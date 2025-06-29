@@ -1,14 +1,8 @@
 ***Tabbings on page***
 
 <style>
-  .tab-image-container {
-    position: relative;
-    margin: 10px 0;
-  }
-  .toggle-background {
-    margin-bottom: 5px;
-  }
   .tabbing-path-image {
+    display: block;
     background-repeat: no-repeat;
     background-size: contain;
   }

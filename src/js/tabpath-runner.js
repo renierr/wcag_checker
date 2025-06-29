@@ -308,6 +308,23 @@
         const centers = elements.map(getElementCenter);
         const lineColors = ['rgba(30, 80, 255, 0.85)', 'rgba(100, 149, 237, 0.85)'];
 
+        const styleElem = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        // language=CSS
+        styleElem.textContent = `
+        @keyframes dashoffset {
+            from {
+                stroke-dashoffset: 100;
+            }
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .animated-line {
+            animation: dashoffset 2s linear infinite;
+        }
+        `;
+        svg.appendChild(styleElem);
+
         for (let i = 0; i < centers.length - 1; i++) {
             const currentColor = lineColors[i % lineColors.length];
             const [start, end] = [centers[i], centers[i + 1]];
@@ -330,6 +347,10 @@
             line.setAttribute('stroke-width', '1.5');
             line.setAttribute('marker-end', 'url(#arrow)');
             line.setAttribute('filter', 'drop-shadow(0 0 1px black)');
+
+            line.setAttribute('class', 'animated-line');
+            line.setAttribute('stroke-dasharray', '10,5');
+
             svg.appendChild(line);
         }
     };

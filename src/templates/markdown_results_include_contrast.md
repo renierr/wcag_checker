@@ -1,3 +1,6 @@
+![Full Page Screenshot with Outlines]({{input_data.get('screenshot_outline','').replace(output + '/', '')}})
+
+{% for result in input_data.results %}
 <a name='el_{{input_data.index}} 0_{{result.element_index}}'></a>
 #### {{result.element_index}}. Element of Page {{input_data.index}}
 {%- if "error" in result -%}
@@ -37,3 +40,6 @@
 
 ![Element Screenshot]({{result.screenshot.replace(output + '/', '')}})
 {% endif %}
+
+---
+{% endfor %}

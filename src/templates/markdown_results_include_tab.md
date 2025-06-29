@@ -1,6 +1,8 @@
 ***Tabbings on page***
+{% for result in input_data.results %}
 
-![Tab Path SVG]({{result.tab_path_svg.replace(output + '/', '')}})
+<img src="{{result.tab_path_svg.replace(output + '/', '')}}" alt="Tab Path SVG" 
+style="background-image: url('{{input_data.get('screenshot','').replace(output + '/', '')}}'); background-repeat: no-repeat; background-size: contain;" class="tabbing-path-image" />
 
 {% if "error" in result %}
 **Error:** {{ result.error }}
@@ -42,3 +44,6 @@
 </section>
 {% endif %}
 {%- endif %}
+
+---
+{% endfor %}

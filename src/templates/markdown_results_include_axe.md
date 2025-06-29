@@ -1,4 +1,8 @@
 ***Axe findings***
+
+![Full Page Screenshot with Outlines]({{input_data.get('screenshot_outline','').replace(output + '/', '')}})
+
+{% for result in input_data.results %}
 {% if result.violations | length == 0 %}
 No violations found.
 {% endif -%}
@@ -49,3 +53,6 @@ No violations found.
 
 {% endfor -%}
 {%- endif %}
+
+---
+{% endfor %}

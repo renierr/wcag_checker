@@ -313,14 +313,14 @@
         styleElem.textContent = `
         @keyframes dashoffset {
             from {
-                stroke-dashoffset: 100;
+                stroke-dashoffset: 20;
             }
             to {
                 stroke-dashoffset: 0;
             }
         }
         .animated-line {
-            animation: dashoffset 2s linear infinite;
+            animation: dashoffset 1.5s linear infinite;
         }
         `;
         svg.appendChild(styleElem);
@@ -349,7 +349,7 @@
             line.setAttribute('filter', 'drop-shadow(0 0 1px black)');
 
             line.setAttribute('class', 'animated-line');
-            line.setAttribute('stroke-dasharray', '10,5');
+            line.setAttribute('stroke-dasharray', '4,3');
 
             svg.appendChild(line);
         }

@@ -55,10 +55,6 @@ There are {{json_data.total_inputs}} pages in total.
 [Next ({{input_data.index + 1}}) ➡️](#page-{{input_data.index + 1}})
 {%- endif %}
 
-
-![Full Page Screenshot with Outlines]({{input_data.get('screenshot_outline','').replace(output + '/', '')}})
-
-{%- for result in input_data.results -%}
 {% if input_data.config.runner|string == "axe" %}
 {% include 'markdown_results_include_axe.md' %}
 {% elif input_data.config.runner|string == "contrast" %}
@@ -67,9 +63,6 @@ There are {{json_data.total_inputs}} pages in total.
 {% include 'markdown_results_include_tab.md' %}
 {% endif %}
 
----
-
-{% endfor -%}
 {% endfor -%}
 
 {% if json_data.browser_console_log %}

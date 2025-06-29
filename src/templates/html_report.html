@@ -44,6 +44,8 @@
     /* Dark mode */
     @container root style(--darkmode: 1) {
       body {
+        color-scheme: dark;
+
         --bg-color: #212121;
         --text-color: #e0e0e0;
         --header-bg: #333;
@@ -102,9 +104,6 @@
       color: var(--text-color);
       background-color: var(--bg-color);
       color-scheme: light;
-    }
-    body.dark-mode {
-        color-scheme: dark;
     }
 
     header {
@@ -329,7 +328,7 @@
 <fieldset class="toggle-group" id="colorScheme">
   <label>
     <input type="radio" name="color-scheme" id="color-scheme-light" value="0" data-sr>
-    &#9788; Light
+    &#9728; Light
   </label>
   <label>
     <input type="radio" name="color-scheme" value="auto" checked data-sr>
@@ -337,7 +336,7 @@
   </label>
   <label>
     <input type="radio" name="color-scheme" id="color-scheme-dark" value="1" data-sr>
-    &#9790; Dark
+    ◐ Dark
   </label>
 </fieldset>
 <header>

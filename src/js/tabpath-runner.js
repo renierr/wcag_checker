@@ -407,10 +407,19 @@
      */
     const cleanTabpathVisualization = () => {
         document.querySelectorAll('[data-tabpath="true"]').forEach((el) => el.remove());
-        document.querySelectorAll('[data-tabpath-styled="true"]').forEach((el) => {
-            el.style.outline = '';
-            el.removeAttribute('data-tabpath-styled');
-        });
+        const cleanInRoot = (root) => {
+            root.querySelectorAll('[data-tabpath-styled="true"]').forEach((el) => {
+                el.style.outline = '';
+                el.removeAttribute('data-tabpath-styled');
+            });
+            // Recursively check shadow roots on all children
+            root.querySelectorAll('*').forEach((node) => {
+                if (node.shadowRoot) {
+                    cleanInRoot(node.shadowRoot);
+                }
+            });
+        };
+        cleanInRoot(document);
         console.debug('Tabpath visualization cleaned');
     };
 

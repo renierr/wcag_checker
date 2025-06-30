@@ -66,7 +66,7 @@
                 if (nth !== 1) selector += `:nth-child(${nth})`;
             }
             path.unshift(selector);
-            element = element.parentNode;
+            element = element.parentNode || current.getRootNode().host;
         }
         const result = path.join(' > ');
         cache.set(element, result);
@@ -183,6 +183,8 @@
         svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
         svg.setAttribute('width', docWidth);
         svg.setAttribute('height', docHeight);
+        svg.setAttribute('aria-label', 'Tab order visualization');
+        svg.setAttribute('role', 'img');
 
         Object.assign(svg.style, {
             position: 'absolute',
@@ -418,9 +420,9 @@
      * @returns {string} - SVG als String
      */
     const exportTabpathAsSVG = (svg) => {
+        if (!svg) throw new Error('No tabpath SVG found');
         const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svg);
-        return svgString;
+        return serializer.serializeToString(svg);
     };
 
     // Expose global functions

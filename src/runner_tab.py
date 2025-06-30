@@ -60,6 +60,18 @@ class TabRunnerScript:
         """
         self.driver.execute_script("cleanTabpathVisualization();")
 
+def _get_real_active_element(driver: WebDriver) -> WebElement:
+    # Get the current active element
+    active_element = driver.execute_script("return document.activeElement")
+    # Loop while the current element has an open shadow root with an active element
+    while driver.execute_script(
+        "return arguments[0].shadowRoot ? arguments[0].shadowRoot.activeElement : null;", active_element
+    ):
+        active_element = driver.execute_script(
+            "return arguments[0].shadowRoot.activeElement;", active_element
+        )
+    return active_element
+
 def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
     """
     Collects all elements that are focusable by the tab key on the current page.
@@ -89,7 +101,7 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
         current_tab_count += 1
 
         # Get the currently focused element
-        current_element: WebElement = driver.switch_to.active_element
+        current_element: WebElement = _get_real_active_element(driver) # driver.switch_to.active_element
 
         try:
             # Create a unique signature for this element
@@ -116,6 +128,16 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
 
     return focusable_elements
 
+def _filter_stale_elements(driver: WebDriver, elements: list[WebElement]) -> list[WebElement]:
+    valid_elements = []
+    for el in elements:
+        try:
+            # This call ensures the element is still attached by accessing its tag
+            driver.execute_script("return arguments[0].tagName;", el)
+            valid_elements.append(el)
+        except Exception:
+            continue
+    return valid_elements
 
 def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
                screenshots_folder: Path, url_idx: int) -> Path|None:
@@ -126,6 +148,7 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
 
     # send tab keys to page to collect all elements focusable by tab key
     tab_elements = _collect_elements_by_tab_key(driver)
+    tab_elements = _filter_stale_elements(driver, tab_elements)
     logger.info(f"Found {len(tab_elements)} tabbable elements on page.")
 
     logger.debug(f"Inject tab script to url {url_idx}")

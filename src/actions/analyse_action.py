@@ -44,6 +44,11 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     results = []
     screenshots_folder = Path(config.output) / "screenshots"
 
+    # reset window size for analyse - TODO check how this can be worked out with the resize action
+    reset_window_size(driver, width=config.resolution_width, height=config.resolution_height)
+    set_window_size_to_viewport(driver)
+
+
     if param:
         # analyse param is considered a context css selector, except it begins with " or ' then it is the page title
         if param.startswith('"') and param.endswith('"') or param.startswith("'") and param.endswith("'"):
@@ -61,8 +66,6 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
             page_title = driver.title
     else:
         # if no param is given, we assume the current page is the one to analyse
-        reset_window_size(driver, width=config.resolution_width, height=config.resolution_height)
-        set_window_size_to_viewport(driver)
         page_title = driver.title
 
     # take full-pagescreenshot

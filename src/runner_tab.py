@@ -157,7 +157,6 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
         logger.debug(f"Error Details: {error_info.get('details', 'No details available')}")
         results.append({'error': error_info['message'], 'status': 'failed'})
 
-    set_window_size_to_viewport(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path_outline}")
     driver.save_screenshot(full_page_screenshot_path_outline.as_posix())

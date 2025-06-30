@@ -1,4 +1,32 @@
 (() => {
+
+    const styleConfig = {
+        outline: '2px dotted rgba(255, 223, 128, 1)',
+        circleRadius: 10,
+        fontSize: 12,
+        colors: {
+            first: { fill: 'rgba(0, 150, 0, 0.8)', stroke: 'lightgreen', strokeWidth: 2 },
+            last: { fill: 'rgba(80, 40, 0, 0.9)', stroke: '#A06020', strokeWidth: 2 },
+            default: { fill: 'rgba(255, 0, 0, 0.6)', stroke: 'none' },
+            missed: { fill: 'rgba(171, 77, 187, 0.6)' },
+            lines: ['rgba(30, 80, 255, 0.85)', 'rgba(100, 149, 237, 0.85)'],
+        },
+        shadow: 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))',
+    };
+
+    const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), ' +
+      'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+    const INTERACTIVE_SELECTOR = '[onclick], [onmousedown], [onmouseup], [role="link"], [role="button"], ' +
+      '[role="checkbox"], [role="radio"], [role="switch"], [role="tab"], [role="menuitem"], [role="option"], [aria-haspopup]';
+
+    const debounce = (func, wait) => {
+        let timeout;
+        return (...args) => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func(...args), wait);
+        };
+    };
+
     /**
      * Calculates the center position of an element in the document.
      * @param {HTMLElement} element
@@ -50,9 +78,7 @@
      * @returns {Promise<HTMLElement[]>}
      */
     const getTabOrder = () => new Promise((resolve) => {
-        const focusableSelector = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), ' +
-            'select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
-        const elements = Array.from(document.querySelectorAll(focusableSelector))
+        const elements = Array.from(document.querySelectorAll(FOCUSABLE_SELECTOR))
             .filter((el) => {
                 const style = window.getComputedStyle(el);
                 return style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
@@ -103,9 +129,7 @@
      */
     const buildPotentialElements = async () => {
         const tabbedElements = await getTabOrder();
-        const interactiveSelector = '[onclick], [onmousedown], [onmouseup], [role="link"], [role="button"], ' +
-            '[role="checkbox"], [role="radio"], [role="switch"], [role="tab"], [role="menuitem"], [role="option"], [aria-haspopup]';
-        const clickableElements = Array.from(document.querySelectorAll(interactiveSelector));
+        const clickableElements = Array.from(document.querySelectorAll(INTERACTIVE_SELECTOR));
         const elementsFound = new Set([...tabbedElements, ...clickableElements]);
 
         const cursorElements = Array.from(document.querySelectorAll('*')).filter(el => {
@@ -188,7 +212,7 @@
             svg.setAttribute('height', newDocHeight);
         };
 
-        window.addEventListener('resize', updateSvgDimensions);
+        window.addEventListener('resize', debounce(updateSvgDimensions, 100));
         return svg;
     };
 
@@ -220,18 +244,10 @@
      * @param {SVGElement} svg - SVG container for visualization
      */
     const visualizeElements = (elements, svg) => {
-        const config = {
-            outline: '2px dotted rgba(255, 223, 128, 1)',
-            labelStyles: {
-                first: { fill: 'rgba(0, 150, 0, 0.8)', stroke: 'lightgreen', strokeWidth: '2' },
-                last: { fill: 'rgba(80, 40, 0, 0.9)', stroke: '#A06020', strokeWidth: '2' },
-                default: { fill: 'rgba(255, 0, 0, 0.6)', stroke: 'none' },
-            },
-        };
 
         elements.forEach((el, index) => {
             if (el !== document.body && el !== document.documentElement) {
-                Object.assign(el.style, {outline: config.outline, position: 'relative'});
+                Object.assign(el.style, {outline: styleConfig.outline, position: 'relative'});
                 el.setAttribute('data-tabpath-styled', 'true');
             }
 
@@ -242,15 +258,15 @@
             circle.setAttribute('cy', center.y);
             circle.setAttribute('r', '10');
 
-            const style = index === 0 ? config.labelStyles.first :
-                index === elements.length - 1 ? config.labelStyles.last :
-                    config.labelStyles.default;
+            const style = index === 0 ? styleConfig.colors.first :
+                index === elements.length - 1 ? styleConfig.colors.last :
+                  styleConfig.colors.default;
 
             circle.setAttribute('fill', style.fill);
             if (style.stroke) circle.setAttribute('stroke', style.stroke);
             if (style.strokeWidth) circle.setAttribute('stroke-width', style.strokeWidth);
 
-            circle.setAttribute('filter', 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))');
+            circle.setAttribute('filter', styleConfig.shadow);
             svg.appendChild(circle);
 
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -283,8 +299,8 @@
             circle.setAttribute('cx', x);
             circle.setAttribute('cy', y);
             circle.setAttribute('r', '10');
-            circle.setAttribute('fill', 'rgba(171, 77, 187, 0.6)');
-            circle.setAttribute('filter', 'drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.5))');
+            circle.setAttribute('fill', styleConfig.colors.missed.fill);
+            circle.setAttribute('filter', styleConfig.shadow);
             svg.appendChild(circle);
 
             const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
@@ -306,7 +322,7 @@
      */
     const drawTabLines = (elements, svg) => {
         const centers = elements.map(getElementCenter);
-        const lineColors = ['rgba(30, 80, 255, 0.85)', 'rgba(100, 149, 237, 0.85)'];
+        const lineColors = styleConfig.colors.lines;
 
         const styleElem = document.createElementNS('http://www.w3.org/2000/svg', 'style');
         // language=CSS

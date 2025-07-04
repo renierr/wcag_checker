@@ -1,5 +1,7 @@
 (() => {
 
+    const idCache = new Map();
+
     const styleConfig = {
         outline: '2px dotted rgba(255, 223, 128, 1)',
         circleRadius: 10,
@@ -92,23 +94,6 @@
     });
 
     /**
-     * Collects metadata for elements.
-     * @param {HTMLElement[]} elements
-     * @param {Map} cache
-     * @returns {Array}
-     */
-    const collectElementInfo = (elements, cache) => elements.map((el, index) => ({
-        index: index + 1,
-        id: getEnhancedCSSPath(el, cache),
-        tag: el.tagName.toLowerCase(),
-        text: (el.getAttribute('aria-label') || el.textContent.trim()).slice(0, 50),
-        href: el.getAttribute('href') || '',
-        class: el.className || '',
-        position: getElementCenter(el),
-        role: el.getAttribute('role') || '',
-    }));
-
-    /**
      * Checks if an element or its parents are hidden.
      * @param {HTMLElement} element
      * @returns {boolean}
@@ -125,7 +110,7 @@
 
     /**
      * Identifies potentially interactive elements.
-     * @returns {Promise<HTMLElement[]>}
+     * @returns {Promise<{}[]>}
      */
     const buildPotentialElements = async (missing_check) => {
         if (!missing_check) {
@@ -157,7 +142,7 @@
           return false;
         });
 
-        return Array.from(new Set([...tabbedElements, ...clickableElements, ...cursorElements]));
+        return Array.from(new Set([...tabbedElements, ...clickableElements, ...cursorElements])).map(el => buildElementInfo(el, idCache));
     };
 
     /**
@@ -181,7 +166,6 @@
             document.documentElement.offsetHeight
         );
 
-        // Setze viewBox für relative Positionierung
         svg.setAttribute('viewBox', `0 0 ${docWidth} ${docHeight}`);
         svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
         svg.setAttribute('width', docWidth);
@@ -245,13 +229,14 @@
 
     /**
      * Visualizes elements in the tab order.
-     * @param {HTMLElement[]} elements
+     * @param {{}[]} elements
      * @param {SVGElement} svg - SVG container for visualization
      */
     const visualizeElements = (elements, svg) => {
 
-        elements.forEach((el, index) => {
-            if (el !== document.body && el !== document.documentElement) {
+        elements.forEach((elInfo, index) => {
+            const el = elInfo.element;
+            if (el && el !== document.body && el !== document.documentElement) {
                 Object.assign(el.style, {outline: styleConfig.outline, position: 'relative'});
                 el.setAttribute('data-tabpath-styled', 'true');
             }
@@ -288,11 +273,12 @@
 
     /**
      * Visualizes missed elements.
-     * @param {HTMLElement[]} elements
+     * @param {{}[]} elements
      * @param {SVGElement} svg - SVG container for visualization
      */
     const visualizeMissedElements = (elements, svg) => {
-        elements.forEach((el, index) => {
+        elements.forEach((elInfo, index) => {
+            const el = elInfo.element;
             Object.assign(el.style, { outline: '2px dotted rgba(255, 0, 0, 0.8)', position: 'relative' });
             el.setAttribute('data-tabpath-styled', 'true');
 
@@ -326,7 +312,7 @@
      * @param {SVGElement} svg
      */
     const drawTabLines = (elements, svg) => {
-        const centers = elements.map(getElementCenter);
+        const centers = elements.map(elInfo => getElementCenter(elInfo.element));
         const lineColors = styleConfig.colors.lines;
 
         const styleElem = document.createElementNS('http://www.w3.org/2000/svg', 'style');
@@ -383,8 +369,7 @@
      */
     const tabpathRunner = async (elements = null, missing_check = true) => {
         console.debug('Tab path Runner started');
-        const idCache = new Map();
-        const tabElements = elements ? elements.map(obj => obj.element) : await getTabOrder();
+        const tabElements = elements ? elements : (await getTabOrder()).map(el => buildElementInfo(el, idCache));
         const potentialElements = elements ? await buildPotentialElements(missing_check) : tabElements;
         const missedElements = potentialElements.filter((pe) => !tabElements.includes(pe));
         console.debug("Tab path Runner found", tabElements.length, "tabbed elements and", potentialElements.length, "potential elements");
@@ -398,12 +383,44 @@
         }
         drawTabLines(tabElements, svg);
 
+        // filter element from results, because we do not need it in python
         return {
-            tabbed_elements: collectElementInfo(tabElements, idCache),
-            potential_elements: collectElementInfo(potentialElements, idCache),
-            missed_elements: collectElementInfo(missedElements, idCache),
+            tabbed_elements: tabElements.map(el => {
+                const { element, ...rest } = el;
+                return rest;
+            }),
+            potential_elements: potentialElements.map(el => {
+                const { element, ...rest } = el;
+                return rest;
+            }),
+            missed_elements: missedElements.map(el => {
+                const { element, ...rest } = el;
+                return rest;
+            }),
         };
     };
+
+    /**
+     * Builds metadata for an element.
+     * This includes its position, tag name, ID, text content, and role.
+     * @param {HTMLElement} element - The element to analyze
+     * @param {Map} cache - Cache for CSS paths
+     * @returns {{element, location: {x: number, y: number}, tag_name: string, id: string, text: string, role: (string|string)}}
+     */
+    const buildElementInfo = (element, cache) => {
+        const center = getElementCenter(element);
+        return {
+            element: element,
+            location: {
+                x: Math.round(center.x),
+                y: Math.round(center.y)
+            },
+            tag_name: element.tagName.toLowerCase(),
+            id: getEnhancedCSSPath(element, idCache),
+            text: (element.getAttribute('aria-label') || element.textContent.trim()).slice(0, 50),
+            role: element.getAttribute('role') || ''
+        };
+    }
 
     /**
      * Gets the real active element, including elements in shadow DOM.
@@ -421,18 +438,7 @@
             return null;
         }
 
-        const center = getElementCenter(element);
-        return {
-            element: element,
-            location: {
-                x: Math.round(center.x),
-                y: Math.round(center.y)
-            },
-            tag_name: element.tagName.toLowerCase(),
-            id: getEnhancedCSSPath(element, new Map()),
-            text: (element.getAttribute('aria-label') || element.textContent.trim()).slice(0, 50),
-            role: element.getAttribute('role') || ''
-        };
+        return buildElementInfo(element, idCache);
     };
 
     /**

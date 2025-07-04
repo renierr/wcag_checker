@@ -75,6 +75,29 @@
         return result;
     };
 
+
+    /**
+     * Builds metadata for an element.
+     * This includes its position, tag name, ID, text content, and role.
+     * @param {HTMLElement} element - The element to analyze
+     * @param {Map} cache - Cache for CSS paths
+     * @returns {{element, location: {x: number, y: number}, tag_name: string, id: string, text: string, role: (string|string)}}
+     */
+    const buildElementInfo = (element, cache) => {
+        const center = getElementCenter(element);
+        return {
+            element: element,
+            location: {
+                x: Math.round(center.x),
+                y: Math.round(center.y)
+            },
+            tag_name: element.tagName.toLowerCase(),
+            id: getEnhancedCSSPath(element, idCache),
+            text: (element.getAttribute('aria-label') || element.textContent.trim()).slice(0, 50),
+            role: element.getAttribute('role') || ''
+        };
+    }
+
     /**
      * Collects focusable elements in tab order.
      * @returns {Promise<HTMLElement[]>}
@@ -241,7 +264,7 @@
                 el.setAttribute('data-tabpath-styled', 'true');
             }
 
-            const center = getElementCenter(el);
+            const center = elInfo.location;
 
             const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             circle.setAttribute('cx', center.x);
@@ -312,7 +335,7 @@
      * @param {SVGElement} svg
      */
     const drawTabLines = (elements, svg) => {
-        const centers = elements.map(elInfo => getElementCenter(elInfo.element));
+        const centers = elements.map(elInfo => elInfo.location);
         const lineColors = styleConfig.colors.lines;
 
         const styleElem = document.createElementNS('http://www.w3.org/2000/svg', 'style');
@@ -371,7 +394,9 @@
         console.debug('Tab path Runner started');
         const tabElements = elements ? elements : (await getTabOrder()).map(el => buildElementInfo(el, idCache));
         const potentialElements = elements ? await buildPotentialElements(missing_check) : tabElements;
-        const missedElements = potentialElements.filter((pe) => !tabElements.includes(pe));
+        const missedElements = potentialElements.filter((pe) =>
+            !tabElements.some(te => te.id === pe.id)
+        );
         console.debug("Tab path Runner found", tabElements.length, "tabbed elements and", potentialElements.length, "potential elements");
 
         const svg = createSvgContainer();
@@ -399,28 +424,6 @@
             }),
         };
     };
-
-    /**
-     * Builds metadata for an element.
-     * This includes its position, tag name, ID, text content, and role.
-     * @param {HTMLElement} element - The element to analyze
-     * @param {Map} cache - Cache for CSS paths
-     * @returns {{element, location: {x: number, y: number}, tag_name: string, id: string, text: string, role: (string|string)}}
-     */
-    const buildElementInfo = (element, cache) => {
-        const center = getElementCenter(element);
-        return {
-            element: element,
-            location: {
-                x: Math.round(center.x),
-                y: Math.round(center.y)
-            },
-            tag_name: element.tagName.toLowerCase(),
-            id: getEnhancedCSSPath(element, idCache),
-            text: (element.getAttribute('aria-label') || element.textContent.trim()).slice(0, 50),
-            role: element.getAttribute('role') || ''
-        };
-    }
 
     /**
      * Gets the real active element, including elements in shadow DOM.

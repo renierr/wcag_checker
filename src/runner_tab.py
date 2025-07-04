@@ -102,7 +102,7 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
                 current_active_element['location']['x'],
                 current_active_element['location']['y']
             )
-            logger.debug(f"Found focus element with signature: {element_signature}")
+            logger.debug(f"focus element: {element_signature}")
             print(".", end="", flush=True)  # Print dots to indicate progress
 
             # check for recent elements to detect cycles

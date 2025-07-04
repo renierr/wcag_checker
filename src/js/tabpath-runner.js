@@ -53,22 +53,26 @@
         if (cache.has(element)) return cache.get(element);
 
         const path = [];
-        while (element && element.nodeType === Node.ELEMENT_NODE) {
-            let selector = element.nodeName.toLowerCase();
-            if (element.id) {
-                selector = `#${element.id}`;
+        let current = element;
+        while (current && current.nodeType === Node.ELEMENT_NODE) {
+            let selector = current.nodeName.toLowerCase();
+            if (current.id) {
+                selector = `#${current.id}`;
                 path.unshift(selector);
                 break;
             } else {
-                let sib = element, nth = 1;
-                while (sib.previousElementSibling) {
+                let nth = 1;
+                let sib = current.previousElementSibling;
+                while (sib) {
+                    nth++;
                     sib = sib.previousElementSibling;
-                    if (sib.nodeName.toLowerCase() === selector) nth++;
                 }
                 if (nth !== 1) selector += `:nth-child(${nth})`;
             }
             path.unshift(selector);
-            element = element.parentNode || current.getRootNode().host;
+            current = current.parentNode && current.parentNode.nodeType === Node.ELEMENT_NODE
+                ? current.parentNode
+                : current.getRootNode().host;
         }
         const result = path.join(' > ');
         cache.set(element, result);

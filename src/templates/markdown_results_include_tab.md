@@ -42,6 +42,17 @@
 
 **ID:**    
 `{{ miss_el.id }}`
+
+{% if miss_el.location %}
+**Location:** 
+{{ miss_el.location }}
+{%- endif %}
+
+{% if miss_el.tag_name %}
+**Tag Name:** 
+{{ miss_el.tag_name }}
+{%- endif %}
+
 {% if miss_el.text %}
 **Text:**
 ```plaintext

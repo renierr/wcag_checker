@@ -80,12 +80,12 @@
      * Builds metadata for an element.
      * This includes its position, tag name, ID, text content, and role.
      * @param {HTMLElement} element - The element to analyze
-     * @param {Map} cache - Cache for CSS paths
      * @returns {{element, location: {x: number, y: number}, tag_name: string, id: string, text: string, role: (string|string)}}
      */
-    const buildElementInfo = (element, cache) => {
+    const buildElementInfo = (element, index = -1) => {
         const center = getElementCenter(element);
         return {
+            index: index,
             element: element,
             location: {
                 x: Math.round(center.x),
@@ -165,7 +165,7 @@
           return false;
         });
 
-        return Array.from(new Set([...tabbedElements, ...clickableElements, ...cursorElements])).map(el => buildElementInfo(el, idCache));
+        return Array.from(new Set([...tabbedElements, ...clickableElements, ...cursorElements])).map((el, index) => buildElementInfo(el, index));
     };
 
     /**
@@ -392,11 +392,11 @@
      */
     const tabpathRunner = async (elements = null, missing_check = true) => {
         console.debug('Tab path Runner started');
-        const tabElements = elements ? elements : (await getTabOrder()).map(el => buildElementInfo(el, idCache));
+        const tabElements = elements ? elements : (await getTabOrder()).map((el, index) => buildElementInfo(el, index));
         const potentialElements = elements ? await buildPotentialElements(missing_check) : tabElements;
-        const missedElements = potentialElements.filter((pe) =>
-            !tabElements.some(te => te.id === pe.id)
-        );
+        const missedElements = potentialElements
+            .filter((pe) => !tabElements.some(te => te.id === pe.id))
+            .map((el, index) => ({ ...el, index: (index+1) }));
         console.debug("Tab path Runner found", tabElements.length, "tabbed elements and", potentialElements.length, "potential elements");
 
         const svg = createSvgContainer();
@@ -441,7 +441,7 @@
             return null;
         }
 
-        return buildElementInfo(element, idCache);
+        return buildElementInfo(element);
     };
 
     /**

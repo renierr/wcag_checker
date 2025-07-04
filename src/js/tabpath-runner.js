@@ -127,7 +127,10 @@
      * Identifies potentially interactive elements.
      * @returns {Promise<HTMLElement[]>}
      */
-    const buildPotentialElements = async () => {
+    const buildPotentialElements = async (missing_check) => {
+        if (!missing_check) {
+            return [];
+        }
         const tabbedElements = await getTabOrder();
         const clickableElements = Array.from(document.querySelectorAll(INTERACTIVE_SELECTOR));
         const elementsFound = new Set([...tabbedElements, ...clickableElements]);
@@ -378,11 +381,11 @@
      * @param {HTMLElement[]|null} elements
      * @returns {Promise<{tabbed_elements: Array, potential_elements: Array, missed_elements: Array}>}
      */
-    const tabpathRunner = async (elements = null) => {
+    const tabpathRunner = async (elements = null, missing_check = true) => {
         console.debug('Tab path Runner started');
         const idCache = new Map();
         const tabElements = elements || await getTabOrder();
-        const potentialElements = elements ? await buildPotentialElements() : tabElements;
+        const potentialElements = elements ? await buildPotentialElements(missing_check) : tabElements;
         const missedElements = potentialElements.filter((pe) => !tabElements.includes(pe));
         console.debug("Tab path Runner found", tabElements.length, "tabbed elements and", potentialElements.length, "potential elements");
 
@@ -435,9 +438,10 @@
     };
 
     // Expose global functions
-    window.runTabpathAnalysis = async (elements = null) => {
+    window.runTabpathAnalysis = async (elements = null, missing_check = true) => {
         try {
-            const results = await tabpathRunner(elements);
+            console.debug(`Run tabpath analysis for ${elements.length} elements with missing check: ${missing_check}`);
+            const results = await tabpathRunner(elements, missing_check);
             return {
                 success: true,
                 data: results

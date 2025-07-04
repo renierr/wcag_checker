@@ -86,6 +86,7 @@ def argument_parser() -> argparse.ArgumentParser:
     # Subparser for mode 'check'
     for_axe_runner_hint = "[bold yellow](for axe runner)→ [/bold yellow]"
     for_contrast_runner_hint = "[bold magenta](for contrast runner)→ [/bold magenta]"
+    for_tab_runner_hint = "[bold blue](for tab runner)→ [/bold blue]"
     check_parser = subparsers.add_parser(Mode.CHECK.value,
                                             parents=[parent_processing_parser],
                                             help="Run the WCAG checks for input with reporting.",
@@ -121,5 +122,7 @@ def argument_parser() -> argparse.ArgumentParser:
                                 see: https://github.com/dequelabs/axe-core/blob/develop/doc/API.md#axe-core-tags for rule names
                                 example: --axe_rules "wcag2a, wcag2aa, wcag21a, wcag21aa, wcag22aa"
                                 """).strip())
+    check_parser.add_argument("--missing_tab_check", action=argparse.BooleanOptionalAction, default=True,
+                              help=f"{for_tab_runner_hint}Should the missing tab check be done to compare with found TAB keypresses.")
 
     return parser

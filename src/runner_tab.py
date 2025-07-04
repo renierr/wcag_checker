@@ -36,7 +36,7 @@ class TabRunnerScript:
         """
         self.driver.execute_script(self.script_data)
 
-    def run(self, tab_elements: list[WebElement] = None) -> dict:
+    def run(self, tab_elements: list[WebElement] = None, missing_check: bool = True) -> dict:
         """
         Run tabpath script with the given options.
 
@@ -44,12 +44,13 @@ class TabRunnerScript:
         """
         command = (
             f"var callback = arguments[arguments.length - 1];"
-            f"var elements = arguments[0];"
+            f"const elements = arguments[0];"
+            f"const missing_check = arguments[1] ?? true;"
             "setTimeout(() => {"
-            f"runTabpathAnalysis(elements).then(results => callback(results));"
+            f"runTabpathAnalysis(elements, missing_check).then(results => callback(results));"
             "});"
         )
-        return self.driver.execute_async_script(command, tab_elements)
+        return self.driver.execute_async_script(command, tab_elements, missing_check)
 
     def exportSVG(self) -> str:
         return self.driver.execute_script("return window.exportTabpathAsSVG()")
@@ -154,8 +155,8 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
     logger.debug(f"Inject tab script to url {url_idx}")
     tabpath_checker.inject()
 
-    logger.debug(f"Run tab script for url {url_idx}")
-    tabpath_data = tabpath_checker.run(tab_elements=tab_elements)
+    logger.debug(f"Run tab script for url {url_idx} - missing_check={config.missing_tab_check}")
+    tabpath_data = tabpath_checker.run(tab_elements=tab_elements, missing_check=config.missing_tab_check)
     if not tabpath_data:
         logger.error("Tab path analysis returned no data. Skipping further processing.")
         return None

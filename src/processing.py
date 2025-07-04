@@ -184,6 +184,9 @@ def info_logs_of_config(config: ProcessingConfig) -> None:
     if config.runner == Runner.AXE:
         logger.info(f"Axe rules to check: {config.axe_rules if config.axe_rules else 'default'}")
 
+    if config.runner == Runner.TAB:
+        logger.info(f"Missing TAB check: {config.missing_tab_check}")
+
 
 def handle_action(config: ProcessingConfig, driver: WebDriver, action_str: str) -> dict | None:
     """Delegates action handling to the ActionRegistry."""

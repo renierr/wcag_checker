@@ -68,6 +68,7 @@ class ProcessingConfig(Config):
     alternate_color_suggestion: bool = False
     color_source: ColorSource = ColorSource.ELEMENT
     context: str | None = None
+    missing_tab_check: bool = True
 
     def __post_init__(self):
         self.resolution_width, self.resolution_height = self.resolution

@@ -102,16 +102,19 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
         current_tab_count += 1
 
         # Get the currently focused element
-        current_element: WebElement = _get_real_active_element(driver) # driver.switch_to.active_element
+        current_active_element: dict = driver.execute_script("return window.getRealActiveElement();")
+        if not current_active_element:
+            logger.debug("No active element found, stopping tab collection.")
+            break
 
         try:
             # Create a unique signature for this element
             element_signature = (
-                current_element.tag_name,
-                current_element.location['x'],
-                current_element.location['y']
+                current_active_element.get('id', current_active_element['tag_name']),
+                current_active_element['location']['x'],
+                current_active_element['location']['y']
             )
-
+            logger.debug(f"Found focus element with signature: {element_signature}")
             print(".", end="", flush=True)  # Print dots to indicate progress
 
             # check for recent elements to detect cycles
@@ -121,7 +124,7 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
                 break
 
             seen_elements.add(element_signature)
-            focusable_elements.append(current_element)
+            focusable_elements.append(current_active_element)
 
         except StaleElementReferenceException:
             logger.debug("Encountered stale element reference")
@@ -147,13 +150,13 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
         logger.debug("Setting up tab runner")
         tabpath_checker = TabRunnerScript(driver)
 
-    # send tab keys to page to collect all elements focusable by tab key
-    tab_elements = _collect_elements_by_tab_key(driver)
-    tab_elements = _filter_stale_elements(driver, tab_elements)
-    logger.info(f"Found {len(tab_elements)} tabbable elements on page.")
-
     logger.debug(f"Inject tab script to url {url_idx}")
     tabpath_checker.inject()
+
+    # send tab keys to page to collect all elements focusable by tab key
+    tab_elements = _collect_elements_by_tab_key(driver)
+    #tab_elements = _filter_stale_elements(driver, tab_elements)
+    logger.info(f"Found {len(tab_elements)} tabbable elements on page.")
 
     logger.debug(f"Run tab script for url {url_idx} - missing_check={config.missing_tab_check}")
     tabpath_data = tabpath_checker.run(tab_elements=tab_elements, missing_check=config.missing_tab_check)

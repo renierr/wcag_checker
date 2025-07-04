@@ -378,13 +378,13 @@
 
     /**
      * Runs the tab path analysis.
-     * @param {HTMLElement[]|null} elements
+     * @param {{}|null} elements
      * @returns {Promise<{tabbed_elements: Array, potential_elements: Array, missed_elements: Array}>}
      */
     const tabpathRunner = async (elements = null, missing_check = true) => {
         console.debug('Tab path Runner started');
         const idCache = new Map();
-        const tabElements = elements || await getTabOrder();
+        const tabElements = elements ? elements.map(obj => obj.element) : await getTabOrder();
         const potentialElements = elements ? await buildPotentialElements(missing_check) : tabElements;
         const missedElements = potentialElements.filter((pe) => !tabElements.includes(pe));
         console.debug("Tab path Runner found", tabElements.length, "tabbed elements and", potentialElements.length, "potential elements");
@@ -402,6 +402,36 @@
             tabbed_elements: collectElementInfo(tabElements, idCache),
             potential_elements: collectElementInfo(potentialElements, idCache),
             missed_elements: collectElementInfo(missedElements, idCache),
+        };
+    };
+
+    /**
+     * Gets the real active element, including elements in shadow DOM.
+     * @returns {Object} Object containing element and its metadata
+     */
+    const getRealActiveElement = () => {
+        let element = document.activeElement;
+
+        // Traverse through shadow DOM if present
+        while (element && element.shadowRoot && element.shadowRoot.activeElement) {
+            element = element.shadowRoot.activeElement;
+        }
+
+        if (!element || element === document.body) {
+            return null;
+        }
+
+        const center = getElementCenter(element);
+        return {
+            element: element,
+            location: {
+                x: Math.round(center.x),
+                y: Math.round(center.y)
+            },
+            tag_name: element.tagName.toLowerCase(),
+            id: getEnhancedCSSPath(element, new Map()),
+            text: (element.getAttribute('aria-label') || element.textContent.trim()).slice(0, 50),
+            role: element.getAttribute('role') || ''
         };
     };
 
@@ -462,5 +492,6 @@
         return exportTabpathAsSVG(svg || document.querySelector('svg[data-tabpath="true"]'));
     };
     window.cleanTabpathVisualization = cleanTabpathVisualization;
+    window.getRealActiveElement = getRealActiveElement;
 
 })();

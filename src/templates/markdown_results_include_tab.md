@@ -13,12 +13,17 @@
 
 {% for result in input_data.results %}
 
-{% set tab_image_svg = result.tab_path_svg.replace(output + '/', '') %}
+{% set tab_image_svg = result.get('tab_path_svg','').replace(output + '/', '') %}
 {% set tab_image_background = input_data.get('screenshot','').replace(output + '/', '') %}
 <div class="tab-image-container">
   <input type="checkbox" checked="checked" id="toggle-bg-{{ loop.index }}" class="toggle-bg-checkbox">
   <label for="toggle-bg-{{ loop.index }}">Show Page Background</label>
-  <img src="{{ tab_image_svg }}" style="background-image: url('{{ tab_image_background }}')" alt="Tab Path SVG" class="tabbing-path-image">
+  {% if tab_image_svg %}
+<img src="{{ tab_image_svg }}" style="background-image: url('{{ tab_image_background }}')" alt="Tab Path SVG" class="tabbing-path-image">
+  {% else %}
+    {% set tab_image_outline = input_data.get('screenshot_outline','').replace(output + '/', '') %}
+![Tab Path Image]({{ tab_image_outline }})
+  {% endif %}
 </div>
 
 {% if "error" in result %}

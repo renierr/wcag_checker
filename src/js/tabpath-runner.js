@@ -1,4 +1,4 @@
-(() => {
+const TabPath = (() => {
 
     const idCache = new Map();
 
@@ -480,31 +480,40 @@
         return serializer.serializeToString(svg);
     };
 
-    // Expose global functions
-    window.runTabpathAnalysis = async (elements = null, missing_check = true) => {
-        try {
-            console.debug(`Run tabpath analysis for ${elements.length} elements with missing check: ${missing_check}`);
-            const results = await tabpathRunner(elements, missing_check);
-            return {
-                success: true,
-                data: results
-            };
-        } catch (error) {
-            console.error('Tabpath analysis error:', error.message);
-            return {
-                success: false,
-                error: {
-                    message: error.message || 'Unknown Error during analyse',
-                    details: error.stack || '',
-                    originalError: error
-                }
-            };
-        }
+    return {
+        runAnalysis: async (elements = null, missing_check = true) => {
+            try {
+                console.debug(`Run tabpath analysis for ${elements.length} elements with missing check: ${missing_check}`);
+                const results = await tabpathRunner(elements, missing_check);
+                return {
+                    success: true,
+                    data: results
+                };
+            } catch (error) {
+                console.error('Tabpath analysis error:', error.message);
+                return {
+                    success: false,
+                    error: {
+                        message: error.message || 'Unknown Error during analyse',
+                        details: error.stack || '',
+                        originalError: error
+                    }
+                };
+            }
+        },
+        exportAsSVG: (svg) => {
+            return exportTabpathAsSVG(svg || document.querySelector('svg[data-tabpath="true"]'));
+        },
+        cleanVisualization: cleanTabpathVisualization,
+        getRealActiveElement: getRealActiveElement
     };
-    window.exportTabpathAsSVG = (svg) => {
-        return exportTabpathAsSVG(svg || document.querySelector('svg[data-tabpath="true"]'));
-    };
-    window.cleanTabpathVisualization = cleanTabpathVisualization;
-    window.getRealActiveElement = getRealActiveElement;
-
 })();
+
+// Export the TabPath module
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = TabPath;
+}
+// If running in a browser, attach to the global window object
+else {
+    window.TabPath = TabPath;
+}

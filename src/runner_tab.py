@@ -47,21 +47,21 @@ class TabRunnerScript:
             f"const elements = arguments[0];"
             f"const missing_check = arguments[1] ?? true;"
             "setTimeout(() => {"
-            f"runTabpathAnalysis(elements, missing_check).then(results => callback(results));"
+            f"TabPath.runAnalysis(elements, missing_check).then(results => callback(results));"
             "});"
         )
         return self.driver.execute_async_script(command, tab_elements, missing_check)
 
     def exportSVG(self) -> str:
-        return self.driver.execute_script("return window.exportTabpathAsSVG()")
+        return self.driver.execute_script("return TabPath.exportAsSVG()")
 
     def cleanup(self):
         """
         Cleanup the tabpath script.
         """
-        self.driver.execute_script("cleanTabpathVisualization();")
+        self.driver.execute_script("TabPath.cleanVisualization();")
 
-def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
+def _collect_elements_by_tab_key(driver: WebDriver) -> list[dict]:
     """
     Collects all elements that are focusable by the tab key on the current page.
     This function simulates pressing the Tab key to navigate through focusable elements
@@ -73,7 +73,7 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
 
     # send tab keys to page to collect all elements focusable by tab key
     logger.info("Sending tab keys to page to collect focusable elements, this may take a while")
-    focusable_elements: list[WebElement] = []
+    focusable_elements: list[dict] = []
     seen_elements = set()  # Track elements by a hash of their properties
     max_tabs = 10000  # Limit the number of tabs to prevent infinite loops
     current_tab_count = 0
@@ -90,7 +90,7 @@ def _collect_elements_by_tab_key(driver: WebDriver) -> list[WebElement]:
         current_tab_count += 1
 
         # Get the currently focused element
-        current_active_element: dict = driver.execute_script("return window.getRealActiveElement();")
+        current_active_element: dict = driver.execute_script("return TabPath.getRealActiveElement();")
         if not current_active_element:
             logger.debug("No active element found, stopping tab collection.")
             break

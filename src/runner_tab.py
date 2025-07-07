@@ -7,7 +7,7 @@ from pathlib import Path
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
-from src.utils import set_window_size_to_viewport, take_fullpage_screenshot
+from src.utils import take_fullpage_screenshot
 
 tabpath_checker = None
 class TabRunnerScript:

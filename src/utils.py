@@ -179,17 +179,6 @@ def get_csspath(driver: WebDriver, element: WebElement) -> str:
     """
     return driver.execute_script("return getCSSPath(arguments[0]);", element)
 
-def reset_window_size(driver: WebDriver, width: int = 1920, height: int = 1080) -> None:
-    """
-    Reset the browser window size to the default dimensions.
-
-    :param driver: The Selenium WebDriver instance.
-    :param width: The width to set the browser window to (default: 1920).
-    :param height: The height to set the browser window to (default: 1080).
-    """
-    driver.set_window_size(width, height)
-    logger.debug(f"Browser window size reset to: {width}x{height}")
-
 # language=JS
 script_viewport_size = """
 function getMaxDimensions() {

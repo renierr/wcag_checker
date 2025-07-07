@@ -7,7 +7,7 @@ from src.config import ReportLevel, ProcessingConfig
 from src.contrast import check_contrast
 from src.css import inject_outline_css
 from src.logger_setup import logger
-from src.utils import define_get_path_script, get_csspath, set_window_size_to_viewport, take_fullpage_screenshot
+from src.utils import define_get_path_script, get_csspath, take_fullpage_screenshot
 
 
 def runner_contrast(config: ProcessingConfig, driver: WebDriver, results: list, screenshots_folder: Path, url_idx: int) -> Path | None:
@@ -69,7 +69,6 @@ def runner_contrast(config: ProcessingConfig, driver: WebDriver, results: list, 
 
 def outline_elements_for_screenshot(config: ProcessingConfig, driver: WebDriver, elements: list[WebElement],
                                     missed_contrast_elements: list, url_idx: int) -> Path:
-    set_window_size_to_viewport(driver)
     inject_outline_css(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"
     logger.debug(f"Taking full-page screenshot with outlines and saving to: {full_page_screenshot_path_outline}")

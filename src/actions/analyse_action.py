@@ -9,7 +9,7 @@ from src.logger_setup import logger
 from src.runner_axe import runner_axe
 from src.runner_contrast import runner_contrast
 from src.runner_tab import runner_tab
-from src.utils import reset_window_size, set_window_size_to_viewport, take_fullpage_screenshot
+from src.utils import take_fullpage_screenshot
 
 runner_function_map = {
     Runner.AXE: runner_axe,
@@ -43,11 +43,6 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     logger.info(f"[{input_idx}] Analysing page '{param if param else 'current'}' with runner '{config.runner.value}'")
     results = []
     screenshots_folder = Path(config.output) / "screenshots"
-
-    # reset window size for analyse - TODO check how this can be worked out with the resize action
-    reset_window_size(driver, width=config.resolution_width, height=config.resolution_height)
-    set_window_size_to_viewport(driver)
-
 
     if param:
         # analyse param is considered a context css selector, except it begins with " or ' then it is the page title

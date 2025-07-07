@@ -7,7 +7,7 @@ from pathlib import Path
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
-from src.utils import set_window_size_to_viewport
+from src.utils import set_window_size_to_viewport, take_fullpage_screenshot
 
 tabpath_checker = None
 class TabRunnerScript:
@@ -162,7 +162,7 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
 
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path_outline}")
-    driver.save_screenshot(full_page_screenshot_path_outline.as_posix())
+    take_fullpage_screenshot(driver, full_page_screenshot_path_outline)
     tabpath_checker.cleanup()
 
     return full_page_screenshot_path_outline

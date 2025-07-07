@@ -1,4 +1,6 @@
 import sys
+import base64
+
 from dataclasses import fields
 from urllib.parse import urlparse
 from pathlib import Path
@@ -348,3 +350,38 @@ def trim_string_to_length(s: str, length: int) -> str:
     if len(s) > length:
         return s[:length - 3] + "..."
     return s
+
+def take_fullpage_screenshot(driver: WebDriver, screenshot_path: Path) -> None:
+    """
+    Take a full-page screenshot of the current page and save it to the specified path.
+
+    :param driver: Selenium WebDriver instance.
+    :param screenshot_path: Path where the full-page screenshot will be saved.
+    """
+    # Ensure the current window is active.
+    driver.switch_to.window(driver.current_window_handle)
+
+    # Get page layout metrics to retrieve the full content dimensions
+    layout_metrics = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
+    content_width = layout_metrics["contentSize"]["width"]
+    content_height = layout_metrics["contentSize"]["height"]
+
+    # Get the current viewport width
+    current_width = driver.get_window_size()["width"]
+
+    # Override device metrics with the full page dimensions
+    driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {
+        "width": current_width,
+        "height": content_height,
+        "deviceScaleFactor": 1,
+        "mobile": False
+    })
+
+    # Capture screenshot from the surface (full page)
+    screenshot_data = driver.execute_cdp_cmd("Page.captureScreenshot", {"fromSurface": True})
+    # Reset the device metrics override.
+    driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride", {})
+
+    # Save the screenshot to the full_page_screenshot_path
+    with open(screenshot_path, "wb") as file:
+        file.write(base64.b64decode(screenshot_data["data"]))

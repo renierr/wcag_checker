@@ -9,7 +9,7 @@ from src.logger_setup import logger
 from src.runner_axe import runner_axe
 from src.runner_contrast import runner_contrast
 from src.runner_tab import runner_tab
-from src.utils import reset_window_size, set_window_size_to_viewport
+from src.utils import reset_window_size, set_window_size_to_viewport, take_fullpage_screenshot
 
 runner_function_map = {
     Runner.AXE: runner_axe,
@@ -71,7 +71,7 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     # take full-pagescreenshot
     full_page_screenshot_path = Path(config.output) / f"{config.mode.value}_{input_idx}_full_page_screenshot.png"
     logger.debug(f"Taking full-page screenshot and saving to: {full_page_screenshot_path}")
-    driver.save_screenshot(full_page_screenshot_path)
+    take_fullpage_screenshot(driver, full_page_screenshot_path)
 
     # select runner to run the check
     runner_function = runner_function_map.get(config.runner)

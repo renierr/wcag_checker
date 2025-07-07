@@ -5,6 +5,8 @@ from selenium.webdriver.common.by import By
 from src.action_handler import register_action, parse_param_to_key_value
 from src.config import ProcessingConfig
 from src.logger_setup import logger
+from src.utils import take_fullpage_screenshot
+
 
 @register_action("screenshot")
 def screenshot_action(config: ProcessingConfig, driver: WebDriver, param: str | None = None) -> None:
@@ -40,5 +42,5 @@ def screenshot_action(config: ProcessingConfig, driver: WebDriver, param: str | 
         except Exception as e:
             logger.error(f"Failed to take screenshot of element '{selector}': {e}")
     else:
-        driver.save_screenshot(screenshot_path.as_posix())
+        take_fullpage_screenshot(driver, screenshot_path)
 

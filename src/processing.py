@@ -53,7 +53,8 @@ def check_run(config: ProcessingConfig) -> None:
                 from selenium.webdriver.chrome.options import Options
                 options = Options()
             if config.browser_visible:
-                options.add_argument("--auto-open-devtools-for-tabs")
+                #options.add_argument("--auto-open-devtools-for-tabs")
+                pass
             else:
                 options.add_argument("--headless")
             options.add_argument("--window-size=1920,1080")
@@ -67,6 +68,7 @@ def check_run(config: ProcessingConfig) -> None:
             else:
                 driver = selenium.webdriver.Chrome(options=options)
 
+            logger.debug(f"Selenium WebDriver Initialized")
             driver.script.add_console_message_handler(handle_browser_console_log)
             try:
                 # first go to login url if defined

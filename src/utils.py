@@ -353,26 +353,10 @@ def take_fullpage_screenshot(driver: WebDriver, screenshot_path: Path) -> None:
     #scroll to the top of the page
     driver.execute_script("window.scrollTo(0, 0);")
 
-    # Get page layout metrics to retrieve the full content dimensions
-    layout_metrics = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
-    content_width = layout_metrics["contentSize"]["width"]
-    content_height = layout_metrics["contentSize"]["height"]
-
-    # Get the current viewport width
-    current_width = driver.get_window_size()["width"]
-
-    # Override device metrics with the full page dimensions
-    driver.execute_cdp_cmd("Emulation.setDeviceMetricsOverride", {
-        "width": current_width,
-        "height": content_height,
-        "deviceScaleFactor": 1,
-        "mobile": False
-    })
-
     # Capture screenshot from the surface (full page)
-    screenshot_data = driver.execute_cdp_cmd("Page.captureScreenshot", {"fromSurface": True})
-    # Reset the device metrics override.
-    driver.execute_cdp_cmd("Emulation.clearDeviceMetricsOverride", {})
+    screenshot_data = driver.execute_cdp_cmd("Page.captureScreenshot", {
+        "captureBeyondViewport": True,
+    })
 
     # Save the screenshot to the full_page_screenshot_path
     with open(screenshot_path, "wb") as file:

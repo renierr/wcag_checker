@@ -350,6 +350,9 @@ def take_fullpage_screenshot(driver: WebDriver, screenshot_path: Path) -> None:
     # Ensure the current window is active.
     driver.switch_to.window(driver.current_window_handle)
 
+    #scroll to the top of the page
+    driver.execute_script("window.scrollTo(0, 0);")
+
     # Get page layout metrics to retrieve the full content dimensions
     layout_metrics = driver.execute_cdp_cmd("Page.getLayoutMetrics", {})
     content_width = layout_metrics["contentSize"]["width"]

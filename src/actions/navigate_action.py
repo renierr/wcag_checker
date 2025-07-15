@@ -3,7 +3,7 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.by import By
 
-from src.action_handler import register_action
+from src.action_handler import register_action, parse_param_to_string
 from src.config import ProcessingConfig
 from src.logger_setup import logger
 from src.utils import call_url
@@ -52,7 +52,11 @@ def navigate_action(config: ProcessingConfig, driver: WebDriver, param: str | No
     if not param:
         logger.warning("No URL provided for navigation action.")
         return
-    call_url(driver, param)
+    parsed_param = parse_param_to_string(param).strip()
+    if parsed_param.startswith('"') and parsed_param.endswith('"'):
+        # remove the quotes from the string
+        parsed_param = parsed_param[1:-1]
+    call_url(driver, parsed_param)
 
 
 @register_action("hover")

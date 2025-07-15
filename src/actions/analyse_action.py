@@ -77,7 +77,7 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     # save results
     browser_width, browser_height = driver.get_window_size().values()
     entry = {
-        "url": None,
+        "url": driver.current_url,
         "index": input_idx,
         "config": config.__dict__,
         "results": results,

@@ -102,7 +102,6 @@ def check_run(config: ProcessingConfig) -> None:
                         # normal url navigation
                         call_url(driver, input)
                         entry = analyse_action(config, driver, None)
-                        entry["url"] = input  # ensure the URL is set in the entry
                         last_action = "direct url analyse for: " + input
 
                     except Exception as e:

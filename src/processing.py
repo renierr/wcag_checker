@@ -196,12 +196,13 @@ def handle_action(config: ProcessingConfig, driver: WebDriver, action_str: str) 
     return action_registry.execute(config, driver, action_str)
 
 
-def _config_to_actions(inputs: list[str], processed_files: set[str] = None) -> list[str]:
+def _config_to_actions(inputs: list[str], basedir: Path, processed_files: set[str] = None) -> list[str]:
     """
     Convert the inputs to actions by parsing the config file and including actions from other files.
     This function is used to handle the `@include:` directive in config files.
 
     :param inputs: List of input strings.
+    :param basedir: Base directory to resolve relative paths for included files.
     :param processed_files: Set of already processed files to avoid circular references.
     :return: List of actions as strings.
     """
@@ -222,15 +223,17 @@ def _config_to_actions(inputs: list[str], processed_files: set[str] = None) -> l
             combined_line = line
         elif line.startswith("@include:"):
             include_file = line.replace("@include:", "").strip()
-            logger.info(f"Including actions from file: {include_file}")
+            logger.info(f"Including actions from file: {include_file} basedir: {basedir}")
             if include_file in processed_files:
                 logger.warning(f"Include File {include_file} already processed, skipping to avoid circular reference.")
                 continue
             processed_files.add(include_file)
             try:
-                with open(include_file, "r") as include_f:
+                include_path = basedir / include_file
+                with include_path.open("r") as include_f:
+                    basedir = include_path.resolve().parent
                     included_actions = [action.strip() for action in include_f.readlines() if action.strip() and not action.strip().startswith("#")]
-                    parsed_inputs.extend(_config_to_actions(included_actions, processed_files))
+                    parsed_inputs.extend(_config_to_actions(included_actions, basedir, processed_files))
             except FileNotFoundError:
                 logger.error(f"Include File not found: {include_file}")
         else:
@@ -254,9 +257,14 @@ def parse_inputs(inputs: list[str]) -> list[str]:
         if isinstance(input_check, str) and input_check.startswith("config:"):
             config_file = input_check.replace("config:", "")
             logger.info(f"Reading inputs from config file: {config_file}")
-            with open(config_file, "r") as f:
-                lines = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
-                parsed_inputs.extend(_config_to_actions(lines))
+            try:
+                with open(config_file, "r") as f:
+                    basedir = Path(config_file).resolve().parent
+                    lines = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
+                    parsed_inputs.extend(_config_to_actions(lines, basedir))
+            except FileNotFoundError:
+                logger.error(f"Config file not found: {config_file}")
+                continue
         else:
             parsed_inputs.append(input_check)
     return parsed_inputs

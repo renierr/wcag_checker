@@ -224,7 +224,7 @@ def _config_to_actions(inputs: list[str], processed_files: set[str] = None) -> l
             include_file = line.replace("@include:", "").strip()
             logger.info(f"Including actions from file: {include_file}")
             if include_file in processed_files:
-                logger.warning(f"File {include_file} already processed, skipping to avoid circular reference.")
+                logger.warning(f"Include File {include_file} already processed, skipping to avoid circular reference.")
                 continue
             processed_files.add(include_file)
             try:
@@ -232,7 +232,7 @@ def _config_to_actions(inputs: list[str], processed_files: set[str] = None) -> l
                     included_actions = [action.strip() for action in include_f.readlines() if action.strip() and not action.strip().startswith("#")]
                     parsed_inputs.extend(_config_to_actions(included_actions, processed_files))
             except FileNotFoundError:
-                logger.error(f"File not found: {include_file}")
+                logger.error(f"Include File not found: {include_file}")
         else:
             parsed_inputs.append(line)
     return parsed_inputs

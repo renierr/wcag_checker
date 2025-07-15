@@ -44,6 +44,8 @@ def check_run(config: ProcessingConfig) -> None:
             if inputs_len == 0:
                 logger.error("No Inputs provided to check. Please provide at least one input or a config file")
                 sys.exit(1)
+            else:
+                logger.info(f"Found {inputs_len} inputs to check.")
 
             logger.info("Starting Selenium WebDriver")
             if config.browser == "edge":
@@ -194,6 +196,48 @@ def handle_action(config: ProcessingConfig, driver: WebDriver, action_str: str) 
     return action_registry.execute(config, driver, action_str)
 
 
+def _config_to_actions(inputs: list[str], processed_files: set[str] = None) -> list[str]:
+    """
+    Convert the inputs to actions by parsing the config file and including actions from other files.
+    This function is used to handle the `@include:` directive in config files.
+
+    :param inputs: List of input strings.
+    :param processed_files: Set of already processed files to avoid circular references.
+    :return: List of actions as strings.
+    """
+    if processed_files is None:
+        processed_files = set()
+
+    parsed_inputs = []
+    combined_line = None
+    for line in inputs:
+        if not line.strip() or line.startswith("#"):
+            continue
+        elif combined_line:
+            combined_line += " " + line
+            if line.startswith("}"):
+                parsed_inputs.append(combined_line)
+                combined_line = None
+        elif line.endswith("{"):
+            combined_line = line
+        elif line.startswith("@include:"):
+            include_file = line.replace("@include:", "").strip()
+            logger.info(f"Including actions from file: {include_file}")
+            if include_file in processed_files:
+                logger.warning(f"File {include_file} already processed, skipping to avoid circular reference.")
+                continue
+            processed_files.add(include_file)
+            try:
+                with open(include_file, "r") as include_f:
+                    included_actions = [action.strip() for action in include_f.readlines() if action.strip() and not action.strip().startswith("#")]
+                    parsed_inputs.extend(_config_to_actions(included_actions, processed_files))
+            except FileNotFoundError:
+                logger.error(f"File not found: {include_file}")
+        else:
+            parsed_inputs.append(line)
+    return parsed_inputs
+
+
 def parse_inputs(inputs: list[str]) -> list[str]:
     """
     Parse the inputs to ensure they are valid URLs or actions.
@@ -204,6 +248,7 @@ def parse_inputs(inputs: list[str]) -> list[str]:
     :param inputs: List of input strings.
     :return: List of parsed input strings.
     """
+
     parsed_inputs = []
     for input_check in inputs:
         if isinstance(input_check, str) and input_check.startswith("config:"):
@@ -211,17 +256,7 @@ def parse_inputs(inputs: list[str]) -> list[str]:
             logger.info(f"Reading inputs from config file: {config_file}")
             with open(config_file, "r") as f:
                 lines = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
-                combined_line = None
-                for line in lines:
-                    if combined_line:
-                        combined_line += " " + line
-                        if line.startswith("}"):
-                            parsed_inputs.append(combined_line)
-                            combined_line = None
-                    elif line.endswith("{"):
-                        combined_line = line
-                    else:
-                        parsed_inputs.append(line)
+                parsed_inputs.extend(_config_to_actions(lines))
         else:
             parsed_inputs.append(input_check)
     return parsed_inputs

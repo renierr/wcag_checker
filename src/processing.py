@@ -10,6 +10,7 @@ from src.action_handler import action_registry
 from src.actions.analyse_action import analyse_action
 from src.browser_console_log_handler import handle_browser_console_log, get_browser_console_log
 from src.config import Config, ProcessingConfig, ConfigEncoder, ReportLevel, Runner
+from src.input_parser import parse_inputs
 from src.logger_setup import logger
 from src.report import build_markdown, generate_markdown_report, generate_html_report
 from src.utils import call_url, get_full_base_url
@@ -194,80 +195,6 @@ def info_logs_of_config(config: ProcessingConfig) -> None:
 def handle_action(config: ProcessingConfig, driver: WebDriver, action_str: str) -> dict | None:
     """Delegates action handling to the ActionRegistry."""
     return action_registry.execute(config, driver, action_str)
-
-
-def _config_to_actions(inputs: list[str], basedir: Path, processed_files: set[str] = None) -> list[str]:
-    """
-    Convert the inputs to actions by parsing the config file and including actions from other files.
-    This function is used to handle the `@include:` directive in config files.
-
-    :param inputs: List of input strings.
-    :param basedir: Base directory to resolve relative paths for included files.
-    :param processed_files: Set of already processed files to avoid circular references.
-    :return: List of actions as strings.
-    """
-    if processed_files is None:
-        processed_files = set()
-
-    parsed_inputs = []
-    combined_line = None
-    for line in inputs:
-        if not line.strip() or line.startswith("#"):
-            continue
-        elif combined_line:
-            combined_line += " " + line
-            if line.startswith("}"):
-                parsed_inputs.append(combined_line)
-                combined_line = None
-        elif line.endswith("{"):
-            combined_line = line
-        elif line.startswith("@include:"):
-            include_file = line.replace("@include:", "").strip()
-            logger.info(f"Including actions from file: {include_file} basedir: {basedir}")
-            if include_file in processed_files:
-                logger.warning(f"Include File {include_file} already processed, skipping to avoid circular reference.")
-                continue
-            processed_files.add(include_file)
-            try:
-                include_path = basedir / include_file
-                with include_path.open("r") as include_f:
-                    basedir = include_path.resolve().parent
-                    included_actions = [action.strip() for action in include_f.readlines() if action.strip() and not action.strip().startswith("#")]
-                    parsed_inputs.extend(_config_to_actions(included_actions, basedir, processed_files))
-            except FileNotFoundError:
-                logger.error(f"Include File not found: {include_file}")
-        else:
-            parsed_inputs.append(line)
-    return parsed_inputs
-
-
-def parse_inputs(inputs: list[str]) -> list[str]:
-    """
-    Parse the inputs to ensure they are valid URLs or actions.
-    You can use multiple lines in a config file
-    if the line ends with `{` until a following line starts with `}`,
-    these will be combined as one.
-
-    :param inputs: List of input strings.
-    :return: List of parsed input strings.
-    """
-
-    parsed_inputs = []
-    for input_check in inputs:
-        if isinstance(input_check, str) and input_check.startswith("config:"):
-            config_file = input_check.replace("config:", "")
-            logger.info(f"Reading inputs from config file: {config_file}")
-            try:
-                with open(config_file, "r") as f:
-                    basedir = Path(config_file).resolve().parent
-                    lines = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
-                    parsed_inputs.extend(_config_to_actions(lines, basedir))
-            except FileNotFoundError:
-                logger.error(f"Config file not found: {config_file}")
-                continue
-        else:
-            parsed_inputs.append(input_check)
-    return parsed_inputs
 
 
 def reporting(config: Config, json_data: dict) -> None:

@@ -9,3 +9,4 @@ mistune
 rich
 rich-argparse
 jinja2
+lark

@@ -39,14 +39,13 @@ def check_run(config: ProcessingConfig) -> None:
             with open(config.simulate, "r") as f:
                 json_data = json.load(f)
         else:
-            # if inputs contain a string with prefix "config:" thread it as a file and read the lines as inputs to append
-            expanded_inputs = parse_inputs(config.inputs)
-            inputs_len = len(expanded_inputs)
-            if inputs_len == 0:
+            actions = parse_inputs(config.inputs)
+            actions_len = len(actions)
+            if actions_len == 0:
                 logger.error("No Inputs provided to check. Please provide at least one input or a config file")
                 sys.exit(1)
             else:
-                logger.info(f"Found {inputs_len} inputs to check.")
+                logger.info(f"Found {actions_len} inputs to check.")
 
             logger.info("Starting Selenium WebDriver")
             if config.browser == "edge":
@@ -55,10 +54,7 @@ def check_run(config: ProcessingConfig) -> None:
             else:
                 from selenium.webdriver.chrome.options import Options
                 options = Options()
-            if config.browser_visible:
-                #options.add_argument("--auto-open-devtools-for-tabs")
-                pass
-            else:
+            if not config.browser_visible:
                 options.add_argument("--headless")
             options.add_argument("--window-size=1920,1080")
             options.add_argument("--disable-extensions")
@@ -84,34 +80,37 @@ def check_run(config: ProcessingConfig) -> None:
 
                 url_data = []
                 last_action = None
-                for url_idx, input in enumerate(expanded_inputs):
-                    url_idx += 1
-                    logger.info(f"[{url_idx}/{inputs_len}] Processing Input or Action: {input}")
+                for action_idx, action in enumerate(actions):
+                    if action is None:
+                        logger.warning("Empty action found, skipping.")
+                        continue
+                    action_type = action.get("type", 'unknown')
+                    action_idx += 1
+                    logger.info(f"[{action_idx}/{actions_len}] Processing Action: {action_type}")
                     entry = None
                     results = []
 
                     try:
-                        # detect actions starting with @
-                        if isinstance(input, str) and input.startswith("@"):
-                            entry = handle_action(config, driver, input)
+                        # special case for url action type - call the url directly and analyse it
+                        if action_type == "url":
+                            url = action.get("url", "")
+                            call_url(driver, url)
+                            entry = analyse_action(config, driver, None)
+                            last_action = "direct url analyse for: " + url
+                        else:
+                            entry = handle_action(config, driver, action)
                             if entry:
                                 if last_action:
                                     entry["last_action"] = last_action
-                                entry["action"] = input
+                                entry["action"] = str(action)
                                 url_data.append(entry)
-                            last_action = input
-                            continue
-
-                        # normal url navigation
-                        call_url(driver, input)
-                        entry = analyse_action(config, driver, None)
-                        last_action = "direct url analyse for: " + input
+                            last_action = str(action)
 
                     except Exception as e:
                         error_message = str(e).splitlines()[0]
-                        logger.error(f"Error processing Input or Action {input}: {error_message}")
+                        logger.error(f"Error processing Action {action}: {error_message}")
                         results.append({
-                            "url": input,
+                            "url": action,
                             "error": error_message
                         })
                         if config.debug:
@@ -192,9 +191,9 @@ def info_logs_of_config(config: ProcessingConfig) -> None:
         logger.info(f"Missing TAB check: {config.missing_tab_check}")
 
 
-def handle_action(config: ProcessingConfig, driver: WebDriver, action_str: str) -> dict | None:
+def handle_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
     """Delegates action handling to the ActionRegistry."""
-    return action_registry.execute(config, driver, action_str)
+    return action_registry.execute(config, driver, action)
 
 
 def reporting(config: Config, json_data: dict) -> None:

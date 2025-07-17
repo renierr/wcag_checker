@@ -41,30 +41,23 @@ class ActionRegistry:
             raise ValueError(f"Action '{name}' is already registered.")
         self._actions[name] = func
 
-    def execute(self, config: ProcessingConfig, driver: WebDriver, action_str: str) -> dict | None:
+    def execute(self, config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
         """Execute a registered action."""
-        if not action_str.startswith("@"):
-            logger.warning(f"Invalid action format: {action_str}")
-            return None
 
         try:
-            action_body = action_str[1:]
-            if ":" in action_body:
-                action, param = action_body.split(":", 1)
-                param = param.strip()
-            else:
-                action, param = action_body, None
+            action_name = action.get("name", "")
+            action_params = action.get("params", None)
 
-            if action in self._actions:
+            if action_name in self._actions:
                 action_func = self._actions[action]
                 if "context" in action_func.__code__.co_varnames:
-                    return action_func(config, driver, param, action_context)
+                    return action_func(config, driver, action, action_context)
                 else:
-                    return action_func(config, driver, param)
+                    return action_func(config, driver, action)
             else:
                 logger.warning(f"Unknown action: {action}")
         except Exception as e:
-            logger.error(f"Error executing action '{action_str}': {e}")
+            logger.error(f"Error executing action '{action}': {e}")
         return None
 
 

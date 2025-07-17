@@ -7,24 +7,22 @@ from src.logger_setup import logger
 # --- Grammar ---
 grammar = r"""
     start: action*
-    action: simple_action | if_action | include_action
+    action: if_action | include_action | simple_action
     
     simple_action: "@" NAME (":" params)?
-    if_action: "@if:" condition ":" nested_block
+    if_action: "@if:" condition ":" action_block
+    action_block: "{" action* "}"
     include_action: "@include:" FILENAME
     
     params: single_line_params | params_block
     single_line_params: VALUE (";" VALUE)*
     params_block: "{" VALUE* "}"
     
-    nested_block: "{" block_item* "}"
-    block_item: /[^{}]+/ | nested_block
-    
     condition: VALUE
     
     NAME: /[a-zA-Z_]\w*/
     VALUE: /"[^"]*"/ | /[^;{}\s]+/
-    FILENAME: /[^:\n]+/
+    FILENAME: /[^\n]+/
     
     %import common.NEWLINE
     %import common.WS
@@ -48,41 +46,41 @@ class ActionTransformer(Transformer):
         return {'type': 'action', 'name': str(name), 'params': params or []}
 
     @v_args(inline=True)
-    def if_action(self, condition, block_content):
+    def if_action(self, condition, actions):
         return {
             'type': 'if',
             'name': 'if',
             'condition': str(condition).strip('"').strip(),
-            'params': str(block_content)
+            'actions': actions or []
         }
 
     @v_args(inline=True)
+    def action_block(self, *actions):
+        return [action for action in actions if action is not None]
+
+    @v_args(inline=True)
     def include_action(self, filename):
-        return {'type': 'include', 'name': 'include', 'params': [str(filename).strip()]}
+        filename = str(filename).strip()
+
+        # use context from _parse_config_file
+        if hasattr(self, '_context') and self._context:
+            logger.debug(f"Parser: Processing include action for file: {filename}")
+            current_file_path = Path(self._context['current_file'])
+            basedir = current_file_path.parent
+            include_path = basedir / filename
+            included_actions = _parse_config_file(str(include_path), self._context)
+            return included_actions
+        else:
+            # Fallback to normal action syntax
+            return {'type': 'include', 'name': 'include', 'params': [filename]}
 
     @v_args(inline=True)
     def params(self, *params):
-        return params[0]  # params ist entweder single_line_params oder params_block
+        return params[0]
 
     @v_args(inline=True)
     def single_line_params(self, *values):
         return [str(value).strip('"').strip() for value in values if value is not None]
-
-    @v_args(inline=True)
-    def nested_block(self, *items):
-        # Kombiniere alle block_items zu einem String
-        result = ""
-        for item in items:
-            if hasattr(item, '__iter__') and not isinstance(item, str):
-                # Verschachtelter Block - rekursiv zu String
-                result += "{" + str(item) + "}"
-            else:
-                result += str(item)
-        return result.strip()
-
-    @v_args(inline=True)
-    def block_item(self, content):
-        return str(content)
 
     @v_args(inline=True)
     def params_block(self, *params):
@@ -102,16 +100,15 @@ class ActionTransformer(Transformer):
         return str(item)
 
 # --- Parser ---
-def parse_config_file(file_path, context=None):
+def _parse_config_file(file_path, context=None):
     if context is None:
         context = {
             'visited_files': set(),
             'current_file': file_path,
-            'results': []
         }
 
     if file_path in context['visited_files']:
-        print(f"Warnung: Zyklische Einbindung von '{file_path}' erkannt, überspringe.")
+        logger.warning(f"Parser: File {file_path} already visited. Skipping to avoid circular reference.")
         return []
 
     context['visited_files'].add(file_path)
@@ -123,26 +120,46 @@ def parse_config_file(file_path, context=None):
         parser = Lark(grammar, start='start')
         tree = parser.parse(text)
         transformer = ActionTransformer()
+        transformer._context = context
         result = transformer.transform(tree)
+
+        # flatten results
+        flattened_result = []
+        for item in result:
+            if isinstance(item, list):
+                flattened_result.extend(item)
+            else:
+                flattened_result.append(item)
+
         context['visited_files'].remove(file_path)
-        return result
+        return flattened_result
+
 
     except FileNotFoundError:
-        print(f"Fehler: Datei '{file_path}' nicht gefunden.")
+        print(f"Error loading config file '{file_path}' - not found.")
         return []
     except Exception as e:
-        print(f"Fehler beim Parsen von '{file_path}': {e}")
+        print(f"Error during config parse for '{file_path}': {e}")
         return []
 
-def parse_inputs(inputs: list[str]) -> list[str]:
+def parse_inputs(inputs: list[str]) -> list[dict]:
     """
     Parse the inputs to ensure they are valid URLs or actions.
-    You can use multiple lines in a config file
-    if the line ends with `{` until a following line starts with `}`,
-    these will be combined as one.
+    If an input starts with 'config:', it is treated as a path to a configuration file
+
+    the returned list will contain dictionaries that looks like:
+    {
+        'type': 'url' or 'action' or 'if' or 'include',
+        'url': 'http://example.com'     // optional for 'url' type
+        'name': 'action_name',          // optional can be omitted for 'url' type
+        'params': ['param1', 'param2']  // optional for 'action' type
+        'condition': 'condition_value', // for 'if' type
+        'actions': [list of actions]    // for 'if' type
+        'filename': 'path/to/file.txt'  // for 'include' type
+    }
 
     :param inputs: List of input strings.
-    :return: List of parsed input strings.
+    :return: List of parsed inputs to a structured dict.
     """
 
     parsed_inputs = []
@@ -150,59 +167,8 @@ def parse_inputs(inputs: list[str]) -> list[str]:
         if isinstance(input_check, str) and input_check.startswith("config:"):
             config_file = input_check.replace("config:", "")
             logger.info(f"Reading inputs from config file: {config_file}")
-            try:
-                with open(config_file, "r") as f:
-                    basedir = Path(config_file).resolve().parent
-                    lines = [line.strip() for line in f.readlines() if line.strip() and not line.strip().startswith("#")]
-                    parsed_inputs.extend(_config_to_actions(lines, basedir))
-            except FileNotFoundError:
-                logger.error(f"Config file not found: {config_file}")
-                continue
+            parsed_inputs.extend(_parse_config_file(config_file))
         else:
-            parsed_inputs.append(input_check)
+            parsed_inputs.append({ 'type': 'url', 'url': input_check.strip() })
     return parsed_inputs
 
-
-def _config_to_actions(inputs: list[str], basedir: Path, processed_files: set[str] = None) -> list[str]:
-    """
-    Convert the inputs to actions by parsing the config file and including actions from other files.
-    This function is used to handle the `@include:` directive in config files.
-
-    :param inputs: List of input strings.
-    :param basedir: Base directory to resolve relative paths for included files.
-    :param processed_files: Set of already processed files to avoid circular references.
-    :return: List of actions as strings.
-    """
-    if processed_files is None:
-        processed_files = set()
-
-    parsed_inputs = []
-    combined_line = None
-    for line in inputs:
-        if not line.strip() or line.startswith("#"):
-            continue
-        elif combined_line:
-            combined_line += " " + line
-            if line.startswith("}"):
-                parsed_inputs.append(combined_line)
-                combined_line = None
-        elif line.endswith("{"):
-            combined_line = line
-        elif line.startswith("@include:"):
-            include_file = line.replace("@include:", "").strip()
-            logger.info(f"Including actions from file: {include_file} basedir: {basedir}")
-            if include_file in processed_files:
-                logger.warning(f"Include File {include_file} already processed, skipping to avoid circular reference.")
-                continue
-            processed_files.add(include_file)
-            try:
-                include_path = basedir / include_file
-                with include_path.open("r") as include_f:
-                    basedir = include_path.resolve().parent
-                    included_actions = [action.strip() for action in include_f.readlines() if action.strip() and not action.strip().startswith("#")]
-                    parsed_inputs.extend(_config_to_actions(included_actions, basedir, processed_files))
-            except FileNotFoundError:
-                logger.error(f"Include File not found: {include_file}")
-        else:
-            parsed_inputs.append(line)
-    return parsed_inputs

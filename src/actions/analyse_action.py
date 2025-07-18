@@ -113,7 +113,7 @@ def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: WebDriver,
     )
     check_config.runner = runner
     # analyse the page with the given axe config
-    return analyse_action(check_config, driver, check_param)
+    return analyse_action(check_config, driver, action)
 
 
 @register_action("analyse_axe")

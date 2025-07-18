@@ -95,7 +95,7 @@ def check_run(config: ProcessingConfig) -> None:
                         if action_type == "url":
                             url = action.get("url", "")
                             call_url(driver, url)
-                            entry = analyse_action(config, driver, None)
+                            entry = analyse_action(config, driver, {'type': 'action', 'name': 'analyse'})
                             last_action = "direct url analyse for: " + url
                         else:
                             entry = handle_action(config, driver, action)

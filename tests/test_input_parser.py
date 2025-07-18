@@ -1,12 +1,27 @@
 import unittest
+from unittest.mock import patch
+
 import tempfile
 import os
 from pathlib import Path
 from pprint import pprint
 from src.input_parser import _parse_config_file, parse_inputs
 
-
 class TestParseConfigFile(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.logger_patcher = patch('src.input_parser.logger')
+        cls.mock_logger = cls.logger_patcher.start()
+
+        cls.mock_logger.debug.side_effect = lambda msg: print(f"DEBUG: {msg}")
+        cls.mock_logger.info.side_effect = lambda msg: print(f"INFO: {msg}")
+        cls.mock_logger.warning.side_effect = lambda msg: print(f"WARNING: {msg}")
+        cls.mock_logger.error.side_effect = lambda msg: print(f"ERROR: {msg}")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.logger_patcher.stop()
 
     def test_inputs(self):
         """Test parsing inputs"""
@@ -123,6 +138,8 @@ class TestParseConfigFile(unittest.TestCase):
             self.assertEqual(result[2]['name'], 'if')
             self.assertIsInstance(result[2]['actions'], list)
             self.assertEqual(len(result[2]['actions']), 3)
+            self.assertEqual(len(result[2]['elif_blocks']), 2)
+            self.assertIsNotNone(result[2].get('else_actions'))
 
         os.unlink(f.name)
 
@@ -130,6 +147,7 @@ class TestParseConfigFile(unittest.TestCase):
         """Test handling of non-existent file"""
         result = _parse_config_file(Path('non_existent_file.txt'))
         self.assertEqual(result, [])
+        self.mock_logger.warning.assert_called_once()
 
     def test_empty_file(self):
         """Test parsing empty file"""
@@ -163,8 +181,10 @@ class TestParseConfigFile(unittest.TestCase):
             """
             f.write(fcontent)
             f.flush()
+
             result = _parse_config_file(Path(f.name))
-            pprint(result)
+            self.assertEqual(len(result), 5)
+            self.mock_logger.warning.assert_called()
 
 if __name__ == '__main__':
     unittest.main()

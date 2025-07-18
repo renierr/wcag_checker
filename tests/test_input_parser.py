@@ -86,7 +86,7 @@ class TestParseConfigFile(unittest.TestCase):
             result = _parse_config_file(f.name)
             pprint(result)
 
-            self.assertEqual(len(result), 1)
+            self.assertEqual(len(result), 2)
             self.assertEqual(result[0]['type'], 'if')
             self.assertEqual(result[0]['name'], 'if')
             self.assertIsInstance(result[0]['actions'], list)

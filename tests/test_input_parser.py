@@ -75,7 +75,7 @@ class TestParseConfigFile(unittest.TestCase):
                 "context": "test_context",
                 "options": {"option1": "value1"}
             }
-            @if: "condition" : {
+            @if: "if condition" : {
                 @navigate: "param2"
                 @analyse
                 @script: {
@@ -83,6 +83,20 @@ class TestParseConfigFile(unittest.TestCase):
                     const x = 5;
                     const y = {};
                     const z = ${myvar};
+                }
+            }
+            @elif: "elif condition 1" : {
+                @navigate: "/login"
+                @wait: 2
+            }
+            @elif: "elif condition 2" : {
+                @navigate: "/admin"
+                @analyse_axe: {"context": "admin_panel"}
+            }
+            @else: {
+                @navigate: "/home"
+                @script: {
+                    console.log("Default behavior");
                 }
             }
             """

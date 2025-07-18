@@ -13,7 +13,10 @@ grammar = r"""
     action: if_action | include_action | simple_action
     
     simple_action: "@" NAME (":" params)?
-    if_action: "@if:" condition ":" action_block
+    if_action: "@if:" condition ":" action_block elif_block* else_block?
+    elif_block: "@elif:" condition ":" action_block
+    else_block: "@else:" action_block
+
     action_block: "{" action* "}"
     include_action: "@include:" filename
     
@@ -52,14 +55,51 @@ class ActionTransformer(Transformer):
     def simple_action(self, name, params=None):
         return {'type': 'action', 'name': str(name), 'params': params or None}
 
-    @v_args(inline=True)
-    def if_action(self, condition, actions):
-        return {
+    def if_action(self, items):
+        # First item is condition, second is actions, then optional elif/else blocks
+        condition = items[0]
+        actions = items[1]
+
+        result = {
             'type': 'if',
             'name': 'if',
             'condition': str(condition).strip('"').strip(),
             'actions': actions or []
         }
+
+        # Process elif and else blocks
+        elif_blocks = []
+        else_actions = None
+
+        for item in items[2:]:
+            if isinstance(item, dict):
+                if item.get('type') == 'elif':
+                    elif_blocks.append(item)
+                elif item.get('type') == 'else':
+                    else_actions = item.get('actions', [])
+
+        if elif_blocks:
+            result['elif_blocks'] = elif_blocks
+        if else_actions:
+            result['else_actions'] = else_actions
+
+        return result
+
+    @v_args(inline=True)
+    def elif_block(self, condition, actions):
+        return {
+            'type': 'elif',
+            'condition': str(condition).strip('"').strip(),
+            'actions': actions or []
+        }
+
+    @v_args(inline=True)
+    def else_block(self, actions):
+        return {
+            'type': 'else',
+            'actions': actions or []
+        }
+
 
     @v_args(inline=True)
     def action_block(self, *actions):

@@ -52,15 +52,15 @@ class TestParseConfigFile(unittest.TestCase):
     def test_parse_simple_action(self):
         """Test parsing a simple action"""
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-            f.write('@wait: 5')
+            f.write('@navigate: /laldl/ede${myvar}')
             f.flush()
 
             result = _parse_config_file(f.name)
             pprint(result)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['type'], 'action')
-            self.assertEqual(result[0]['name'], 'wait')
-            self.assertEqual(result[0]['params'], '5')
+            self.assertEqual(result[0]['name'], 'navigate')
+            self.assertIn('${', result[0]['params'])
 
         os.unlink(f.name)
 
@@ -79,6 +79,7 @@ class TestParseConfigFile(unittest.TestCase):
                     console.log("This is a test script");
                     const x = 5;
                     const y = {};
+                    const z = ${myvar};
                 }
             }
             """

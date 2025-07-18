@@ -15,7 +15,7 @@ grammar = r"""
     simple_action: "@" NAME (":" params)?
     if_action: "@if:" condition ":" action_block
     action_block: "{" action* "}"
-    include_action: "@include:" FILENAME
+    include_action: "@include:" filename
     
     params: single_line_params | params_block
     single_line_params: VALUE
@@ -25,9 +25,10 @@ grammar = r"""
     nested_braces: "{" balanced_content* "}"
 
     condition: VALUE
+    filename: FILENAME
     
     NAME: /[a-zA-Z_]\w*/
-    VALUE: /"[^"]*"/ | /[^;{}\s]+/
+    VALUE: /"[^"]*"/ | /(?:[^;{}\s$]|\$\{[^}]*\})+/
     FILENAME: /[^\n]+/
     BLOCK_TEXT: /[^{}\n]+/
     

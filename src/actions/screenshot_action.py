@@ -9,7 +9,7 @@ from src.utils import take_fullpage_screenshot
 
 
 @register_action("screenshot")
-def screenshot_action(config: ProcessingConfig, driver: WebDriver, param: str | None = None) -> None:
+def screenshot_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@screenshot <filename>=<selector>`
 
@@ -21,6 +21,7 @@ def screenshot_action(config: ProcessingConfig, driver: WebDriver, param: str | 
     @screenshot: my_screenshot.png=#header
     ```
     """
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("No data to take a screenshot for action @screenshot.")
         return

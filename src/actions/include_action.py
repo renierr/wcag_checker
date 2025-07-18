@@ -5,7 +5,7 @@ from src.config import ProcessingConfig
 
 
 @register_action("include")
-def include_action(config: ProcessingConfig, driver: WebDriver, param: str | None = None) -> None:
+def include_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@include: <filename>`
 

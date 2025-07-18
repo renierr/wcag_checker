@@ -8,7 +8,7 @@ from src.config import ProcessingConfig
 from src.logger_setup import logger
 
 @register_action("upload")
-def upload_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def upload_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@upload <selector>=<file_path>`
 
@@ -17,6 +17,8 @@ def upload_action(config: ProcessingConfig, driver: WebDriver, param: str | None
     @upload: #input-button=/path/to/file.txt
     ```
     """
+
+    param: str | None = action.get("params", None)
     key, val = parse_param_to_key_value(param)
 
     if not key or not val:

@@ -7,7 +7,7 @@ from src.utils import trim_string_to_length
 
 
 @register_action("script")
-def script_action(config: ProcessingConfig, driver: WebDriver, param: str | None, context: dict) -> None:
+def script_action(config: ProcessingConfig, driver: WebDriver, action: dict, context: dict) -> None:
     """
     Syntax: `@script: [<var>=]<script>`
 
@@ -27,6 +27,7 @@ def script_action(config: ProcessingConfig, driver: WebDriver, param: str | None
     @script: myDocTitle=return document.title
     ```
     """
+    param: str | None = action.get("params", None)
     if not param:
         logger.error("No script provided to execute.")
         return
@@ -45,7 +46,7 @@ def script_action(config: ProcessingConfig, driver: WebDriver, param: str | None
 log_script = """console.log(arguments[0]);"""
 
 @register_action("log")
-def log_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def log_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@log: "<message>"`
 
@@ -61,6 +62,7 @@ def log_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -
     @log: document.title
     ```
     """
+    param: str | None = action.get("params", None)
     if not param:
         logger.error("@log action: No message provided to log.")
         return

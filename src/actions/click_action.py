@@ -9,7 +9,7 @@ from src.logger_setup import logger
 from src.utils import wait_page_loaded
 
 @register_action("click")
-def click_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def click_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@click <selector>`
 
@@ -18,6 +18,7 @@ def click_action(config: ProcessingConfig, driver: WebDriver, param: str | None)
     @click: #submit-button
     ```
     """
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("No selector provided for click action.")
         return
@@ -30,7 +31,7 @@ def click_action(config: ProcessingConfig, driver: WebDriver, param: str | None)
         return
 
 @register_action("click_double")
-def click_double_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def click_double_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@click_double <selector>`
 
@@ -39,6 +40,7 @@ def click_double_action(config: ProcessingConfig, driver: WebDriver, param: str 
     @click_double: #double-click-item
     ```
     """
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("No selector provided for click_double action.")
         return
@@ -51,7 +53,7 @@ def click_double_action(config: ProcessingConfig, driver: WebDriver, param: str 
 
 
 @register_action("click_context")
-def click_context_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def click_context_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@click_context <selector>`
 
@@ -60,6 +62,7 @@ def click_context_action(config: ProcessingConfig, driver: WebDriver, param: str
     @click_context: #context-menu-item
     ```
     """
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("No selector provided for click_context action.")
         return

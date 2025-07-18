@@ -46,7 +46,6 @@ class ActionRegistry:
 
         try:
             action_name = action.get("name", "")
-            action_params = action.get("params", None)
 
             if action_name in self._actions:
                 action_func = self._actions[action]

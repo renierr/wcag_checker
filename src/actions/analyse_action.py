@@ -22,7 +22,7 @@ tabpath_checker = None
 
 @register_action("analyze")
 @register_action("analyse")
-def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
+def analyse_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
     """
     Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <context selector>`
 
@@ -39,6 +39,7 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     """
     global input_idx
 
+    param: str | None = action.get("params", None)
     input_idx += 1
     logger.info(f"[{input_idx}] Analysing page '{param if param else 'current'}' with runner '{config.runner.value}'")
     results = []
@@ -92,11 +93,12 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, param: str|None)
     return entry
 
 
-def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: WebDriver, param: str | None) -> dict | None:
+def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
     """
     Internal function to handle the different analysis action runners.
     This is used to avoid code duplication in the `analyse_action` function.
     """
+    param: str | None = action.get("params", None)
     check_options = parse_param_to_json(param)
     check_param = None
     if check_options is None:
@@ -115,7 +117,7 @@ def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: WebDriver,
 
 
 @register_action("analyse_axe")
-def analyse_axe_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
+def analyse_axe_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
     """
     Syntax: `@analyse_axe: <config>`
 
@@ -126,11 +128,11 @@ def analyse_axe_action(config: ProcessingConfig, driver: WebDriver, param: str|N
     @analyse_axe: {axe_rules: ["wcag2aa"]}
     ```
     """
-    return _analyse_runner(Runner.AXE, config, driver, param)
+    return _analyse_runner(Runner.AXE, config, driver, action)
 
 
 @register_action("analyse_contrast")
-def analyse_contrast_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
+def analyse_contrast_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
     """
     Syntax: `@analyse_contrast: <config>`
 
@@ -142,10 +144,10 @@ def analyse_contrast_action(config: ProcessingConfig, driver: WebDriver, param: 
     @analyse_axe: {}
     ```
     """
-    return _analyse_runner(Runner.CONTRAST, config, driver, param)
+    return _analyse_runner(Runner.CONTRAST, config, driver, action)
 
 @register_action("analyse_tab")
-def analyse_tab_action(config: ProcessingConfig, driver: WebDriver, param: str|None) -> dict | None:
+def analyse_tab_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
     """
     Syntax: `@analyse_tab: <config>`
 
@@ -156,5 +158,5 @@ def analyse_tab_action(config: ProcessingConfig, driver: WebDriver, param: str|N
     @analyse_tab
     ```
     """
-    return _analyse_runner(Runner.TAB, config, driver, param)
+    return _analyse_runner(Runner.TAB, config, driver, action)
 

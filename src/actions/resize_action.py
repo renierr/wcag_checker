@@ -14,7 +14,7 @@ PREDEFINED_RESOLUTIONS = {
 }
 
 @register_action("resize")
-def resize_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def resize_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@resize <size | predefined | full>`
 
@@ -29,6 +29,7 @@ def resize_action(config: ProcessingConfig, driver: WebDriver, param: str | None
     ```
     """
     try:
+        param: str | None = action.get("params", None)
         if not param or param in ["full"]:
             set_window_size_to_viewport(driver)
             return

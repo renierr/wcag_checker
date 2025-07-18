@@ -5,7 +5,7 @@ from src.config import ProcessingConfig
 from src.logger_setup import logger
 
 @register_action("var")
-def var_action(config: ProcessingConfig, driver: WebDriver, param: str | None, context: dict) -> None:
+def var_action(config: ProcessingConfig, driver: WebDriver, action: dict, context: dict) -> None:
     """
     Syntax: `@var <name>=<value>`
 
@@ -20,6 +20,7 @@ def var_action(config: ProcessingConfig, driver: WebDriver, param: str | None, c
     This action is useful for storing values that can be used later in the script.
     """
 
+    param: str | None = action.get("params", None)
     if not param or "=" not in param:
         logger.warning("Invalid parameter for var action. Expected format: 'name=value'.")
         return

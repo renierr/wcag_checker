@@ -10,7 +10,7 @@ from src.utils import call_url
 
 
 @register_action("scroll")
-def scroll_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def scroll_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@scroll <direction>` or `@scroll <selector>`
 
@@ -21,6 +21,8 @@ def scroll_action(config: ProcessingConfig, driver: WebDriver, param: str | None
     @scroll: #footer
     ```
     """
+
+    param: str | None = action.get("params", None)
     if param in ["top", "bottom", "left", "right"]:
         scroll_script = {
             "top": "window.scrollTo(0, 0);",
@@ -39,7 +41,7 @@ def scroll_action(config: ProcessingConfig, driver: WebDriver, param: str | None
 
 
 @register_action("navigate")
-def navigate_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def navigate_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@navigate <url>`
 
@@ -49,6 +51,8 @@ def navigate_action(config: ProcessingConfig, driver: WebDriver, param: str | No
     @navigate: /servlet/BrowseUser
     ```
     """
+
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("No URL provided for navigation action.")
         return
@@ -60,7 +64,7 @@ def navigate_action(config: ProcessingConfig, driver: WebDriver, param: str | No
 
 
 @register_action("hover")
-def hover_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def hover_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@hover <selector>`
 
@@ -69,6 +73,8 @@ def hover_action(config: ProcessingConfig, driver: WebDriver, param: str | None)
     @hover: #menu-item
     ```
     """
+
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("No selector provided for hover action.")
         return
@@ -80,7 +86,7 @@ def hover_action(config: ProcessingConfig, driver: WebDriver, param: str | None)
         return
 
 @register_action("back")
-def back_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def back_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@back`
 
@@ -93,7 +99,7 @@ def back_action(config: ProcessingConfig, driver: WebDriver, param: str | None) 
     driver.back()
 
 @register_action("forward")
-def forward_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def forward_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@forward`
 
@@ -106,7 +112,7 @@ def forward_action(config: ProcessingConfig, driver: WebDriver, param: str | Non
     driver.forward()
 
 @register_action("refresh")
-def refresh_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def refresh_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@refresh`
 

@@ -11,7 +11,7 @@ from src.logger_setup import logger
 from src.utils import wait_page_loaded
 
 @register_action("wait")
-def wait_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def wait_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@wait: <seconds>` or `@wait: loaded` or `@wait: <selector>`
 
@@ -25,6 +25,12 @@ def wait_action(config: ProcessingConfig, driver: WebDriver, param: str | None) 
     ```
     """
     try:
+        param: str | None = action.get("params", None)
+        if not param:
+            logger.warning("No wait time or selector provided for wait action.")
+            return
+
+        param = param.strip()
         if param.endswith("s"):
             wait_time = int(param[:-1])  # Interpret as seconds
         elif param.endswith("m"):

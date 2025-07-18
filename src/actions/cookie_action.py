@@ -5,7 +5,7 @@ from src.config import ProcessingConfig
 from src.logger_setup import logger
 
 @register_action("cookie")
-def cookie_action(config: ProcessingConfig, driver: WebDriver, param: str | None) -> None:
+def cookie_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@cookie <name>=<value>` or `@cookie {"name": "<name>", "value": "<value>"}`
 
@@ -18,6 +18,7 @@ def cookie_action(config: ProcessingConfig, driver: WebDriver, param: str | None
     If the parameter is not in the correct format, a warning is logged.
     """
 
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("No cookie name and value provided.")
         return

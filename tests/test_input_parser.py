@@ -68,7 +68,10 @@ class TestParseConfigFile(unittest.TestCase):
         """Test parsing an if action"""
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
             test = """
-            @analyse_axe: {"context": "test_context"}
+            @analyse_axe: {
+                "context": "test_context",
+                "options": {"option1": "value1"}
+            }
             @if: "condition" : {
                 @navigate: "param2"
                 @analyse
@@ -87,10 +90,10 @@ class TestParseConfigFile(unittest.TestCase):
             pprint(result)
 
             self.assertEqual(len(result), 2)
-            self.assertEqual(result[0]['type'], 'if')
-            self.assertEqual(result[0]['name'], 'if')
-            self.assertIsInstance(result[0]['actions'], list)
-            self.assertEqual(len(result[0]['actions']), 3)
+            self.assertEqual(result[1]['type'], 'if')
+            self.assertEqual(result[1]['name'], 'if')
+            self.assertIsInstance(result[1]['actions'], list)
+            self.assertEqual(len(result[1]['actions']), 3)
 
         os.unlink(f.name)
 

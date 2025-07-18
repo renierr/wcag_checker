@@ -191,18 +191,33 @@ class ActionTransformer(Transformer):
         return '\n'
 
 # --- Parser ---
-def _parse_config_file(file_path: Path, context=None):
+def _parse_config_file(file_path: Path, context: dict | None = None, max_depth: int = 20 ) -> list[dict]:
+    """
+    Parse a configuration file and return a list of actions.
+
+    :param file_path: Path to the configuration file.
+    :param context: Optional context dictionary to track visited files and current file path.
+    :param max_depth: Maximum recursion depth.
+    :return: List of parsed actions as dictionaries.
+    """
+
     file_path = file_path.resolve()
     if context is None:
         context = {
             'visited_files': set(),
             'current_file': file_path,
+            'depth': 0
         }
     else:
         context['current_file'] = file_path
+        context['depth'] = context.get('depth', 0) + 1
 
     if file_path in context['visited_files']:
         logger.warning(f"Parser: File {file_path} already visited. Skipping to avoid circular reference.")
+        return []
+
+    if context['depth'] > max_depth:
+        logger.error(f"Maximum recursion depth ({max_depth}) exceeded for file: {file_path}")
         return []
 
     context['visited_files'].add(file_path)

@@ -75,7 +75,8 @@ class TestParseConfigFile(unittest.TestCase):
                 "context": "test_context",
                 "options": {"option1": "value1"}
             }
-            @if: "if condition" : {
+            @var: myvar=5
+            @if: myvar == 5 : {
                 @navigate: "param2"
                 @analyse
                 @script: {
@@ -85,11 +86,11 @@ class TestParseConfigFile(unittest.TestCase):
                     const z = ${myvar};
                 }
             }
-            @elif: "elif condition 1" : {
+            @elif: myvar == 1 : {
                 @navigate: "/login"
                 @wait: 2
             }
-            @elif: "elif condition 2" : {
+            @elif: myvar == "5" : {
                 @navigate: "/admin"
                 @analyse_axe: {"context": "admin_panel"}
             }
@@ -107,11 +108,11 @@ class TestParseConfigFile(unittest.TestCase):
             result = _parse_config_file(Path(f.name))
             pprint(result)
 
-            self.assertEqual(len(result), 2)
-            self.assertEqual(result[1]['type'], 'if')
-            self.assertEqual(result[1]['name'], 'if')
-            self.assertIsInstance(result[1]['actions'], list)
-            self.assertEqual(len(result[1]['actions']), 3)
+            self.assertEqual(len(result), 3)
+            self.assertEqual(result[2]['type'], 'if')
+            self.assertEqual(result[2]['name'], 'if')
+            self.assertIsInstance(result[2]['actions'], list)
+            self.assertEqual(len(result[2]['actions']), 3)
 
         os.unlink(f.name)
 

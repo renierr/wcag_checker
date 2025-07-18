@@ -55,7 +55,10 @@ class TestParseConfigFile(unittest.TestCase):
     def test_parse_simple_action(self):
         """Test parsing a simple action"""
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-            f.write('@navigate: /laldl/ede${myvar}')
+            content = """
+                @navigate: "http://improve-e2e.hype.qs/login?/servlet/hype"
+            """
+            f.write(content)
             f.flush()
 
             result = _parse_config_file(Path(f.name))
@@ -63,7 +66,7 @@ class TestParseConfigFile(unittest.TestCase):
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['type'], 'action')
             self.assertEqual(result[0]['name'], 'navigate')
-            self.assertIn('${', result[0]['params'])
+            self.assertIn('?', result[0]['params'])
 
         os.unlink(f.name)
 
@@ -118,7 +121,7 @@ class TestParseConfigFile(unittest.TestCase):
 
     def test_file_not_found(self):
         """Test handling of non-existent file"""
-        result = _parse_config_file('non_existent_file.txt')
+        result = _parse_config_file(Path('non_existent_file.txt'))
         self.assertEqual(result, [])
 
     def test_empty_file(self):
@@ -136,7 +139,8 @@ class TestParseConfigFile(unittest.TestCase):
         """Test parsing includes"""
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as include_f:
             inc_content = """
-            @navigate: /lalal/eeee
+            @navigate: "/lalal/eeee"
+            @var: myvar="5"
             @wait: 4
             @include: ../another_include.txt
             """

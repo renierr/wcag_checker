@@ -3,7 +3,7 @@ from pathlib import Path
 
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from src.action_handler import register_action, parse_param_to_json
+from src.action_handler import register_action, parse_param_to_dict
 from src.config import ProcessingConfig, Runner
 from src.logger_setup import logger
 from src.runner_axe import runner_axe
@@ -99,10 +99,8 @@ def _analyse_runner(runner: Runner, config: ProcessingConfig, driver: WebDriver,
     This is used to avoid code duplication in the `analyse_action` function.
     """
     param: str | None = action.get("params", None)
-    check_options = parse_param_to_json(param)
-    check_param = None
+    check_options = parse_param_to_dict(param)
     if check_options is None:
-        check_param = param
         check_options = {}
 
     # build new config object with options set

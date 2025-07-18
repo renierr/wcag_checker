@@ -56,10 +56,9 @@ def navigate_action(config: ProcessingConfig, driver: WebDriver, action: dict) -
     if not param:
         logger.warning("No URL provided for navigation action.")
         return
-    parsed_param = parse_param_to_string(param).strip()
+    parsed_param = parse_param_to_string(param)
     if parsed_param.startswith('"') and parsed_param.endswith('"'):
-        # remove the quotes from the string
-        parsed_param = parsed_param[1:-1]
+        parsed_param = parsed_param[1:-1].strip()
     call_url(driver, parsed_param)
 
 

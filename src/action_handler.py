@@ -104,9 +104,6 @@ def parse_param_to_string(param: str | None) -> str | None:
     if not param:
         return None
     try:
-        # multiline strings can be enclosed in {...}
-        if param.startswith('{') and param.endswith('}'):
-            param = param[1:-1].strip()
         # Replace any variables in the string with their values from action_context
         for var_name, var_value in action_context.items():
             param = param.replace(f"${{{var_name}}}", str(var_value))
@@ -116,25 +113,23 @@ def parse_param_to_string(param: str | None) -> str | None:
         return None
 
 
-def parse_param_to_json(param: str | None) -> dict | None:
+def parse_param_to_dict(param: str | None) -> dict | None:
     """
     Parse a parameter string to a JSON object.
     Use action_context to replace any variables with syntax ${...}.
 
     If the string is empty or None, return None.
-    If the string starts with '{' or '[', parse it as JSON.
-    Otherwise, return None.
     """
     if not param:
         return None
     try:
-        if param.startswith('{') or param.startswith('['):
-            # Replace any variables in the JSON string with their values from action_context
-            for var_name, var_value in action_context.items():
-                param = param.replace(f"${{{var_name}}}", str(var_value))
-            return json.loads(param)
-        else:
-            return None
+        param = param.strip()
+        if not param.startswith('{') and not param.endswith('}'):
+            param = '{' + param + '}'
+        # Replace any variables in the JSON string with their values from action_context
+        for var_name, var_value in action_context.items():
+            param = param.replace(f"${{{var_name}}}", str(var_value))
+        return json.loads(param)
     except json.JSONDecodeError as e:
         logger.error(f"JSON decoding error: {e}")
         return None

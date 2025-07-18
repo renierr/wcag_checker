@@ -68,7 +68,7 @@ def log_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> Non
         return
 
     try:
-        parsed_param = parse_param_to_string(param).strip()
+        parsed_param = parse_param_to_string(param)
         if parsed_param.startswith('"') and parsed_param.endswith('"'):
             # remove the quotes from the string
             parsed_param = parsed_param[1:-1]

@@ -21,7 +21,7 @@ grammar = r"""
     include_action: "@include:" filename
     
     params: single_line_params | params_block
-    single_line_params: VALUE
+    single_line_params: REST_OF_LINE
     params_block: "{" block_content "}"
     block_content: balanced_content*
     balanced_content: BLOCK_TEXT | nested_braces | NEWLINE
@@ -31,13 +31,13 @@ grammar = r"""
     filename: FILENAME
     
     NAME: /[a-zA-Z_]\w*/
-    VALUE: /"[^"]*"/ | /(?:[^;{}\s$]|\$\{[^}]*\})+/
+    REST_OF_LINE: /[^\n]+/
     CONDITION_VALUE: /[^:{}]+/
     FILENAME: /[^\n]+/
     BLOCK_TEXT: /[^{}\n]+/
     
     %ignore WS
-    %ignore /#[^\n]*/
+    %ignore /^\s*#[^\n]*/
 """
 
 action_parser = Lark(grammar, start='start', parser='lalr')
@@ -129,7 +129,7 @@ class ActionTransformer(Transformer):
 
     @v_args(inline=True)
     def single_line_params(self, value):
-        return str(value).strip('"').strip()
+        return str(value).strip()
 
     @v_args(inline=True)
     def params_block(self, content):
@@ -171,7 +171,7 @@ class ActionTransformer(Transformer):
     def NAME(self, item):
         return str(item)
 
-    def VALUE(self, item):
+    def REST_OF_LINE(self, item):
         return str(item)
 
     def CONDITION_VALUE(self, item):

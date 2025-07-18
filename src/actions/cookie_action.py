@@ -1,6 +1,6 @@
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from src.action_handler import register_action, parse_param_to_json, parse_param_to_key_value
+from src.action_handler import register_action, parse_param_to_dict, parse_param_to_key_value
 from src.config import ProcessingConfig
 from src.logger_setup import logger
 
@@ -23,11 +23,11 @@ def cookie_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> 
         logger.warning("No cookie name and value provided.")
         return
 
-    json_param = parse_param_to_json(param)
-    if json_param:
-        logger.debug(f"Setting cookie from JSON: {json_param}")
+    dict_param = parse_param_to_dict(param)
+    if dict_param:
+        logger.debug(f"Setting cookie from JSON: {dict_param}")
         # Set the cookie in the browser
-        driver.add_cookie(json_param)
+        driver.add_cookie(dict_param)
     else:
         if '=' not in param:
             logger.warning("Invalid cookie format. Use <name>=<value>.")

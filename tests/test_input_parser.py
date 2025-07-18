@@ -45,6 +45,8 @@ class TestParseConfigFile(unittest.TestCase):
             result = parse_inputs(inputs)
             pprint(result)
 
+            self.assertEqual(len(result), 10)
+
         os.unlink(f.name)
         os.unlink(include_f.name)
 

@@ -86,7 +86,7 @@ def check_run(config: ProcessingConfig) -> None:
                         continue
                     action_type = action.get("type", 'unknown')
                     action_idx += 1
-                    logger.info(f"[{action_idx}/{actions_len}] Processing Action: {action_type}")
+                    logger.info(f"[{action_idx}/{actions_len}] Processing Action: {action_type} - {action.get('name', 'No Name')}")
                     entry = None
                     results = []
 

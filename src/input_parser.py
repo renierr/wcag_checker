@@ -122,6 +122,10 @@ class ActionTransformer(Transformer):
     def condition(self, value):
         return str(value).strip('"').strip()
 
+    def filename(self, items):
+        """Transform filename rule to extract the actual path string"""
+        return items[0]  # Return the first (and only) item which should be the path string
+
     def NAME(self, item):
         return str(item)
 
@@ -171,10 +175,10 @@ def _parse_config_file(file_path, context=None):
 
 
     except FileNotFoundError:
-        print(f"Error loading config file '{file_path}' - not found.")
+        logger.warning(f"Error loading config file '{file_path}' - not found, will be ignored.")
         return []
     except Exception as e:
-        print(f"Error during config parse for '{file_path}': {e}")
+        logger.error(f"Error during config parse for '{file_path}': {e}")
         return []
 
 def parse_inputs(inputs: list[str]) -> list[dict]:

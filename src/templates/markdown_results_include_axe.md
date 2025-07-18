@@ -7,10 +7,7 @@
 No violations found.
 {% endif -%}
 
-{%- if "error" in result -%}
-- **Error:** {{ result.error }}
-  {%- else -%}
-  {%- for violation in result.violations %}
+{%- for violation in result.violations %}
 #### {% if violation.impact == "critical" %}🔥{% elif violation.impact == "serious" %}⚠️{% elif violation.impact == "moderate" %}🔶{% elif violation.impact == "minor" %}ℹ️{% endif %} {{ violation.id }} - {{ violation.impact | capitalize }}
 
 {{ violation.description }}
@@ -52,7 +49,6 @@ No violations found.
 {% endif %}
 
 {% endfor -%}
-{%- endif %}
 
 ---
 {% endfor %}

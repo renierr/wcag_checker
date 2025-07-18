@@ -44,19 +44,17 @@ class ActionRegistry:
     def execute(self, config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
         """Execute a registered action."""
 
-        try:
-            action_name = action.get("name", "")
+        action_name = action.get("name", "")
 
-            if action_name in self._actions:
-                action_func = self._actions[action_name]
-                if "context" in action_func.__code__.co_varnames:
-                    return action_func(config, driver, action, action_context)
-                else:
-                    return action_func(config, driver, action)
+        if action_name in self._actions:
+            action_func = self._actions[action_name]
+            if "context" in action_func.__code__.co_varnames:
+                return action_func(config, driver, action, action_context)
             else:
-                logger.warning(f"Unknown action: {action}")
-        except Exception as e:
-            logger.error(f"Error executing action '{action}': {e}")
+                return action_func(config, driver, action)
+        else:
+            logger.warning(f"Unknown action: {action}")
+
         return None
 
 

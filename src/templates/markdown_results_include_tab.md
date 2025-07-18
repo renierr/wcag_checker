@@ -26,10 +26,6 @@
   {% endif %}
 </div>
 
-{% if "error" in result %}
-**Error:** {{ result.error }}
-{%- else %}
-
 - **Page Tabbings:** {{ result.tabbed_elements | length }}
 {% if result.potential_elements | length > 0 %}
 - **Potential Tabbings:** {{ result.potential_elements | length }}
@@ -76,7 +72,6 @@
 </details>
 </section>
 {% endif %}
-{%- endif %}
 
 ---
 {% endfor %}

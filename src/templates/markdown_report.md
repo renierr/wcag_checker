@@ -20,12 +20,19 @@ There are {{json_data.total_inputs}} pages in total.
 {% if json_data.total_inputs > 0 %}**Page Overview:**{% endif %}  
 {% for input_data in json_data.inputs -%}
 {% set violations = input_data.results | count_violations %}
-- {% if violations > 0 %}⚠️{% else %}✅{% endif %} [{{ input_data.index }}: {{ input_data.title if input_data.title else "Page " ~ input_data.index }}](#page-{{input_data.index}}) ({{ violations }} violations)
+- {% if "error" in input_data %}❌{% elif violations > 0 %}⚠️{% else %}✅{% endif %} [{{ loop.index }}: {{ input_data.title if input_data.title else "Page " ~ loop.index }}](#page-{{input_data.index}}) ({{ violations }} violations)
 {% endfor %}
 
 {% for input_data in json_data.inputs -%}
-<a name="page-{{input_data.index}}"></a>
-### Page ({{input_data.index}} / {{json_data.total_inputs}}):
+<a name="page-{{loop.index}}"></a>
+### Page ({{loop.index}} / {{json_data.total_inputs}}):
+
+{% if "error" in input_data %}
+**Error:**
+```json
+{{ input_data }}
+```
+{% else %}
 
 {% include 'markdown_config_output_template.md' %}
 
@@ -53,12 +60,12 @@ There are {{json_data.total_inputs}} pages in total.
 **Violations count for this URL:** {{ violations }}
 {% endif %}
 
-{% if input_data.index > 1 -%}
-[⬅️ Prev ({{input_data.index - 1}})](#page-{{input_data.index - 1}})
+{% if loop.index > 1 -%}
+[⬅️ Prev ({{loop.index - 1}})](#page-{{loop.index - 1}})
 {%- endif -%}
-{%- if input_data.index < json_data.total_inputs -%}
-{%- if input_data.index > 1 %} | {% endif -%}
-[Next ({{input_data.index + 1}}) ➡️](#page-{{input_data.index + 1}})
+{%- if loop.index < json_data.total_inputs -%}
+{%- if loop.index > 1 %} | {% endif -%}
+[Next ({{loop.index + 1}}) ➡️](#page-{{loop.index + 1}})
 {%- endif %}
 
 {% if input_data.config.runner|string == "axe" %}
@@ -69,6 +76,7 @@ There are {{json_data.total_inputs}} pages in total.
 {% include 'markdown_results_include_tab.md' %}
 {% endif %}
 
+{% endif %}
 {% endfor -%}
 
 {% if json_data.browser_console_log %}

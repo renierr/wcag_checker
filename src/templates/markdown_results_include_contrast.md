@@ -3,9 +3,6 @@
 {% for result in input_data.results %}
 <a name='el_{{input_data.index}} 0_{{result.element_index}}'></a>
 #### {{result.element_index}}. Element of Page {{input_data.index}}
-{%- if "error" in result -%}
-- **Error:** {{ result.error }}
-  {%- else -%}
   {%- set wcag_status = "✅ *Valid*" if result.meets_wcag else "❌ **Not Valid**" -%}
   {%- set color_spans = result.colors | join_color_span -%}
   {%- if result.element_text -%}
@@ -39,7 +36,6 @@
 **Image reference:**
 
 ![Element Screenshot]({{result.screenshot.replace(output + '/', '')}})
-{% endif %}
 
 ---
 {% endfor %}

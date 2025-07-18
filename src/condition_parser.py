@@ -34,7 +34,7 @@ CONDITION_GRAMMAR = r"""
 
     property_access: IDENTIFIER ("." IDENTIFIER)+
     IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
-    NUMBER: /\d+(\.\d+)?/
+    NUMBER: /-?\d+(\.\d+)?/
 
     %import common.ESCAPED_STRING
     %import common.WS
@@ -105,7 +105,8 @@ class ConditionTransformer(Transformer):
 
     @v_args(inline=True)
     def number(self, n):
-        return float(n) if '.' in str(n) else int(n)
+        s = str(n)
+        return float(s) if '.' in s or s.startswith('-') else int(s)
 
     @v_args(inline=True)
     def string(self, s):
@@ -121,15 +122,16 @@ class ConditionTransformer(Transformer):
         """Handle dot notation property access"""
         obj = items[0]
         properties = items[1:]
-
-        # Navigate through the nested properties
-        current = self.context.get(obj, {})
+        current = self.context.get(obj)
+        if current is None:
+            raise NameError(f"Base object '{obj}' not found in context")
+        path = str(obj)
         for prop in properties:
+            path += f".{prop}"
             if isinstance(current, dict) and prop in current:
                 current = current[prop]
             else:
-                raise NameError(f"Property '{prop}' not found in context")
-
+                raise NameError(f"Property '{path}' not found in context")
         return current
 
 

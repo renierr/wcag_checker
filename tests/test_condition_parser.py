@@ -25,6 +25,7 @@ class TestConditionParser(unittest.TestCase):
         # Equality
         self.assertTrue(_eval_condition("5 == 5"))
         self.assertFalse(_eval_condition("5 == 3"))
+        self.assertFalse(_eval_condition("-5 == 5"))
         self.assertTrue(_eval_condition("\"hello\" == \"hello\""))
 
         # Inequality
@@ -84,6 +85,9 @@ class TestConditionParser(unittest.TestCase):
         self.assertTrue(_eval_condition("user.profile.age >= 25", context))
         self.assertTrue(_eval_condition("session.active", context))
         self.assertTrue(_eval_condition("\"write\" in user.permissions", context))
+
+        with self.assertRaises(NameError):
+            _eval_condition("not_present.profile.name == \"Alice\"", context)
 
     def test_context_with_complex_conditions(self):
         """Test complex conditions with context"""

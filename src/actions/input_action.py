@@ -62,6 +62,8 @@ def input_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> N
     @input #username-field=My input text<LF>
     ```
     """
+
+    param: str | None = action.get("params", None)
     if not param or "=" not in param:
         logger.warning("Invalid parameter for input action. Expected format: 'selector=value'.")
         return
@@ -91,6 +93,8 @@ def clear_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> N
     @clear: #input-field
     ```
     """
+
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("no selector provided for clear action.")
         return
@@ -112,6 +116,8 @@ def select_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> 
     @select: #dropdown-menu=option_value
     ```
     """
+
+    param: str | None = action.get("params", None)
     if not param or "=" not in param:
         logger.warning("Invalid parameter for select action. Expected format: 'selector=value'.")
         return
@@ -137,6 +143,8 @@ def send_keys_action(config: ProcessingConfig, driver: WebDriver, action: dict) 
     @send_keys: #element-id=Hello World<CR>
     ```
     """
+
+    param: str | None = action.get("params", None)
     if not param or "=" not in param:
         logger.warning("Invalid parameter for send_keys action. Expected format: 'selector=keys'.")
         return
@@ -172,6 +180,8 @@ def send_key_combination(config: ProcessingConfig, driver: WebDriver, action: di
     @send_key_combination: <CTRL>+a
     ```
     """
+
+    param: str | None = action.get("params", None)
     if not param:
         logger.warning("Invalid parameter for send_key_combination action.")
         return

@@ -5,7 +5,7 @@ from src.config import ProcessingConfig
 
 
 @register_action("if")
-def if_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
+def if_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> list | None:
     """
     Syntax: `@if: <condition> : { <actions> }`
 
@@ -39,5 +39,48 @@ def if_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None
     ```
 
     """
-    pass
 
+    action_type = action.get('type')
+    if not action_type or action_type != 'if':
+        raise ValueError("Action must be a dictionary of type 'if' to be processed by if_action.")
+    if 'actions' not in action:
+        raise ValueError("Action must contain 'actions' key with a list of actions to be processed.")
+    if not isinstance(action['actions'], list):
+        raise ValueError("Action 'actions' must be a list of actions to be processed.")
+    if 'condition' not in action:
+        raise ValueError("Action must contain 'condition' key with a string condition to be processed.")
+    if not isinstance(action['condition'], str):
+        raise ValueError("Action 'condition' must be a string to be processed.")
+
+    condition = action.get('condition', '')
+    actions = action.get('actions', [])
+    elif_blocks = action.get('elif_blocks', [])
+    else_actions = action.get('else_actions', [])
+
+    # Process the condition and build the action results
+    action_results = []
+    if _eval_condition(condition):
+        for act in actions:
+            action_results.append(act)
+    else:
+        for elif_block in elif_blocks:
+            elif_condition = elif_block.get('condition', '')
+            elif_actions = elif_block.get('actions', [])
+            if _eval_condition(elif_condition):
+                for act in elif_actions:
+                    action_results.append(act)
+                return
+        if else_actions:
+            for act in else_actions:
+                action_results.append(act)
+    return action_results if action_results else None
+
+def _eval_condition(condition: str) -> bool:
+    """
+    Evaluate a condition string and return True or False.
+    This is a simple implementation and should be replaced with a more secure evaluation method.
+    """
+    try:
+        return True
+    except Exception as e:
+        raise ValueError(f"Error evaluating condition '{condition}': {e}")

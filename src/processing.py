@@ -77,54 +77,13 @@ def check_run(config: ProcessingConfig) -> None:
 
                 base_url = get_full_base_url(driver)
                 logger.debug(f"Extracted Base URL: {base_url}")
-
-                url_data = []
-                last_action = None
-                for action_idx, action in enumerate(actions):
-                    if action is None:
-                        logger.warning("Empty action found, skipping.")
-                        continue
-                    action_type = action.get("type", 'unknown')
-                    action_idx += 1
-                    logger.info(f"[{action_idx}/{actions_len}] Processing Action: {action_type} - {action.get('name', 'No Name')}")
-                    entry = None
-                    results = []
-
-                    try:
-                        # special case for url action type - call the url directly and analyse it
-                        if action_type == "url":
-                            url = action.get("url", "")
-                            call_url(driver, url)
-                            entry = analyse_action(config, driver, {'type': 'action', 'name': 'analyse'})
-                            last_action = "direct url analyse for: " + url
-                        else:
-                            entry = handle_action(config, driver, action)
-                            if entry:
-                                if last_action:
-                                    entry["last_action"] = last_action
-                                entry["action"] = str(action)
-                                url_data.append(entry)
-                            last_action = str(action)
-
-                    except Exception as e:
-                        error_message = str(e).splitlines()[0]
-                        logger.error(f"Error processing Action {action}: {error_message}")
-                        results.append({
-                            "url": action,
-                            "error": error_message
-                        })
-                        if config.debug:
-                            raise e
-
-                    if entry:
-                        url_data.append(entry)
-
+                actions_data = _execute_actions(config, driver, actions)
 
                 json_data.update({
                     "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                     "base_url": base_url,
-                    "total_inputs": len(url_data),
-                    "inputs": url_data,
+                    "total_inputs": len(actions_data),
+                    "inputs": actions_data,
                     "browser_console_log": get_browser_console_log(),
                 })
 
@@ -155,6 +114,51 @@ def check_run(config: ProcessingConfig) -> None:
     if config.browser_leave_open and config.browser_visible:
         logger.warning("The browser has been left open - remember to close it later to close the tool.")
 
+def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[dict]) -> list:
+    actions_data = []
+    last_action = None
+    for action_idx, action in enumerate(actions):
+        if action is None:
+            logger.warning("Empty action found, skipping.")
+            continue
+        action_type = action.get("type", 'unknown')
+        action_idx += 1
+        logger.info(f"Processing Action: {action_type} - {action.get('name', 'No Action Name')}")
+
+        try:
+            # special case for url action type - call the url directly and analyse it
+            if action_type == "url":
+                url = action.get("url", "")
+                call_url(driver, url)
+                entry = analyse_action(config, driver, {'type': 'action', 'name': 'analyse'})
+                if entry:
+                    actions_data.append(entry)
+                last_action = "direct url analyse for: " + url
+            else:
+                entry = handle_action(config, driver, action)
+                if entry:
+                    if isinstance(entry, dict):
+                        if last_action:
+                            entry["last_action"] = last_action
+                        entry["action"] = str(action)
+                        actions_data.append(entry)
+                    elif isinstance(entry, list):
+                        # if the action returns a list of entries, thread them as actions to be executed
+                        actions_data.extend(_execute_actions(config, driver, entry))
+                    else:
+                        raise ValueError(f"Unexpected item in action result data: {entry}")
+                last_action = str(action)
+
+        except Exception as e:
+            error_message = str(e).splitlines()[0]
+            logger.error(f"Error processing Action {action}: {error_message}")
+            actions_data.append({
+                "action": action,
+                "error": error_message
+            })
+            if config.debug:
+                raise e
+    return actions_data
 
 def info_logs_of_config(config: ProcessingConfig) -> None:
     """

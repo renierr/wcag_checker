@@ -37,7 +37,7 @@ grammar = r"""
     BLOCK_TEXT: /[^{}\n]+/
     
     %ignore WS
-    %ignore /^\s*#[^\n]*/
+    %ignore /(?:^|\n)[ \t]*#[^\n]*/
 """
 
 action_parser = Lark(grammar, start='start', parser='lalr')
@@ -51,6 +51,10 @@ class ActionTransformer(Transformer):
     @v_args(inline=True)
     def action(self, action_item):
         return action_item
+
+    @v_args(inline=True)
+    def comment(self, comment_text):
+        return None  # Ignore comments in the output
 
     @v_args(inline=True)
     def simple_action(self, name, params=None):

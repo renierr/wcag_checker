@@ -22,6 +22,7 @@ class TestParseConfigFile(unittest.TestCase):
 
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
             fcontent = f"""
+            # comment
             @navigate: /lalal/fgrg
             @click: #button
             @include: {include_f.name}

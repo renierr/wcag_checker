@@ -1,6 +1,8 @@
 import unittest
-from src.actions.if_action import _eval_condition
+from src.condition_parser import condition_parser
 
+def _eval_condition(condition: str, context: dict = None) -> bool:
+    return condition_parser.evaluate(condition, context)
 
 class TestConditionParser(unittest.TestCase):
 

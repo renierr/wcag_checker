@@ -35,6 +35,8 @@ class TestParseConfigFile(unittest.TestCase):
                     let x = 5;
                 }}
             }}
+            
+            # huhu
             @script: {{
                 console.log("This is a test script");
             }}
@@ -79,6 +81,8 @@ class TestParseConfigFile(unittest.TestCase):
                 "context": "test_context",
                 "options": {"option1": "value1"}
             }
+            
+            # comment
             @var: myvar=5
             @if: myvar == 5 : {
                 @navigate: "param2"

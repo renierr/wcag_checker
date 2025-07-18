@@ -206,7 +206,7 @@ def _parse_config_file(file_path: Path, context=None):
 
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
-            text = file.read()
+            text = ''.join(line for line in file if not line.strip().startswith('#'))
 
 
         tree = action_parser.parse(text)

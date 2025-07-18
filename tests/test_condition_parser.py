@@ -59,9 +59,37 @@ class TestConditionParser(unittest.TestCase):
 
     def test_regex_operations(self):
         """Test 'matches' operations"""
-        self.assertTrue(_eval_condition("\"admin\" matches /.*/"))
-        self.assertTrue(_eval_condition("\"123\" matches /\\d.*/"))
-        self.assertFalse(_eval_condition("\"aa123\" matches /\\d.*/"))
+
+        self.assertTrue(_eval_condition("\"admin\" matches /.*/"))  # Match anything
+        self.assertTrue(_eval_condition("\"test\" matches /test/"))  # Exact match
+        self.assertTrue(_eval_condition("\"testing\" matches /test/"))  # Substring match (corrected)
+        self.assertFalse(_eval_condition("\"testing\" matches /^test$/"))  # Exact match fails
+
+        # Digit patterns
+        self.assertTrue(_eval_condition("\"123\" matches /^\\d+$/"))  # Only digits
+        self.assertFalse(_eval_condition("\"abc123\" matches /^\\d+$/"))  # Must start with digit
+        self.assertTrue(_eval_condition("\"abc123\" matches /.*\\d+.*/"))  # Contains digits
+
+        # Email validation
+        self.assertTrue(_eval_condition("\"user@example.com\" matches /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/"))
+        self.assertFalse(_eval_condition("\"invalid-email\" matches /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$/"))
+
+        # Phone number patterns
+        self.assertTrue(_eval_condition("\"+49-123-456789\" matches /^\\+\\d{2}-\\d{3}-\\d{6}$/"))
+        self.assertFalse(_eval_condition("\"123-456-789\" matches /^\\+\\d{2}-\\d{3}-\\d{6}$/"))
+
+        # Case sensitivity
+        self.assertTrue(_eval_condition("\"Admin\" matches /[Aa]dmin/"))
+        self.assertFalse(_eval_condition("\"ADMIN\" matches /admin/"))
+
+        # Special characters escaping
+        self.assertTrue(_eval_condition("\"file.txt\" matches /.*\\.txt$/"))
+        self.assertFalse(_eval_condition("\"filetxt\" matches /.*\\.txt$/"))
+
+        # Multiple alternatives
+        self.assertTrue(_eval_condition("\"GET\" matches /^(GET|POST|PUT|DELETE)$/"))
+        self.assertTrue(_eval_condition("\"POST\" matches /^(GET|POST|PUT|DELETE)$/"))
+        self.assertFalse(_eval_condition("\"PATCH\" matches /^(GET|POST|PUT|DELETE)$/"))
 
     def test_variables_with_context(self):
         """Test variable resolution with context"""

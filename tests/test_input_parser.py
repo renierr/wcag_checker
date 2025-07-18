@@ -82,7 +82,7 @@ class TestParseConfigFile(unittest.TestCase):
                 "options": {"option1": "value1"}
             }
             
-            # comment
+            # comment1
             @var: myvar=5
             @if: myvar == 5 : {
                 @navigate: "param2"
@@ -100,6 +100,8 @@ class TestParseConfigFile(unittest.TestCase):
             }
             @elif: myvar == "5" : {
                 @navigate: "/admin"
+                
+                # comment2
                 @analyse_axe: {"context": "admin_panel"}
             }
             @else: {

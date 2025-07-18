@@ -9,7 +9,7 @@ grammar = r"""
     %import common.NEWLINE
     %import common.WS
 
-    start: action*
+    start: (action | comment)*
     action: if_action | include_action | simple_action
     
     simple_action: "@" NAME (":" params)?
@@ -17,27 +17,28 @@ grammar = r"""
     elif_block: "@elif:" condition ":" action_block
     else_block: "@else:" action_block
 
-    action_block: "{" action* "}"
+    action_block: "{" (action | comment)* "}"
     include_action: "@include:" filename
     
     params: single_line_params | params_block
-    single_line_params: REST_OF_LINE
+    single_line_params: SINGLE_LINE_PARAMS
     params_block: "{" block_content "}"
     block_content: balanced_content*
     balanced_content: BLOCK_TEXT | nested_braces | NEWLINE
     nested_braces: "{" balanced_content* "}"
 
-    condition: CONDITION_VALUE
+    condition: CONDITION
     filename: FILENAME
-    
+    comment: COMMENT
+
     NAME: /[a-zA-Z_]\w*/
-    REST_OF_LINE: /[^\n]+/
-    CONDITION_VALUE: /[^:{}]+/
-    FILENAME: /[^\n]+/
     BLOCK_TEXT: /[^{}\n]+/
+    COMMENT: /#[^\n]*/
+    CONDITION: /[^:{}]+/
+    FILENAME: /[^\n]+/
+    SINGLE_LINE_PARAMS: /[^\n]+/
     
     %ignore WS
-    %ignore /(?:^|\n)[ \t]*#[^\n]*/
 """
 
 action_parser = Lark(grammar, start='start', parser='lalr')
@@ -61,33 +62,26 @@ class ActionTransformer(Transformer):
         return {'type': 'action', 'name': str(name), 'params': params or None}
 
     def if_action(self, items):
-        # First item is condition, second is actions, then optional elif/else blocks
         condition = items[0]
         actions = items[1]
-
         result = {
             'type': 'if',
             'name': 'if',
             'condition': str(condition).strip(),
             'actions': actions or []
         }
-
-        # Process elif and else blocks
         elif_blocks = []
         else_actions = None
-
         for item in items[2:]:
-            if isinstance(item, dict):
-                if item.get('type') == 'elif':
+            if isinstance(item, dict) and 'type' in item:
+                if item['type'] == 'elif':
                     elif_blocks.append(item)
-                elif item.get('type') == 'else':
+                elif item['type'] == 'else':
                     else_actions = item.get('actions', [])
-
         if elif_blocks:
             result['elif_blocks'] = elif_blocks
         if else_actions:
             result['else_actions'] = else_actions
-
         return result
 
     @v_args(inline=True)
@@ -105,7 +99,6 @@ class ActionTransformer(Transformer):
             'actions': actions or []
         }
 
-
     @v_args(inline=True)
     def action_block(self, *actions):
         return [action for action in actions if action is not None]
@@ -113,8 +106,6 @@ class ActionTransformer(Transformer):
     @v_args(inline=True)
     def include_action(self, filename):
         filename = str(filename).strip()
-
-        # use context from _parse_config_file
         if hasattr(self, '_context') and self._context:
             logger.info(f"Parser: Processing include action for file: {filename}")
             current_file_path = Path(self._context['current_file'])
@@ -123,9 +114,7 @@ class ActionTransformer(Transformer):
             include_path = basedir / filename
             included_actions = _parse_config_file(include_path, self._context)
             return included_actions
-        else:
-            # Fallback to normal action syntax
-            return {'type': 'include', 'name': 'include', 'params': [filename]}
+        return {'type': 'include', 'name': 'include', 'params': [filename]}
 
     @v_args(inline=True)
     def params(self, param_value):
@@ -142,13 +131,14 @@ class ActionTransformer(Transformer):
     def block_content(self, items):
         result_parts = []
         for item in items:
-            if item is not None:
-                if hasattr(item, 'type') and item.type == 'NEWLINE':
-                    result_parts.append('\n')
-                elif hasattr(item, 'value'):
-                    result_parts.append(str(item.value))
-                else:
-                    result_parts.append(str(item))
+            if item is None:
+                continue
+            if isinstance(item, str):
+                result_parts.append(item)
+            elif hasattr(item, 'type') and item.type == 'NEWLINE':
+                result_parts.append('\n')
+            else:
+                result_parts.append(str(item))
         return ''.join(result_parts).strip()
 
     @v_args(inline=True)
@@ -168,24 +158,37 @@ class ActionTransformer(Transformer):
     def condition(self, value):
         return str(value).strip()
 
-    def filename(self, items):
-        """Transform filename rule to extract the actual path string"""
-        return items[0]  # Return the first (and only) item which should be the path string
+    @v_args(inline=True)
+    def filename(self, value):
+        return str(value).strip()
 
+    @v_args(inline=True)
     def NAME(self, item):
         return str(item)
 
-    def REST_OF_LINE(self, item):
+    @v_args(inline=True)
+    def BLOCK_TEXT(self, item):
         return str(item)
 
-    def CONDITION_VALUE(self, item):
+    @v_args(inline=True)
+    def COMMENT(self, item):
         return str(item)
 
+    @v_args(inline=True)
+    def CONDITION(self, item):
+        return str(item)
+
+    @v_args(inline=True)
     def FILENAME(self, item):
         return str(item)
 
-    def BLOCK_TEXT(self, item):
+    @v_args(inline=True)
+    def SINGLE_LINE_PARAMS(self, item):
         return str(item)
+
+    @v_args(inline=True)
+    def NEWLINE(self, item):
+        return '\n'
 
 # --- Parser ---
 def _parse_config_file(file_path: Path, context=None):
@@ -206,7 +209,7 @@ def _parse_config_file(file_path: Path, context=None):
 
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
-            text = ''.join(line for line in file if not line.strip().startswith('#'))
+            text = file.read()
 
 
         tree = action_parser.parse(text)

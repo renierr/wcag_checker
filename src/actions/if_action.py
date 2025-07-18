@@ -1,5 +1,5 @@
 from lark import Lark, Transformer, v_args
-from lark.exceptions import LarkError
+from lark.exceptions import LarkError, VisitError
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import register_action
@@ -28,13 +28,15 @@ CONDITION_GRAMMAR = r"""
                | atom "in" atom        -> in_op
                | atom "contains" atom  -> contains_op
 
-    ?atom: "true"                      -> true
+    ?atom: property_access 
+         | "true"                      -> true
          | "false"                     -> false
          | NUMBER                      -> number
          | ESCAPED_STRING              -> string
          | IDENTIFIER                  -> identifier
          | "(" or_expr ")"
 
+    property_access: IDENTIFIER ("." IDENTIFIER)+
     IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
     NUMBER: /\d+(\.\d+)?/
 
@@ -111,7 +113,24 @@ class ConditionTransformer(Transformer):
 
     @v_args(inline=True)
     def identifier(self, name):
-        return self.context.get(str(name), str(name))
+        if str(name) not in self.context:
+            raise NameError(f"Undefined identifier: {name}")
+        return self.context[str(name)]
+
+    def property_access(self, items):
+        """Handle dot notation property access"""
+        obj = items[0]
+        properties = items[1:]
+
+        # Navigate through the nested properties
+        current = self.context.get(obj, {})
+        for prop in properties:
+            if isinstance(current, dict) and prop in current:
+                current = current[prop]
+            else:
+                raise NameError(f"Property '{prop}' not found in context")
+
+        return current
 
 
 class ConditionParser:
@@ -136,8 +155,15 @@ class ConditionParser:
             transformer = ConditionTransformer(context)
             result = transformer.transform(tree)
             return bool(result)
+        except VisitError as e:
+            # Check if it's wrapping a NameError (undefined identifier)
+            if isinstance(e.orig_exc, NameError):
+                raise e.orig_exc
+            raise ValueError(f"Invalid condition syntax: {e}")
         except LarkError as e:
             raise ValueError(f"Invalid condition syntax: {e}")
+        except NameError as e:
+            raise
         except Exception as e:
             raise ValueError(f"Error evaluating condition '{condition}': {e}")
 

@@ -170,9 +170,8 @@ class TestConditionParser(unittest.TestCase):
         self.assertTrue(_eval_condition("5 > 3"))
         self.assertTrue(_eval_condition("\"hello\" == \"hello\""))
 
-        # Should fail with variables
         with self.assertRaises(NameError):
-            _eval_condition("some_var", {})
+            _eval_condition("undefined_variable")
 
     def test_context_with_special_characters(self):
         """Test context with special characters in keys/values"""

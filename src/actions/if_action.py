@@ -1,11 +1,153 @@
+from lark import Lark, Transformer, v_args
+from lark.exceptions import LarkError
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import register_action
 from src.config import ProcessingConfig
 
+# Grammar for condition parsing
+CONDITION_GRAMMAR = r"""
+    ?start: or_expr
+
+    ?or_expr: and_expr
+            | or_expr "or" and_expr   -> or_op
+
+    ?and_expr: not_expr
+             | and_expr "and" not_expr -> and_op
+
+    ?not_expr: "not" not_expr          -> not_op
+             | comparison
+
+    ?comparison: atom
+               | atom "==" atom        -> eq
+               | atom "!=" atom        -> ne
+               | atom "<" atom         -> lt
+               | atom ">" atom         -> gt
+               | atom "<=" atom        -> le
+               | atom ">=" atom        -> ge
+               | atom "in" atom        -> in_op
+               | atom "contains" atom  -> contains_op
+
+    ?atom: "true"                      -> true
+         | "false"                     -> false
+         | NUMBER                      -> number
+         | ESCAPED_STRING              -> string
+         | IDENTIFIER                  -> identifier
+         | "(" or_expr ")"
+
+    IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
+    NUMBER: /\d+(\.\d+)?/
+
+    %import common.ESCAPED_STRING
+    %import common.WS
+    %ignore WS
+"""
+
+
+class ConditionTransformer(Transformer):
+    """Transform parsed condition tree into boolean result."""
+
+    def __init__(self, context: dict = None):
+        super().__init__()
+        self.context = context or {}
+
+    @v_args(inline=True)
+    def or_op(self, left, right):
+        return left or right
+
+    @v_args(inline=True)
+    def and_op(self, left, right):
+        return left and right
+
+    @v_args(inline=True)
+    def not_op(self, expr):
+        return not expr
+
+    @v_args(inline=True)
+    def eq(self, left, right):
+        return left == right
+
+    @v_args(inline=True)
+    def ne(self, left, right):
+        return left != right
+
+    @v_args(inline=True)
+    def lt(self, left, right):
+        return left < right
+
+    @v_args(inline=True)
+    def gt(self, left, right):
+        return left > right
+
+    @v_args(inline=True)
+    def le(self, left, right):
+        return left <= right
+
+    @v_args(inline=True)
+    def ge(self, left, right):
+        return left >= right
+
+    @v_args(inline=True)
+    def in_op(self, left, right):
+        return left in right
+
+    @v_args(inline=True)
+    def contains_op(self, left, right):
+        return right in left
+
+    def true(self, _):
+        return True
+
+    def false(self, _):
+        return False
+
+    @v_args(inline=True)
+    def number(self, n):
+        return float(n) if '.' in str(n) else int(n)
+
+    @v_args(inline=True)
+    def string(self, s):
+        return s[1:-1]  # Remove quotes
+
+    @v_args(inline=True)
+    def identifier(self, name):
+        return self.context.get(str(name), str(name))
+
+
+class ConditionParser:
+    """Parser for condition expressions using Lark."""
+
+    def __init__(self):
+        self.parser = Lark(CONDITION_GRAMMAR, parser='lalr')
+
+    def evaluate(self, condition: str, context: dict = None) -> bool:
+        """
+        Evaluate a condition string with optional context variables.
+
+        Args:
+            condition: The condition string to evaluate
+            context: Dictionary of variables available in the condition
+
+        Returns:
+            Boolean result of the condition evaluation
+        """
+        try:
+            tree = self.parser.parse(condition)
+            transformer = ConditionTransformer(context)
+            result = transformer.transform(tree)
+            return bool(result)
+        except LarkError as e:
+            raise ValueError(f"Invalid condition syntax: {e}")
+        except Exception as e:
+            raise ValueError(f"Error evaluating condition '{condition}': {e}")
+
+
+# Global condition parser instance
+_condition_parser = ConditionParser()
+
 
 @register_action("if")
-def if_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> list | None:
+def if_action(config: ProcessingConfig, driver: WebDriver, action: dict, context: dict) -> list | None:
     """
     Syntax: `@if: <condition> : { <actions> }`
 
@@ -59,14 +201,14 @@ def if_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> list
 
     # Process the condition and build the action results
     action_results = []
-    if _eval_condition(condition):
+    if _eval_condition(condition, context):
         for act in actions:
             action_results.append(act)
     else:
         for elif_block in elif_blocks:
             elif_condition = elif_block.get('condition', '')
             elif_actions = elif_block.get('actions', [])
-            if _eval_condition(elif_condition):
+            if _eval_condition(elif_condition, context):
                 for act in elif_actions:
                     action_results.append(act)
                 return
@@ -75,12 +217,15 @@ def if_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> list
                 action_results.append(act)
     return action_results if action_results else None
 
-def _eval_condition(condition: str) -> bool:
+
+def _eval_condition(condition: str, context: dict = None) -> bool:
     """
-    Evaluate a condition string and return True or False.
-    This is a simple implementation and should be replaced with a more secure evaluation method.
+    Evaluate a condition string with optional context variables.
+    This function uses the global condition parser to evaluate the condition.
+
+    @:param condition: The condition string to evaluate
+    @:param context: Dictionary of variables available in the condition
+    @:return: Boolean result of the condition evaluation
+
     """
-    try:
-        return True
-    except Exception as e:
-        raise ValueError(f"Error evaluating condition '{condition}': {e}")
+    return _condition_parser.evaluate(condition, context)

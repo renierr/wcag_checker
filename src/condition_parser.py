@@ -30,7 +30,8 @@ CONDITION_GRAMMAR = r"""
          | NUMBER                      -> number
          | ESCAPED_STRING              -> string
          | IDENTIFIER                  -> identifier
-         | "(" or_expr ")"
+         | paren_expr
+    paren_expr: "(" or_expr ")" -> paren_expr
 
     property_access: IDENTIFIER ("." IDENTIFIER)+
     IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
@@ -43,7 +44,11 @@ CONDITION_GRAMMAR = r"""
 
 
 class ConditionTransformer(Transformer):
-    """Transform parsed condition tree into boolean result."""
+    """
+    Transform parsed condition tree into boolean result.
+
+    :param context: Dictionary of variables available in the condition
+    """
 
     def __init__(self, context: dict = None):
         super().__init__()
@@ -118,6 +123,10 @@ class ConditionTransformer(Transformer):
             raise NameError(f"Undefined identifier: {name}")
         return self.context[str(name)]
 
+    @v_args(inline=True)
+    def paren_expr(self, expr):
+        return expr
+
     def property_access(self, items):
         """Handle dot notation property access"""
         obj = items[0]
@@ -145,20 +154,23 @@ class ConditionParser:
         """
         Evaluate a condition string with optional context variables.
 
-        Args:
-            condition: The condition string to evaluate
-            context: Dictionary of variables available in the condition
-
-        Returns:
-            Boolean result of the condition evaluation
+        :param condition: The condition string to evaluate
+        :param context: Dictionary of variables available in the condition
+        :raises ValueError: If the condition syntax is invalid
+        :raises NameError: If an undefined variable is referenced
+        :raises Exception: For any other evaluation errors
+        :return: Boolean result of the condition evaluation
         """
+
+        if not condition.strip():
+            return False
+
         try:
             tree = self.parser.parse(condition)
             transformer = ConditionTransformer(context)
             result = transformer.transform(tree)
             return bool(result)
         except VisitError as e:
-            # Check if it's wrapping a NameError (undefined identifier)
             if isinstance(e.orig_exc, NameError):
                 raise e.orig_exc
             raise ValueError(f"Invalid condition syntax: {e}")

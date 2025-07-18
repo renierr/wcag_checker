@@ -6,6 +6,10 @@ def _eval_condition(condition: str, context: dict = None) -> bool:
 
 class TestConditionParser(unittest.TestCase):
 
+    def test_empty_condition(self):
+        """Test empty condition"""
+        self.assertFalse(_eval_condition(""))
+
     def test_boolean_literals(self):
         """Test basic boolean values"""
         self.assertTrue(_eval_condition("true"))

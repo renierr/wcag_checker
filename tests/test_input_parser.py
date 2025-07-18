@@ -62,7 +62,7 @@ class TestParseConfigFile(unittest.TestCase):
 
             inputs = ['input1', f'config:{f.name}', 'input3']
             result = parse_inputs(inputs)
-            pprint(result)
+            print_result(result)
 
             self.assertEqual(len(result), 10)
 
@@ -80,7 +80,7 @@ class TestParseConfigFile(unittest.TestCase):
             f.flush()
 
             result = _parse_config_file(Path(f.name))
-            pprint(result)
+            print_result(result)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['type'], 'action')
             self.assertEqual(result[0]['name'], 'navigate')
@@ -131,7 +131,7 @@ class TestParseConfigFile(unittest.TestCase):
             f.flush()
 
             result = _parse_config_file(Path(f.name))
-            pprint(result)
+            print_result(result)
 
             self.assertEqual(len(result), 3)
             self.assertEqual(result[2]['type'], 'if')
@@ -183,8 +183,17 @@ class TestParseConfigFile(unittest.TestCase):
             f.flush()
 
             result = _parse_config_file(Path(f.name))
+            print_result(result)
             self.assertEqual(len(result), 5)
             self.mock_logger.warning.assert_called()
+
+def print_result(result):
+    """Helper function to print the result in a readable format."""
+    print("=" * 80)
+    for i, item in enumerate(result):
+        print(f"Item {i}:")
+        pprint(item)
+        print()
 
 if __name__ == '__main__':
     unittest.main()

@@ -24,16 +24,17 @@ class TestParseConfigFile(unittest.TestCase):
             @navigate: /lalal/fgrg
             @click: #button
             @include: {include_f.name}
+            @analyse_axe: {{"context": "test_context"}}
             @if: "condition" : {{
                 @test
                 @include: {include_f.name}
                 @kkk
                 @script: {{
-                    @dd: fff
+                    let x = 5;
                 }}
             }}
             @script: {{
-                @dd: fff
+                console.log("This is a test script");
             }}
             @wait: 5
             """
@@ -67,6 +68,7 @@ class TestParseConfigFile(unittest.TestCase):
         """Test parsing an if action"""
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
             test = """
+            @analyse_axe: {"context": "test_context"}
             @if: "condition" : {
                 @navigate: "param2"
                 @analyse

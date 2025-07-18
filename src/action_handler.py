@@ -48,7 +48,7 @@ class ActionRegistry:
             action_name = action.get("name", "")
 
             if action_name in self._actions:
-                action_func = self._actions[action]
+                action_func = self._actions[action_name]
                 if "context" in action_func.__code__.co_varnames:
                     return action_func(config, driver, action, action_context)
                 else:

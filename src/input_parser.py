@@ -27,11 +27,12 @@ grammar = r"""
     balanced_content: BLOCK_TEXT | nested_braces | NEWLINE
     nested_braces: "{" balanced_content* "}"
 
-    condition: VALUE
+    condition: CONDITION_VALUE
     filename: FILENAME
     
     NAME: /[a-zA-Z_]\w*/
     VALUE: /"[^"]*"/ | /(?:[^;{}\s$]|\$\{[^}]*\})+/
+    CONDITION_VALUE: /[^:{}]+/
     FILENAME: /[^\n]+/
     BLOCK_TEXT: /[^{}\n]+/
     
@@ -63,7 +64,7 @@ class ActionTransformer(Transformer):
         result = {
             'type': 'if',
             'name': 'if',
-            'condition': str(condition).strip('"').strip(),
+            'condition': str(condition).strip(),
             'actions': actions or []
         }
 
@@ -89,7 +90,7 @@ class ActionTransformer(Transformer):
     def elif_block(self, condition, actions):
         return {
             'type': 'elif',
-            'condition': str(condition).strip('"').strip(),
+            'condition': str(condition).strip(),
             'actions': actions or []
         }
 
@@ -161,7 +162,7 @@ class ActionTransformer(Transformer):
 
     @v_args(inline=True)
     def condition(self, value):
-        return str(value).strip('"').strip()
+        return str(value).strip()
 
     def filename(self, items):
         """Transform filename rule to extract the actual path string"""
@@ -171,6 +172,9 @@ class ActionTransformer(Transformer):
         return str(item)
 
     def VALUE(self, item):
+        return str(item)
+
+    def CONDITION_VALUE(self, item):
         return str(item)
 
     def FILENAME(self, item):

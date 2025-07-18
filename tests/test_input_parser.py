@@ -8,22 +8,32 @@ class TestParseConfigFile(unittest.TestCase):
 
     def test_inputs(self):
         """Test parsing inputs"""
+
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as include_f:
+            inc_content = """
+            @navigate: /lalal/eeee
+            @wait: 4
+            """
+            include_f.write(inc_content)
+            include_f.flush()
+
+
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-            fcontent = """
+            fcontent = f"""
             @navigate: /lalal/fgrg
             @click: #button
-            @include: C:\\dev\\python\\wcag_checker\\inputs.txt
-            @if: "condition" : {
+            @include: {include_f.name}
+            @if: "condition" : {{
                 @test
-                @include: C:\\dev\\python\\wcag_checker\\inputs.txt
+                @include: {include_f.name}
                 @kkk
-                @script: {
+                @script: {{
                     @dd: fff
-                }
-            }
-            @script: {
+                }}
+            }}
+            @script: {{
                 @dd: fff
-            }
+            }}
             @wait: 5
             """
             f.write(fcontent)
@@ -34,20 +44,21 @@ class TestParseConfigFile(unittest.TestCase):
             print(result)
 
         os.unlink(f.name)
+        os.unlink(include_f.name)
 
 
     def test_parse_simple_action(self):
         """Test parsing a simple action"""
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
-            f.write('@include: C:\\dev\\python\\wcag_checker\\inputs.txt')
+            f.write('@wait: 5')
             f.flush()
 
             result = _parse_config_file(f.name)
             print(result)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['type'], 'action')
-            self.assertEqual(result[0]['name'], 'download')
-            self.assertEqual(result[0]['params'], ['https://example.com'])
+            self.assertEqual(result[0]['name'], 'wait')
+            self.assertEqual(result[0]['params'], '5')
 
         os.unlink(f.name)
 
@@ -56,11 +67,12 @@ class TestParseConfigFile(unittest.TestCase):
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
             test = """
             @if: "condition" : {
-                @test
-                @include: "param2"
-                @kkk
+                @navigate: "param2"
+                @analyse
                 @script: {
-                    @dd: fff
+                    console.log("This is a test script");
+                    const x = 5;
+                    
                 }
             }
             """

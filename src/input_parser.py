@@ -6,6 +6,9 @@ from src.logger_setup import logger
 
 # --- Grammar ---
 grammar = r"""
+    %import common.NEWLINE
+    %import common.WS
+
     start: action*
     action: if_action | include_action | simple_action
     
@@ -15,21 +18,21 @@ grammar = r"""
     include_action: "@include:" FILENAME
     
     params: single_line_params | params_block
-    single_line_params: VALUE (";" VALUE)*
-    params_block: "{" VALUE* "}"
-    
+    single_line_params: VALUE
+    params_block: "{" block_content "}"
+    block_content: (BLOCK_TEXT | NEWLINE)*
     condition: VALUE
     
     NAME: /[a-zA-Z_]\w*/
     VALUE: /"[^"]*"/ | /[^;{}\s]+/
     FILENAME: /[^\n]+/
-    
-    %import common.NEWLINE
-    %import common.WS
+    BLOCK_TEXT: /[^{}\n]+/
     
     %ignore WS
     %ignore /#[^\n]*/
 """
+
+action_parser = Lark(grammar, start='start', parser='lalr')
 
 # --- Transformer ---
 class ActionTransformer(Transformer):
@@ -43,7 +46,7 @@ class ActionTransformer(Transformer):
 
     @v_args(inline=True)
     def simple_action(self, name, params=None):
-        return {'type': 'action', 'name': str(name), 'params': params or []}
+        return {'type': 'action', 'name': str(name), 'params': params or None}
 
     @v_args(inline=True)
     def if_action(self, condition, actions):
@@ -75,16 +78,30 @@ class ActionTransformer(Transformer):
             return {'type': 'include', 'name': 'include', 'params': [filename]}
 
     @v_args(inline=True)
-    def params(self, *params):
-        return params[0]
+    def params(self, param_value):
+        return param_value
 
     @v_args(inline=True)
-    def single_line_params(self, *values):
-        return [str(value).strip('"').strip() for value in values if value is not None]
+    def single_line_params(self, value):
+        return str(value).strip('"').strip()
 
     @v_args(inline=True)
-    def params_block(self, *params):
-        return [str(param).strip() for param in params if param is not None]
+    def params_block(self, content):
+        return content
+
+    def block_content(self, items):
+        result_parts = []
+        for item in items:
+            if item is not None:
+                # Handle Token objects directly
+                if hasattr(item, 'type') and item.type == 'NEWLINE':
+                    result_parts.append('\n')
+                elif hasattr(item, 'value'):
+                    result_parts.append(str(item.value))
+                else:
+                    result_parts.append(str(item))
+
+        return ''.join(result_parts).strip()
 
     @v_args(inline=True)
     def condition(self, value):
@@ -97,6 +114,9 @@ class ActionTransformer(Transformer):
         return str(item)
 
     def FILENAME(self, item):
+        return str(item)
+
+    def BLOCK_TEXT(self, item):
         return str(item)
 
 # --- Parser ---
@@ -117,8 +137,8 @@ def _parse_config_file(file_path, context=None):
         with open(file_path, 'r', encoding='utf-8') as file:
             text = file.read()
 
-        parser = Lark(grammar, start='start')
-        tree = parser.parse(text)
+
+        tree = action_parser.parse(text)
         transformer = ActionTransformer()
         transformer._context = context
         result = transformer.transform(tree)

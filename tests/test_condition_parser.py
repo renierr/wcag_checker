@@ -54,6 +54,14 @@ class TestConditionParser(unittest.TestCase):
         context = {"roles": ["admin", "user"], "user_type": "admin"}
         self.assertTrue(_eval_condition("\"admin\" in roles", context))
         self.assertFalse(_eval_condition("\"guest\" in roles", context))
+        self.assertFalse(_eval_condition("\"admin\" not in roles", context))
+        self.assertTrue(_eval_condition("\"guest\" not in roles", context))
+
+    def test_regex_operations(self):
+        """Test 'matches' operations"""
+        self.assertTrue(_eval_condition("\"admin\" matches /.*/"))
+        self.assertTrue(_eval_condition("\"123\" matches /\\d.*/"))
+        self.assertFalse(_eval_condition("\"aa123\" matches /\\d.*/"))
 
     def test_variables_with_context(self):
         """Test variable resolution with context"""

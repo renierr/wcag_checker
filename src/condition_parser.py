@@ -23,6 +23,9 @@ CONDITION_GRAMMAR = r"""
                | atom ">=" atom        -> ge
                | atom "in" atom        -> in_op
                | atom "contains" atom  -> contains_op
+               | atom "not in" atom        -> not_in_op
+               | atom "matches" REGEX      -> matches_op
+               REGEX: /\/[^\/]*\/[a-zA-Z]*/
 
     ?atom: property_access 
          | "true"                      -> true
@@ -101,6 +104,17 @@ class ConditionTransformer(Transformer):
         if not isinstance(left, (str, list, tuple, dict)):
             raise TypeError(f"Left operand of 'contains' must be iterable, got {type(left)}")
         return right in left
+
+    @v_args(inline=True)
+    def not_in_op(self, left, right):
+        if not isinstance(right, (str, list, tuple, dict)):
+            raise TypeError(f"Right operand of 'not in' must be iterable, got {type(right)}")
+        return left not in right
+
+    @v_args(inline=True)
+    def matches_op(self, left, right):
+        import re
+        return bool(re.match(right[1:-1], str(left)))  # Remove /.../ from regex
 
     def true(self, _):
         return True

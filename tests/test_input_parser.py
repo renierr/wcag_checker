@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 import os
+from pprint import pprint
 from src.input_parser import _parse_config_file, parse_inputs
 
 
@@ -41,7 +42,7 @@ class TestParseConfigFile(unittest.TestCase):
 
             inputs = ['input1', f'config:{f.name}', 'input3']
             result = parse_inputs(inputs)
-            print(result)
+            pprint(result)
 
         os.unlink(f.name)
         os.unlink(include_f.name)
@@ -54,7 +55,7 @@ class TestParseConfigFile(unittest.TestCase):
             f.flush()
 
             result = _parse_config_file(f.name)
-            print(result)
+            pprint(result)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['type'], 'action')
             self.assertEqual(result[0]['name'], 'wait')
@@ -72,7 +73,7 @@ class TestParseConfigFile(unittest.TestCase):
                 @script: {
                     console.log("This is a test script");
                     const x = 5;
-                    
+                    const y = {};
                 }
             }
             """
@@ -81,13 +82,13 @@ class TestParseConfigFile(unittest.TestCase):
             f.flush()
 
             result = _parse_config_file(f.name)
-            print(result)
+            pprint(result)
 
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['type'], 'if')
             self.assertEqual(result[0]['name'], 'if')
-            self.assertEqual(result[0]['params'][0], 'condition')
-            self.assertIsInstance(result[0]['params'][1], list)
+            self.assertIsInstance(result[0]['actions'], list)
+            self.assertEqual(len(result[0]['actions']), 3)
 
         os.unlink(f.name)
 

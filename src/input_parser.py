@@ -20,7 +20,10 @@ grammar = r"""
     params: single_line_params | params_block
     single_line_params: VALUE
     params_block: "{" block_content "}"
-    block_content: (BLOCK_TEXT | NEWLINE)*
+    block_content: balanced_content*
+    balanced_content: BLOCK_TEXT | nested_braces | NEWLINE
+    nested_braces: "{" balanced_content* "}"
+
     condition: VALUE
     
     NAME: /[a-zA-Z_]\w*/
@@ -93,15 +96,26 @@ class ActionTransformer(Transformer):
         result_parts = []
         for item in items:
             if item is not None:
-                # Handle Token objects directly
                 if hasattr(item, 'type') and item.type == 'NEWLINE':
                     result_parts.append('\n')
                 elif hasattr(item, 'value'):
                     result_parts.append(str(item.value))
                 else:
                     result_parts.append(str(item))
-
         return ''.join(result_parts).strip()
+
+    @v_args(inline=True)
+    def balanced_content(self, content):
+        return content
+
+    @v_args(inline=True)
+    def nested_braces(self, *contents):
+        result = '{'
+        for content in contents:
+            if content is not None:
+                result += str(content)
+        result += '}'
+        return result
 
     @v_args(inline=True)
     def condition(self, value):

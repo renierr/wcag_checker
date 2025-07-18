@@ -71,11 +71,12 @@ class ActionTransformer(Transformer):
 
         # use context from _parse_config_file
         if hasattr(self, '_context') and self._context:
-            logger.debug(f"Parser: Processing include action for file: {filename}")
+            logger.info(f"Parser: Processing include action for file: {filename}")
             current_file_path = Path(self._context['current_file'])
             basedir = current_file_path.parent
+            logger.debug(f"Parser: Base directory for includes: {basedir}")
             include_path = basedir / filename
-            included_actions = _parse_config_file(str(include_path), self._context)
+            included_actions = _parse_config_file(include_path, self._context)
             return included_actions
         else:
             # Fallback to normal action syntax
@@ -139,12 +140,15 @@ class ActionTransformer(Transformer):
         return str(item)
 
 # --- Parser ---
-def _parse_config_file(file_path, context=None):
+def _parse_config_file(file_path: Path, context=None):
+    file_path = file_path.resolve()
     if context is None:
         context = {
             'visited_files': set(),
             'current_file': file_path,
         }
+    else:
+        context['current_file'] = file_path
 
     if file_path in context['visited_files']:
         logger.warning(f"Parser: File {file_path} already visited. Skipping to avoid circular reference.")
@@ -206,7 +210,7 @@ def parse_inputs(inputs: list[str]) -> list[dict]:
         if isinstance(input_check, str) and input_check.startswith("config:"):
             config_file = input_check.replace("config:", "")
             logger.info(f"Reading inputs from config file: {config_file}")
-            parsed_inputs.extend(_parse_config_file(config_file))
+            parsed_inputs.extend(_parse_config_file(Path(config_file)))
         else:
             parsed_inputs.append({ 'type': 'url', 'url': input_check.strip() })
     return parsed_inputs

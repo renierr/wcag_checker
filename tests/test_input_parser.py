@@ -1,6 +1,7 @@
 import unittest
 import tempfile
 import os
+from pathlib import Path
 from pprint import pprint
 from src.input_parser import _parse_config_file, parse_inputs
 
@@ -57,7 +58,7 @@ class TestParseConfigFile(unittest.TestCase):
             f.write('@navigate: /laldl/ede${myvar}')
             f.flush()
 
-            result = _parse_config_file(f.name)
+            result = _parse_config_file(Path(f.name))
             pprint(result)
             self.assertEqual(len(result), 1)
             self.assertEqual(result[0]['type'], 'action')
@@ -89,7 +90,7 @@ class TestParseConfigFile(unittest.TestCase):
             f.write(test)
             f.flush()
 
-            result = _parse_config_file(f.name)
+            result = _parse_config_file(Path(f.name))
             pprint(result)
 
             self.assertEqual(len(result), 2)
@@ -111,10 +112,33 @@ class TestParseConfigFile(unittest.TestCase):
             f.write('')
             f.flush()
 
-            result = _parse_config_file(f.name)
+            result = _parse_config_file(Path(f.name))
             self.assertEqual(result, [])
 
         os.unlink(f.name)
+
+    def test_includes(self):
+        """Test parsing includes"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as include_f:
+            inc_content = """
+            @navigate: /lalal/eeee
+            @wait: 4
+            @include: ../another_include.txt
+            """
+            include_f.write(inc_content)
+            include_f.flush()
+
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            includename_only = os.path.basename(include_f.name)
+            fcontent = f"""
+            @navigate: /lalal/fgrg
+            @click: #button
+            @include: {includename_only}
+            """
+            f.write(fcontent)
+            f.flush()
+            result = _parse_config_file(Path(f.name))
+            pprint(result)
 
 if __name__ == '__main__':
     unittest.main()

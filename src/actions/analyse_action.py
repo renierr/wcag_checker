@@ -24,7 +24,7 @@ tabpath_checker = None
 @register_action("analyse")
 def analyse_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> dict | None:
     """
-    Syntax: `@analyse` or `@analyse "My page Title"` or `@analyse <context selector>`
+    Syntax: `@analyse` or `@analyse: "My page Title"`
 
     Triggers an analysis of the current page (e.g., WCAG or contrast check).
     With the default runner and configuration set on startup.
@@ -33,15 +33,13 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, action: dict) ->
     ```
     Optionally, you can pass a parameter.
 
-    Where text in brackets `"My page Title"` is used as the title in the report.
+    Where text in brackets `"My page Title"` is used as the page title in the report.
 
-    Or a context CSS selector what on the page should be analysed.
     """
     global input_idx
 
     param: str | None = action.get("params", None)
     input_idx += 1
-    logger.info(f"[{input_idx}] Analysing page '{param if param else 'current'}' with runner '{config.runner.value}'")
     results = []
     screenshots_folder = Path(config.output) / "screenshots"
 
@@ -50,13 +48,15 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, action: dict) ->
         if param.startswith('"') and param.endswith('"') or param.startswith("'") and param.endswith("'"):
             # remove the quotes
             param = param[1:-1]
-            logger.info(f"Page title: {param}")
+            logger.debug(f"Using manual Page title: {param}")
             page_title = param
         else:
             page_title = driver.title
     else:
         # if no param is given, we assume the current page is the one to analyse
         page_title = driver.title
+
+    logger.info(f"[{input_idx}] Analysing page '{page_title}' with runner '{config.runner.value}'")
 
     # take full-pagescreenshot
     full_page_screenshot_path = Path(config.output) / f"{config.mode.value}_{input_idx}_full_page_screenshot.png"
@@ -117,7 +117,7 @@ def analyse_axe_action(config: ProcessingConfig, driver: WebDriver, action: dict
     The `<config>` parameter can be a JSON string with Axe options,
     or it can be omitted to use the default Axe configuration if provided on startup.
     ```
-    @analyse_axe: {axe_rules: ["wcag2aa"]}
+    @analyse_axe: {"context": "#myelement", "axe_rules": ["wcag2aa"]}
     ```
     """
     return _analyse_runner(Runner.AXE, config, driver, action)
@@ -132,7 +132,7 @@ def analyse_contrast_action(config: ProcessingConfig, driver: WebDriver, action:
     The `<config>` parameter can be a JSON string with Contrast options,
     or it can be omitted to use the default Contrast configuration if provided on startup.
     ```
-    @analyse_contrast: {contrast_threshold: 4.5, selector: "a, button:not([disabled])"}
+    @analyse_contrast: {"contrast_threshold": "4.5", "selector": "a, button:not([disabled])"}
     @analyse_axe: {}
     ```
     """

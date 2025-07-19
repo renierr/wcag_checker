@@ -39,18 +39,34 @@
 @forward
 @back
 @refresh
+@scroll: bottom
+@scroll: #top
+
+# input actions
+@hover: #doc
+@click: #submit
+@input: #doc = Test User
+@click_context: #doc
+@click_double: #top
+@select: #docselect=textarea
+@click: #doc
+@send_key_combination: #doc=<CTRL>+a
+@send_keys: #doc=<CR><LF>Test LALA<CR>
+@select: #docselect=file
+@upload: #doc=example.actions
 
 # screenshots
 @screenshot: test_screen.png
-@screenshot: #top=test_screen_element.png
+@screenshot: #banner=test_screen_element.png
 
 # resizing
 @resize: tablet
 @resize: full
 @resize: 1920x1080
 
+
 # end
-@wait: 3
+@wait: 2
 
 
 

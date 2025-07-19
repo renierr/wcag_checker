@@ -20,9 +20,9 @@ grammar = r"""
     action_block: "{" (action | comment)* "}"
     include_action: "@include:" filename
     
-    params: single_line_params | params_block
+    params: single_line_params | block_params
     single_line_params: SINGLE_LINE_PARAMS
-    params_block: "{" block_content "}"
+    block_params: "{" block_content "}"
     block_content: balanced_content*
     balanced_content: BLOCK_TEXT | nested_braces | NEWLINE
     nested_braces: "{" balanced_content* "}"
@@ -125,7 +125,7 @@ class ActionTransformer(Transformer):
         return str(value).strip()
 
     @v_args(inline=True)
-    def params_block(self, content):
+    def block_params(self, content):
         return content
 
     def block_content(self, items):

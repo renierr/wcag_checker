@@ -65,6 +65,16 @@
 @resize: 1920x1080
 @zoom: 2
 
+@if: true {
+    @log: "This will be executed because the condition is true."
+}
+@elif: false {
+    @log: "This will not be executed because the condition is false."
+}
+@else: {
+    @log: "This will not be executed because the condition is true."
+}
+
 # end
 @wait: 2
 

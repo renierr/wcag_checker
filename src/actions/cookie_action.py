@@ -23,7 +23,7 @@ def cookie_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> 
         logger.warning("No cookie name and value provided.")
         return
 
-    dict_param = parse_param_to_dict(param)
+    dict_param = parse_param_to_dict(param) if param.startswith('{') else None
     if dict_param:
         logger.debug(f"Setting cookie from JSON: {dict_param}")
         # Set the cookie in the browser

@@ -125,7 +125,8 @@ def parse_param_to_dict(param: str | None) -> dict | None:
     try:
         param = param.strip()
         if not param.startswith('{') and not param.endswith('}'):
-            param = '{' + param + '}'
+            logger.warning("JSON Parameter must be a valid JSON object enclosed in {} -> ignored")
+            return None
         # Replace any variables in the JSON string with their values from action_context
         for var_name, var_value in action_context.items():
             param = param.replace(f"${{{var_name}}}", str(var_value))

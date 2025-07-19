@@ -1,0 +1,13 @@
+# Go to an online example page - simple and reliable
+@navigate: https://validator.w3.org/nu
+
+# run all analysis
+@analyse
+@refresh
+@analyse_axe: {"axe_rules": ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }
+@analyse_tab
+@analyse_contrast
+
+
+
+

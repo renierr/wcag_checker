@@ -126,7 +126,7 @@ class ActionTransformer(Transformer):
 
     @v_args(inline=True)
     def block_params(self, content):
-        return content
+        return f"{{{content}}}"
 
     def block_content(self, items):
         result_parts = []

@@ -44,6 +44,10 @@
 @screenshot: test_screen.png
 @screenshot: #top=test_screen_element.png
 
+# resizing
+@resize: tablet
+@resize: full
+@resize: 1920x1080
 
 # end
 @wait: 3

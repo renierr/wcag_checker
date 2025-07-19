@@ -65,6 +65,7 @@
 @resize: 1920x1080
 @zoom: 2
 
+# if statements
 @if: true {
     @log: "from if, This will be executed because the condition is true."
 }

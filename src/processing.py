@@ -151,7 +151,7 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
 
         except Exception as e:
             error_message = str(e).splitlines()[0]
-            logger.error(f"Error processing Action {action}: {error_message}")
+            logger.exception(f"Error processing Action {action}: {error_message}")
             actions_data.append({
                 "action": action,
                 "error": error_message

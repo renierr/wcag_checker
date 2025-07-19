@@ -111,6 +111,7 @@ def forward_action(config: ProcessingConfig, driver: WebDriver, action: dict) ->
     driver.forward()
 
 @register_action("refresh")
+@register_action("reload")
 def refresh_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
     Syntax: `@refresh`

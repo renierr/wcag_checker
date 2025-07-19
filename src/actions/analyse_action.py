@@ -53,12 +53,6 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, action: dict) ->
             logger.info(f"Page title: {param}")
             page_title = param
         else:
-            # build a new config object, copy from existing with the given context selector
-            logger.debug(f"Using context selector: {param}")
-            base_fields = {field.name for field in fields(ProcessingConfig) if field.init}
-            config = ProcessingConfig(
-                **{key: value for key, value in vars(config).items() if key in base_fields and key not in ["context"]},
-                **{"context": param})
             page_title = driver.title
     else:
         # if no param is given, we assume the current page is the one to analyse

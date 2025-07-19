@@ -26,13 +26,11 @@ def screenshot_action(config: ProcessingConfig, driver: WebDriver, action: dict)
         logger.warning("No data to take a screenshot for action @screenshot.")
         return
 
-    print(f"Taking screenshot with params: {param}")
     selector, filename = parse_param_to_key_value(param)
 
     if not param.endswith(".png"):
         param += ".png"
 
-    print(filename)
     screenshot_path = Path(config.output) / "screenshots" / filename
     logger.debug(f"Taking screenshot for '{selector if selector else 'all'}' and saving to {screenshot_path}")
 

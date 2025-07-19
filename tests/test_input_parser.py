@@ -187,6 +187,15 @@ class TestParseConfigFile(unittest.TestCase):
             self.assertEqual(len(result), 5)
             self.mock_logger.warning.assert_called()
 
+    def test_example_actions(self):
+        """Test parsing example actions"""
+        inputs = ['config:../example.actions']
+        result = parse_inputs(inputs)
+        print_result(result)
+
+        self.assertGreater(len(result), 1)
+
+
 def print_result(result):
     """Helper function to print the result in a readable format."""
     print("=" * 80)

@@ -10,7 +10,7 @@ grammar = r"""
     %import common.WS
 
     start: (action | comment)*
-    action: if_action | include_action | simple_action
+    action: if_action | include_action | script_action | simple_action
     
     simple_action: "@" NAME (":" params)?
     if_action: "@if:" condition ":" action_block elif_block* else_block?
@@ -19,6 +19,7 @@ grammar = r"""
 
     action_block: "{" (action | comment)* "}"
     include_action: "@include:" filename
+    script_action: "@script:"(VARIABLE "=" params | params)
     
     params: single_line_params | block_params
     single_line_params: SINGLE_LINE_PARAMS
@@ -32,6 +33,7 @@ grammar = r"""
     comment: COMMENT
 
     NAME: /[a-zA-Z_]\w*/
+    VARIABLE: /[a-zA-Z_]\w*/
     BLOCK_TEXT: /[^{}\n]+/
     COMMENT: /#[^\n]*/
     CONDITION: /[^:{}]+/
@@ -115,6 +117,25 @@ class ActionTransformer(Transformer):
             included_actions = _parse_config_file(include_path, self._context)
             return included_actions
         return {'type': 'include', 'name': 'include', 'params': [filename]}
+
+    @v_args(inline=True)
+    def script_action(self, *args):
+        if len(args) == 1:  # only params provided
+            params = args[0]
+            variable = None
+        elif len(args) == 2:  # both variable and params provided
+            variable, params = args
+        else:
+            variable, params = None, None
+
+        if isinstance(params, str):
+            params = params.strip()
+        return {
+            'type': 'script',
+            'name': 'script',
+            'var': str(variable) if variable else None,
+            'params': params or None
+        }
 
     @v_args(inline=True)
     def params(self, param_value):

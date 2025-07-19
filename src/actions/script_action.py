@@ -33,12 +33,12 @@ def script_action(config: ProcessingConfig, driver: WebDriver, action: dict, con
         return
 
     try:
-        var_name, parsed_param = parse_param_to_key_value(param)
-        logger.debug(f"Executing script: {trim_string_to_length(parsed_param, 70)}")
-        result = driver.execute_script(parsed_param)
+        var_name = action.get("var", None)
+        logger.debug(f"Executing script: {trim_string_to_length(param, 70)}")
+        result = driver.execute_script(param)
         if result is not None and var_name:
             context[var_name] = result
-            logger.debug(f"Script result stored in context: {var_name} = {result}")
+            logger.debug(f"Script result stored in context: {var_name} = {trim_string_to_length(result, 20)}")
     except Exception as e:
         logger.error(f"Error executing script: {e}")
 

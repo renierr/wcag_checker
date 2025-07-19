@@ -32,9 +32,9 @@ class Axe:
             match = version_pattern.search(self.script_data)
             if match:
                 version = match.group(1)
-                logger.info(f"Using Axe version: {version}")
+                logger.info(f"Setup Axe using version: {version}")
             else:
-                logger.warning("Axe version not found in the script.")
+                logger.warning("Setup Axe, version not found in the script.")
         except FileNotFoundError:
             logger.error("Axe script not found. Ensure the axe-core directory is present in the src folder.")
             raise
@@ -74,7 +74,6 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
                screenshots_folder: Path, url_idx: int) -> Path|None:
     global axe
     if axe is None:
-        logger.debug("Setting up axe")
         axe = Axe(driver)
 
     logger.debug(f"Inject axe to url {url_idx}")

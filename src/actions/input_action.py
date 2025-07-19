@@ -52,7 +52,7 @@ special_keys_doc = ", ".join([f"`{key}`" for key in special_chars.keys()])
 @register_action("input")
 def input_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@input <selector>=<text>`
+    Syntax: `@input: <selector>=<text>`
 
     Types the given `<text>` into the input field identified by `<selector>`.
 
@@ -86,7 +86,7 @@ input_action.__doc__ = input_action.__doc__.format(special_keys_doc=special_keys
 @register_action("clear")
 def clear_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@clear <selector>`
+    Syntax: `@clear: <selector>`
 
     Clears the input field identified by the CSS selector `<selector>`.
     ```
@@ -108,7 +108,7 @@ def clear_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> N
 @register_action("select")
 def select_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@select <selector>=<value>`
+    Syntax: `@select: <selector>=<value>`
 
     Selects an option from a dropdown or select element identified by the CSS selector `<selector>`.
     You can specify the option value to select.
@@ -133,7 +133,7 @@ def select_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> 
 @register_action("send_keys")
 def send_keys_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@send_keys <selector>=<keys>`
+    Syntax: `@send_keys: <selector>=<keys>`
 
     Sends keys to the element identified by the CSS selector `<selector>`.
 
@@ -165,7 +165,7 @@ send_keys_action.__doc__ = send_keys_action.__doc__.format(special_keys_doc=spec
 @register_action("send_key_combination")
 def send_key_combination(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@send_key_combination <selector>=<key_combination>` or `@send_key_combination <key_combination>`
+    Syntax: `@send_key_combination: <selector>=<key_combination>` or `@send_key_combination: <key_combination>`
 
     Sends a key combination to the element identified by the CSS selector `<selector>`.
     Or if no selector is provided, it sends the key combination to the active element.

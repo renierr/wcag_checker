@@ -11,7 +11,7 @@ from src.utils import take_fullpage_screenshot
 @register_action("screenshot")
 def screenshot_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@screenshot <filename>=<selector>`
+    Syntax: `@screenshot: <filename>=<selector>`
 
     Takes a screenshot of the current page and saves it with the specified `<filename>`.
     If optional `<selector>` is provided, it will take a screenshot of that specific element.

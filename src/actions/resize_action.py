@@ -16,7 +16,7 @@ PREDEFINED_RESOLUTIONS = {
 @register_action("resize")
 def resize_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@resize <size | predefined | full>`
+    Syntax: `@resize: <size | predefined | full>`
 
     Resizes the browser window to a specific size or view.
     - `size`: Specify a width and height (e.g., `@resize: 1024x768`).

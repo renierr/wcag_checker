@@ -7,7 +7,7 @@ from src.logger_setup import logger
 @register_action("var")
 def var_action(config: ProcessingConfig, driver: WebDriver, action: dict, context: dict) -> None:
     """
-    Syntax: `@var <name>=<value>`
+    Syntax: `@var: <name>=<value>`
 
     Sets a variable in the context dictionary with the specified name and value.
     In appropriate actions you can use these variables with the syntax `${name}`.

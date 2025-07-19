@@ -12,7 +12,7 @@ from src.utils import call_url
 @register_action("scroll")
 def scroll_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@scroll <direction>` or `@scroll <selector>`
+    Syntax: `@scroll: <direction>` or `@scroll: <selector>`
 
     Scrolls the page in a specific direction (top, bottom, left, right) or
     to a specific element identified by a CSS selector `<selector>`.
@@ -43,7 +43,7 @@ def scroll_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> 
 @register_action("navigate")
 def navigate_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@navigate <url>`
+    Syntax: `@navigate: <url>`
 
     Navigates to the specified `<url>`.
     ```
@@ -65,7 +65,7 @@ def navigate_action(config: ProcessingConfig, driver: WebDriver, action: dict) -
 @register_action("hover")
 def hover_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@hover <selector>`
+    Syntax: `@hover: <selector>`
 
     Hovers over the element identified by the CSS selector `<selector>`.
     ```

@@ -7,7 +7,7 @@ from src.logger_setup import logger
 @register_action("cookie")
 def cookie_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@cookie <name>=<value>` or `@cookie {"name": "<name>", "value": "<value>"}`
+    Syntax: `@cookie: <name>=<value>` or `@cookie: {"name": "<name>", "value": "<value>"}`
 
     Sets a cookie in the browser with the specified name and value.
     ```

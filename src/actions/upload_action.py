@@ -10,7 +10,7 @@ from src.logger_setup import logger
 @register_action("upload")
 def upload_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@upload <selector>=<file_path>`
+    Syntax: `@upload: <selector>=<file_path>`
 
     Uploads a file to the input field identified by the CSS selector `<selector>`.
     ```

@@ -11,7 +11,7 @@ from src.utils import wait_page_loaded
 @register_action("click")
 def click_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@click <selector>`
+    Syntax: `@click: <selector>`
 
     Clicks the element identified by the CSS selector `<selector>`.
     ```
@@ -33,7 +33,7 @@ def click_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> N
 @register_action("click_double")
 def click_double_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@click_double <selector>`
+    Syntax: `@click_double: <selector>`
 
     Double-Clicks the element identified by the CSS selector `<selector>`.
     ```
@@ -55,7 +55,7 @@ def click_double_action(config: ProcessingConfig, driver: WebDriver, action: dic
 @register_action("click_context")
 def click_context_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@click_context <selector>`
+    Syntax: `@click_context: <selector>`
 
     Right Click (context) the element identified by the CSS selector `<selector>`.
     ```

@@ -45,3 +45,33 @@ def resize_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> 
         logger.error(f"Invalid size format for resize action: {param}. Expected format is 'widthxheight' or named 'view | full'. Error: {e}")
     except Exception as e:
         logger.error(f"Error resizing browser window: {e}")
+
+@register_action("zoom")
+def zoom_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
+    """
+    Syntax: `@zoom: <factor>`
+
+    Zooms the browser window to a specific factor.
+    - `factor`: Specify a zoom factor (e.g., `@zoom: 1.5` for 150% zoom) or percentage with % char at the end.
+    ```
+    @zoom: 1.5
+    ```
+    """
+    param : str | None = action.get("params", None)
+    if not param:
+        logger.error("Zoom action requires a zoom factor parameter.")
+        return
+
+    try:
+        if param.endswith('%'):
+            factor = float(param[:-1]) / 100.0
+        else:
+            factor = float(action.get("params", 1.0))
+
+        driver.execute_script(f"document.body.style.zoom = '{factor}';")
+        logger.debug(f"Zoomed browser window to {factor * 100}%.")
+    except ValueError as e:
+        logger.error(f"Invalid zoom factor: {param}. Expected a number. Error: {e}")
+    except Exception as e:
+        logger.error(f"Error zooming browser window: {e}")
+

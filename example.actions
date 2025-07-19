@@ -63,7 +63,7 @@
 @resize: tablet
 @resize: full
 @resize: 1920x1080
-
+@zoom: 2
 
 # end
 @wait: 2

@@ -86,7 +86,10 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
     }
 
     if config.axe_rules:
-        rules = [rule.strip() for rule in config.axe_rules.split(",")]
+        if isinstance(config.axe_rules, str):
+            rules = [rule.strip() for rule in config.axe_rules.split(",")]
+        else:
+            rules = [rule.strip() for rule in config.axe_rules]
         logger.debug(f"Setting axe rules: {rules}")
         options["runOnly"] = dict(type="tag", values=rules)  # type: ignore
     axe_data = axe.run(context=config.context, options=options)

@@ -51,7 +51,9 @@ def zoom_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> No
     """
     Syntax: `@zoom: <factor>`
 
-    Zooms the browser window to a specific factor.
+    Zooms the Page to a specific factor.
+    Be aware that a reload or navigation reset the zoom level.
+
     - `factor`: Specify a zoom factor (e.g., `@zoom: 1.5` for 150% zoom) or percentage with % char at the end.
     ```
     @zoom: 1.5

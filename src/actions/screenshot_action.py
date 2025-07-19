@@ -11,7 +11,7 @@ from src.utils import take_fullpage_screenshot
 @register_action("screenshot")
 def screenshot_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@screenshot: <filename>=<selector>`
+    Syntax: `@screenshot: [<selector>=]<filename>`
 
     Takes a screenshot of the current page and saves it with the specified `<filename>`.
     If optional `<selector>` is provided, it will take a screenshot of that specific element.
@@ -26,13 +26,13 @@ def screenshot_action(config: ProcessingConfig, driver: WebDriver, action: dict)
         logger.warning("No data to take a screenshot for action @screenshot.")
         return
 
-    parts = parse_param_to_key_value(param)
-    filename = parts[0]
-    selector = parts[1] if len(parts) > 1 else None
+    print(f"Taking screenshot with params: {param}")
+    selector, filename = parse_param_to_key_value(param)
 
     if not param.endswith(".png"):
         param += ".png"
 
+    print(filename)
     screenshot_path = Path(config.output) / "screenshots" / filename
     logger.debug(f"Taking screenshot for '{selector if selector else 'all'}' and saving to {screenshot_path}")
 

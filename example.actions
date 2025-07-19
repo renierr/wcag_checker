@@ -3,10 +3,50 @@
 
 # run all analysis
 @analyse
-@refresh
-@analyse_axe: {"axe_rules": ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"] }
+# axe with context restriction and another rule set
+@analyse_axe: {
+    "context": "#top",
+    "axe_rules": ["wcag2a", "wcag2aa"]
+}
 @analyse_tab
 @analyse_contrast
+
+# example script
+@script: {
+    console.log("Running custom script...");
+}
+
+# variables
+@var: my_var = "Hello, World!"
+
+# script with variable assignment from result
+@script: my_script_var = {
+    return "Hello, Script World!";
+}
+@script: my_script_var3 = { return "Hello, Script World 2!"; }
+@log: "${my_script_var}"
+
+# cookies
+@cookie: mycook=value1
+@cookie: {"name": "mycook2", "value": "value2"}
+
+# wait 1 second
+@wait: 1
+
+# page navigation
+@navigate: /test.html
+@back
+@forward
+@back
+@refresh
+
+# screenshots
+@screenshot: test_screen.png
+@screenshot: #top=test_screen_element.png
+
+
+# end
+@wait: 3
 
 
 

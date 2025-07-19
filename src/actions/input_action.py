@@ -46,6 +46,9 @@ special_chars = {
     "<INSERT>": Keys.INSERT,
     "<SPACE>": Keys.SPACE,
     "<PLUS>": Keys.ADD,
+    "<ADD>": Keys.ADD,
+    "<MINUS>": Keys.SUBTRACT,
+    "<SUBTRACT>": Keys.SUBTRACT,
 }
 special_keys_doc = ", ".join([f"`{key}`" for key in special_chars.keys()])
 

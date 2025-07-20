@@ -67,12 +67,17 @@ There are {{json_data.total_inputs}} pages in total.
 
 {% include 'markdown_config_output_template.md' %}
 
-{% if input_data.last_action or input_data.action %}
-**Last Actions executed:**
+{% if config.debug and input_data.action %}
+<section>
+<details>
+<summary>Action executed</summary>
+
 ```json
-{{ input_data.last_action | default('')  }}
 {{ input_data.action | default('') }}
 ```
+
+</details>
+</section>
 {% endif %}
 
 {% if input_data.title %}

@@ -116,7 +116,6 @@ def check_run(config: ProcessingConfig) -> None:
 
 def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[dict]) -> list:
     actions_data = []
-    last_action = None
     for action_idx, action in enumerate(actions):
         if action is None:
             logger.warning("Empty action found, skipping.")
@@ -132,15 +131,12 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
                 call_url(driver, url)
                 entry = analyse_action(config, driver, {'type': 'action', 'name': 'analyse'})
                 if entry:
-                    last_action = "direct url analyse for: " + url
-                    entry["action"] = last_action
+                    entry["action"] = "direct url analyse for: " + url
                     actions_data.append(entry)
             else:
                 entry = handle_action(config, driver, action)
                 if entry:
                     if isinstance(entry, dict):
-                        if last_action:
-                            entry["last_action"] = last_action
                         entry["action"] = json.dumps(action, indent=2)
                         actions_data.append(entry)
                     elif isinstance(entry, list):
@@ -148,7 +144,6 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
                         actions_data.extend(_execute_actions(config, driver, entry))
                     else:
                         raise ValueError(f"Unexpected item in action result data: {entry}")
-                last_action = json.dumps(action, indent=2)
 
         except Exception as e:
             error_message = str(e).splitlines()[0]

@@ -3,6 +3,7 @@
 - **Runner:** {{input_data.config.runner}}
 {% if input_data.config.runner|string == "axe" %}
 - **Axe Rules:** {{input_data.config.axe_rules}}
+- **Axe Context:** {{input_data.config.context}}
 {% elif input_data.config.runner|string == "contrast" %}
 - **Contrast Threshold:** {{input_data.config.contrast_threshold}}
 - **Selector:** `{{input_data.config.selector}}`

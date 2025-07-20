@@ -132,28 +132,29 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
                 call_url(driver, url)
                 entry = analyse_action(config, driver, {'type': 'action', 'name': 'analyse'})
                 if entry:
+                    last_action = "direct url analyse for: " + url
+                    entry["action"] = last_action
                     actions_data.append(entry)
-                last_action = "direct url analyse for: " + url
             else:
                 entry = handle_action(config, driver, action)
                 if entry:
                     if isinstance(entry, dict):
                         if last_action:
                             entry["last_action"] = last_action
-                        entry["action"] = str(action)
+                        entry["action"] = json.dumps(action, indent=2)
                         actions_data.append(entry)
                     elif isinstance(entry, list):
                         # if the action returns a list of entries, thread them as actions to be executed
                         actions_data.extend(_execute_actions(config, driver, entry))
                     else:
                         raise ValueError(f"Unexpected item in action result data: {entry}")
-                last_action = str(action)
+                last_action = json.dumps(action, indent=2)
 
         except Exception as e:
             error_message = str(e).splitlines()[0]
             logger.exception(f"Error processing Action {action}: {error_message}")
             actions_data.append({
-                "action": action,
+                "action": json.dumps(action, indent=2),
                 "error": error_message
             })
             if config.debug:

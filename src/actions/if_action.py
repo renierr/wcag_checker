@@ -7,13 +7,13 @@ from src.config import ProcessingConfig
 @register_action("if")
 def if_action(config: ProcessingConfig, driver: WebDriver, action: dict, context: dict) -> list | None:
     """
-    Syntax: `@if: <condition> { <actions> }`
+    Syntax: `@if <condition> { <actions> }`
 
     optional syntax in addition to the if action (can not be used alone, only with if):
 
-    `@elif: <condition> { <actions> }`
+    `@elif <condition> { <actions> }`
 
-    `@else: { <actions> }`
+    `@else { <actions> }`
 
     Conditional action that executes a block of actions based on a condition.
     The condition is a string that can be evaluated to determine if the actions should be executed.
@@ -24,15 +24,15 @@ def if_action(config: ProcessingConfig, driver: WebDriver, action: dict, context
 
     More complete example:
     ```
-    @if: "my_condition" {
+    @if "my_condition" {
         @navigate: "/dashboard"
         @analyse_axe: {"context": "#dashboard"}
     }
-    @elif: "another_condition" {
+    @elif "another_condition" {
         @navigate: "/settings"
         @wait: 2
     }
-    @else: {
+    @else {
         @navigate: "/home"
         @analyse
     }

@@ -42,7 +42,7 @@ class TestParseConfigFile(unittest.TestCase):
             @click: #button
             @include: {include_f.name}
             @analyse_axe: {{"context": "test_context"}}
-            @if: "condition" {{
+            @if "condition" {{
                 @test
                 @include: {include_f.name}
                 @kkk
@@ -140,7 +140,7 @@ class TestParseConfigFile(unittest.TestCase):
             
             # comment1
             @var: myvar=5
-            @if: myvar == 5 {
+            @if myvar == 5 {
                 @navigate: "param2"
                 @analyse
                 @script: {
@@ -150,17 +150,17 @@ class TestParseConfigFile(unittest.TestCase):
                     const z = ${myvar};
                 }
             }
-            @elif: myvar == 1 {
+            @elif myvar == 1 {
                 @navigate: "/login"
                 @wait: 2
             }
-            @elif: myvar == "5" {
+            @elif myvar == "5" {
                 @navigate: "/admin"
                 
                 # comment2
                 @analyse_axe: {"context": "admin_panel"}
             }
-            @else: {
+            @else {
                 @navigate: "/home"
                 @script: {
                     console.log("Default behavior");

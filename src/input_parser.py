@@ -13,9 +13,9 @@ grammar = r"""
     action: if_action | include_action | script_action | simple_action | url
     
     simple_action: "@" NAME (":" params)?
-    if_action: "@if:" condition action_block elif_block* else_block?
-    elif_block: "@elif:" condition action_block
-    else_block: "@else:" action_block
+    if_action: "@if" condition action_block elif_block* else_block?
+    elif_block: "@elif" condition action_block
+    else_block: "@else" action_block
 
     action_block: "{" (action | comment)* "}"
     include_action: "@include:" filename

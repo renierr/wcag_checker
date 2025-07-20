@@ -66,13 +66,13 @@
 @zoom: 2
 
 # if statements
-@if: true {
+@if true {
     @log: "from if, This will be executed because the condition is true."
 }
-@elif: false {
+@elif false {
     @log: "from elif, This will not be executed because the condition is false."
 }
-@else: {
+@else {
     @log: "from else, This will not be executed because the condition is true."
 }
 

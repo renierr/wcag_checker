@@ -27,17 +27,31 @@ There are {{json_data.total_inputs}} pages in total.
     {%- endif %}
 {%- endmacro %}
 
+{% macro page_navigation(loop) -%}
+    {% if loop.index > 1 -%}
+    [⬅️ Prev ({{loop.index - 1}})](#page-{{loop.index - 1}})
+    {%- endif -%}
+    {%- if loop.index < loop.length -%}
+    {%- if loop.index > 1 %} | {% endif -%}
+    [➡️ Next ({{loop.index + 1}})](#page-{{loop.index + 1}})
+    {%- endif %}
+{%- endmacro %}
+
 {% if json_data.total_inputs > 0 %}**Page Overview:**{% endif %}  
 {% for input_data in json_data.inputs -%}
 {% set violations = input_data.results | count_violations %}
 - {{ status_icon(input_data, violations) }} [{{ loop.index }}: {{ input_data.title if input_data.title else "Page " ~ loop.index }}](#page-{{input_data.index}}) ({{ violations }} violations)
 {% endfor %}
 
+---
+
 {% for input_data in json_data.inputs -%}
 {% set violations = input_data.results | count_violations %}
 
 <a name="page-{{loop.index}}"></a>
-### {{ status_icon(input_data, violations) }} Page ({{loop.index}} / {{loop.length}}): {{ input_data.title }} ({{ violations }} violations):
+{{ page_navigation(loop) }}
+
+### {{ status_icon(input_data, violations) }} Page ({{loop.index}} / {{loop.length}} → {{ violations }} violations): {{ input_data.title }}
 
 {% if "error" in input_data %}
 **Error:**
@@ -71,14 +85,6 @@ There are {{json_data.total_inputs}} pages in total.
 {% if violations > 0 %}
 **Violations count for this URL:** {{ violations }}
 {% endif %}
-
-{% if loop.index > 1 -%}
-[⬅️ Prev ({{loop.index - 1}})](#page-{{loop.index - 1}})
-{%- endif -%}
-{%- if loop.index < json_data.total_inputs -%}
-{%- if loop.index > 1 %} | {% endif -%}
-[Next ({{loop.index + 1}}) ➡️](#page-{{loop.index + 1}})
-{%- endif %}
 
 {% if input_data.config.runner|string == "axe" %}
 {% include 'markdown_results_include_axe.md' %}

@@ -53,6 +53,11 @@ There are {{json_data.total_inputs}} pages in total.
 
 ### {{ status_icon(input_data, violations) }} Page ({{loop.index}} / {{loop.length}} → {{ violations }} violations): {{ input_data.title }}
 
+{% if input_data.url %}
+[Link to url]({{input_data.url}})
+{{input_data.url}}
+{% endif %}
+
 {% if "error" in input_data %}
 **Error:**
 ```json
@@ -62,10 +67,6 @@ There are {{json_data.total_inputs}} pages in total.
 
 {% include 'markdown_config_output_template.md' %}
 
-{% if input_data.url %}
-[Link to url]({{input_data.url}})
-{{input_data.url}}
-{% endif %}
 {% if input_data.last_action %}
 **Last Action:** 
 ```json
@@ -80,10 +81,6 @@ There are {{json_data.total_inputs}} pages in total.
 {% endif %}
 {% if input_data.title %}
 **Title:** {{ input_data.title }}
-{% endif %}
-{% set violations = input_data.results | count_violations %}
-{% if violations > 0 %}
-**Violations count for this URL:** {{ violations }}
 {% endif %}
 
 {% if input_data.config.runner|string == "axe" %}

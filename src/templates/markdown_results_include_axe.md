@@ -48,7 +48,7 @@ No violations found.
 </section>
 {% endif %}
 
-{% endfor -%}
+{% endfor %}
 
 ---
 {% endfor %}

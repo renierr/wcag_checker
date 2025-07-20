@@ -17,15 +17,27 @@ The tool also provides a screenshot of the element for better visualization. As 
 ## Results
 There are {{json_data.total_inputs}} pages in total.
 
+{% macro status_icon(input_data, violations) -%}
+    {%- if "error" in input_data -%}
+        ❌
+    {%- elif violations > 0 -%}
+        ⚠️
+    {%- else -%}
+        ✅
+    {%- endif %}
+{%- endmacro %}
+
 {% if json_data.total_inputs > 0 %}**Page Overview:**{% endif %}  
 {% for input_data in json_data.inputs -%}
 {% set violations = input_data.results | count_violations %}
-- {% if "error" in input_data %}❌{% elif violations > 0 %}⚠️{% else %}✅{% endif %} [{{ loop.index }}: {{ input_data.title if input_data.title else "Page " ~ loop.index }}](#page-{{input_data.index}}) ({{ violations }} violations)
+- {{ status_icon(input_data, violations) }} [{{ loop.index }}: {{ input_data.title if input_data.title else "Page " ~ loop.index }}](#page-{{input_data.index}}) ({{ violations }} violations)
 {% endfor %}
 
 {% for input_data in json_data.inputs -%}
+{% set violations = input_data.results | count_violations %}
+
 <a name="page-{{loop.index}}"></a>
-### Page ({{loop.index}} / {{json_data.total_inputs}}):
+### {{ status_icon(input_data, violations) }} Page ({{loop.index}} / {{loop.length}}): {{ input_data.title }} ({{ violations }} violations):
 
 {% if "error" in input_data %}
 **Error:**

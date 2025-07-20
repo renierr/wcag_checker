@@ -69,7 +69,6 @@ class TestParseConfigFile(unittest.TestCase):
         os.unlink(f.name)
         os.unlink(include_f.name)
 
-
     def test_parse_simple_action(self):
         """Test parsing a simple action"""
         with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
@@ -85,6 +84,48 @@ class TestParseConfigFile(unittest.TestCase):
             self.assertEqual(result[0]['type'], 'action')
             self.assertEqual(result[0]['name'], 'navigate')
             self.assertIn('?', result[0]['params'])
+
+        os.unlink(f.name)
+
+    def test_parse_action_block_param(self):
+        """Test parsing a simple action with block param"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            content = """
+                @navigate: {
+                    http://improve-e2e.hype.qs/login?/servlet/hype
+                    # some stuff should be left inside
+                    @lala
+                }
+            """
+            f.write(content)
+            f.flush()
+
+            result = _parse_config_file(Path(f.name))
+            print_result(result)
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]['type'], 'action')
+            self.assertEqual(result[0]['name'], 'navigate')
+            self.assertIn('?', result[0]['params'])
+
+        os.unlink(f.name)
+
+    def test_parse_url(self):
+        """Test parsing a url"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            content = """
+                /this/is/a/url
+                
+                # comment ignored and another url
+                http://example.com?a=b&b=c#ff@de
+            """
+            f.write(content)
+            f.flush()
+
+            result = _parse_config_file(Path(f.name))
+            print_result(result)
+            self.assertEqual(len(result), 2)
+            self.assertEqual(result[0]['type'], 'url')
+            self.assertEqual(result[1]['type'], 'url')
 
         os.unlink(f.name)
 

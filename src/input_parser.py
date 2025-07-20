@@ -10,7 +10,7 @@ grammar = r"""
     %import common.WS
 
     start: (action | comment)*
-    action: if_action | include_action | script_action | simple_action
+    action: if_action | include_action | script_action | simple_action | url
     
     simple_action: "@" NAME (":" params)?
     if_action: "@if:" condition action_block elif_block* else_block?
@@ -20,6 +20,7 @@ grammar = r"""
     action_block: "{" (action | comment)* "}"
     include_action: "@include:" filename
     script_action: "@script:"(VARIABLE "=" params | params)
+    url: URL
     
     params: single_line_params | block_params
     single_line_params: SINGLE_LINE_PARAMS
@@ -39,6 +40,7 @@ grammar = r"""
     CONDITION: /[^:{}]+/
     FILENAME: /[^\n]+/
     SINGLE_LINE_PARAMS: /[^\n]+/
+    URL: /((\/)|((https?):\/\/))[^ \t\n#@{}]+/
     
     %ignore WS
 """
@@ -62,6 +64,10 @@ class ActionTransformer(Transformer):
     @v_args(inline=True)
     def simple_action(self, name, params=None):
         return {'type': 'action', 'name': str(name), 'params': params or None}
+
+    @v_args(inline=True)
+    def url(self, value):
+        return {'type': 'url', 'name': 'url', 'url': value or None}
 
     def if_action(self, items):
         condition = items[0]
@@ -211,6 +217,11 @@ class ActionTransformer(Transformer):
     def NEWLINE(self, item):
         return '\n'
 
+    @v_args(inline=True)
+    def URL(self, item):
+        return str(item)
+
+
 # --- Parser ---
 def _parse_config_file(file_path: Path, context: dict | None = None, max_depth: int = 20 ) -> list[dict]:
     """
@@ -299,6 +310,6 @@ def parse_inputs(inputs: list[str]) -> list[dict]:
             logger.info(f"Reading inputs from config file: {config_file}")
             parsed_inputs.extend(_parse_config_file(Path(config_file)))
         else:
-            parsed_inputs.append({ 'type': 'url', 'url': input_check.strip() })
+            parsed_inputs.append({ 'type': 'url', 'name': 'url', 'url': input_check.strip() })
     return parsed_inputs
 

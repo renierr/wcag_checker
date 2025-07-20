@@ -76,6 +76,9 @@
     @log: "from else, This will not be executed because the condition is true."
 }
 
+# normal lines without an @ at the front are url to navigate and analyse directly
+/nu/about.html
+
 # end
 @wait: 2
 

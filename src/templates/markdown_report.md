@@ -67,18 +67,14 @@ There are {{json_data.total_inputs}} pages in total.
 
 {% include 'markdown_config_output_template.md' %}
 
-{% if input_data.last_action %}
-**Last Action:** 
+{% if input_data.last_action or input_data.action %}
+**Last Actions executed:**
 ```json
-{{ input_data.last_action }}
+{{ input_data.last_action | default('')  }}
+{{ input_data.action | default('') }}
 ```
 {% endif %}
-{% if input_data.action %}
-**Action:**
-```json
-{{ input_data.action }}
-```
-{% endif %}
+
 {% if input_data.title %}
 **Title:** {{ input_data.title }}
 {% endif %}

@@ -68,5 +68,13 @@ class TestVariables(unittest.TestCase):
         self.assertEqual("key", key)
         self.assertEqual("Alice", value)
 
+    def test_var_action_setting(self):
+        """Test setting a variable in the context"""
+        from src.actions.variables_action import var_action
+        action = {"params": "my.variable=my_value"}
+        var_action(None, None, action, self.context)
+        print(self.context)
+        self.assertEqual(self.context["my"]["variable"], "my_value")
+
 if __name__ == '__main__':
     unittest.main()

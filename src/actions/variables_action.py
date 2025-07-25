@@ -26,8 +26,13 @@ def var_action(config: ProcessingConfig, driver: WebDriver, action: dict, contex
         return
 
     name, value = parse_param_to_key_value(param)
-    value = value.strip()
-    name = name.strip()
     logger.debug(f"Setting variable: {name}={value}")
-    # Store the variable in the context dictionary
-    context[name] = value
+
+    # Handle nested variable names
+    keys = name.split(".")
+    current = context
+    for key in keys[:-1]:
+        if key not in current or not isinstance(current[key], dict):
+            current[key] = {}
+        current = current[key]
+    current[keys[-1]] = value

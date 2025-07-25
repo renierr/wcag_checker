@@ -52,6 +52,9 @@ class ActionRegistry:
             setting_var(action_context, "current.action_name", action_name)
             setting_var(action_context, "current.action", action)
             setting_var(action_context, "current.page.title", driver.title)
+            setting_var(action_context, "current.page.url", driver.current_url)
+            setting_var(action_context, "current.config", config)
+
 
             action_func = self._actions[action_name]
             if "context" in action_func.__code__.co_varnames:

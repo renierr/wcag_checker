@@ -419,7 +419,7 @@ def resolve_var(context: dict, text: str) -> str:
         logger.error(f"Error resolving variables in text: {e}")
         return text
 
-def setting_var(context: dict, name: str, value: str | dict) -> None:
+def setting_var(context: dict, name: str, value: str | dict | object) -> None:
     """
     Set a variable in the context dictionary with the specified name and value.
     Supports nested variable names using dot-separated keys.

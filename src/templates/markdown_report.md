@@ -60,9 +60,24 @@ There are {{json_data.total_inputs}} pages in total.
 
 {% if "error" in input_data %}
 **Error:**
+
+```text
+{{ input_data.error | default('') }}
+```
+
+{% if config.debug %}
+<section>
+<details>
+<summary>Error JSON</summary>
+
 ```json
 {{ input_data }}
 ```
+
+</details>
+</section>
+{% endif %}
+
 {% else %}
 
 {% include 'markdown_config_output_template.md' %}

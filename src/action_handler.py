@@ -64,7 +64,7 @@ class ActionRegistry:
             setting_var(action_context, "current.action", action)
             setting_var(action_context, "current.page.title", driver.title)
             setting_var(action_context, "current.page.url", driver.current_url)
-            setting_var(action_context, "current.config", config)
+            setting_var(action_context, "config", config)
             setting_var(action_context, "browser.size", driver.get_window_size())
 
 

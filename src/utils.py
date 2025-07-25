@@ -397,13 +397,19 @@ def resolve_var(context: dict, text: str) -> str:
                 return None
         return d
 
+    resolved_vars = set()
     try:
         while "${" in text and "}" in text:
             start = text.index("${") + 2
             end = text.index("}", start)
             var_name = text[start:end]
+
+            if var_name in resolved_vars:
+                break
+
             keys = var_name.split(".")
             value = get_nested_value(context, keys)
+            resolved_vars.add(var_name)
             text = text.replace(f"${{{var_name}}}", str(value) if value is not None else "")
         return text
     except Exception as e:

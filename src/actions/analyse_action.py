@@ -9,7 +9,7 @@ from src.logger_setup import logger
 from src.runner_axe import runner_axe
 from src.runner_contrast import runner_contrast
 from src.runner_tab import runner_tab
-from src.utils import take_fullpage_screenshot
+from src.utils import take_fullpage_screenshot, count_violations
 
 runner_function_map = {
     Runner.AXE: runner_axe,
@@ -69,6 +69,10 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, action: dict) ->
         raise ValueError(f"Invalid runner: {config.runner}")
     full_page_screenshot_path_outline = runner_function(config, driver, results, screenshots_folder, input_idx)
 
+    # check for violations
+    violations = count_violations(results)
+    logger.info(f"Analyse found {violations} Violations on page '{page_title}'")
+
     # save results
     browser_width, browser_height = driver.get_window_size().values()
     entry = {
@@ -78,7 +82,9 @@ def analyse_action(config: ProcessingConfig, driver: WebDriver, action: dict) ->
         "results": results,
         "title": page_title if 'page_title' in locals() else None,
         "browser_width": browser_width,
-        "browser_height": browser_height
+        "browser_height": browser_height,
+        "violations": violations,
+        "failed": violations > 0,
     }
     if full_page_screenshot_path:
         entry["screenshot"] = full_page_screenshot_path.as_posix()

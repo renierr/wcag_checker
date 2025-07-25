@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from src.config import Config
-from src.utils import create_color_span, get_embedded_file_path
+from src.utils import create_color_span, get_embedded_file_path, count_violations
 from src.logger_setup import logger
 
 def datetimeformat(value, format="%Y-%m-%d %H:%M:%S"):
@@ -19,22 +19,6 @@ def join_color_span(colors):
     """
     return " ".join(create_color_span(color) for color in colors)
 
-def count_violations(results):
-    violations_count = 0
-
-    for result in results:
-        # tab runner
-        if isinstance(result, dict) and 'tabbed_elements' in result:
-            violations_count += len(result.get('missed_elements', []))
-        # axe runner
-        elif 'violations' in result:
-            for violation in result.get('violations', []):
-                violations_count += len(violation.get('nodes', []))
-        # contrast runner
-        else:
-            return len(results)
-
-    return violations_count
 
 def build_markdown(config: Config, json_data: dict) -> str:
     """

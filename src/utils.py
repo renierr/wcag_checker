@@ -361,3 +361,21 @@ def take_fullpage_screenshot(driver: WebDriver, screenshot_path: Path) -> None:
     # Save the screenshot to the full_page_screenshot_path
     with open(screenshot_path, "wb") as file:
         file.write(base64.b64decode(screenshot_data["data"]))
+
+
+def count_violations(results):
+    violations_count = 0
+
+    for result in results:
+        # tab runner
+        if isinstance(result, dict) and 'tabbed_elements' in result:
+            violations_count += len(result.get('missed_elements', []))
+        # axe runner
+        elif 'violations' in result:
+            for violation in result.get('violations', []):
+                violations_count += len(violation.get('nodes', []))
+        # contrast runner
+        else:
+            return len(results)
+
+    return violations_count

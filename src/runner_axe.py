@@ -128,7 +128,6 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
                     dat["error"] = str(e)
 
     results.append(axe_data)
-    logger.info(f"Found {len(elements)} violating elements on page.")
     full_page_screenshot_path_outline = outline_elements_for_screenshot(config, driver, elements,
                                                                         elements, url_idx)
     return full_page_screenshot_path_outline

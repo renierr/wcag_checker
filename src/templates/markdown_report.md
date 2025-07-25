@@ -39,14 +39,14 @@ There are {{json_data.total_inputs}} pages in total.
 
 {% if json_data.total_inputs > 0 %}**Page Overview:**{% endif %}  
 {% for input_data in json_data.inputs -%}
-{% set violations = input_data.results | count_violations %}
+{% set violations = input_data.violations | default(0) %}
 - {{ status_icon(input_data, violations) }} [{{ loop.index }}: {{ input_data.title if input_data.title else "Page " ~ loop.index }}](#page-{{input_data.index}}) ({{ violations }} violations)
 {% endfor %}
 
 ---
 
 {% for input_data in json_data.inputs -%}
-{% set violations = input_data.results | count_violations %}
+{% set violations = input_data.violations | default(0) %}
 
 <a name="page-{{loop.index}}"></a>
 {{ page_navigation(loop) }}

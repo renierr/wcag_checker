@@ -40,12 +40,12 @@ class ConfigEncoder(json.JSONEncoder):
 
 @dataclass
 class Config:
-    mode: Mode
-    debug: bool
-    browser: str
-    browser_visible: bool
-    browser_leave_open: bool
-    output: str
+    mode: Mode = Mode.CHECK
+    debug: bool = False
+    browser: str = "chrome"
+    browser_visible: bool = False
+    browser_leave_open: bool = False
+    output: str = "output"
 
 @dataclass
 class ProcessingConfig(Config):

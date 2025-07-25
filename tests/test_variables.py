@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import patch
 from src.action_handler import parse_param_to_string, parse_param_to_dict, parse_param_to_key_value
+from src.config import ProcessingConfig
 from src.utils import resolve_var
 
 class TestVariables(unittest.TestCase):
@@ -75,6 +76,13 @@ class TestVariables(unittest.TestCase):
         var_action(None, None, action, self.context)
         print(self.context)
         self.assertEqual(self.context["my"]["variable"], "my_value")
+
+    def test_resolve_with_class(self):
+        pc = ProcessingConfig()
+        context = { "config": pc }
+        text = "Hello ${config.output}"
+        expected = "Hello output"
+        self.assertEqual(expected, resolve_var(context, text))
 
 if __name__ == '__main__':
     unittest.main()

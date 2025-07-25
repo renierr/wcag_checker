@@ -389,13 +389,16 @@ def resolve_var(context: dict, text: str) -> str:
     :param text: String with variables in the format ${<varname>}.
     :return: Resolved string with variables replaced.
     """
-    def get_nested_value(d, keys):
+    def get_nested_value(obj, keys):
         """Retrieve a nested value from a dictionary using a list of keys."""
         for key in keys:
-            d = d.get(key, None)
-            if d is None:
+            if isinstance(obj, dict):
+                obj = obj.get(key, None)
+            else:
+                obj = getattr(obj, key, None)
+            if obj is None:
                 return None
-        return d
+        return obj
 
     resolved_vars = set()
     try:

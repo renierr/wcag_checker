@@ -1,4 +1,6 @@
 import unittest
+from unittest.mock import patch
+from src.action_handler import parse_param_to_string, parse_param_to_dict, parse_param_to_key_value
 from src.utils import resolve_var
 
 class TestVariables(unittest.TestCase):
@@ -21,6 +23,12 @@ class TestVariables(unittest.TestCase):
         expected = "Hello Alice, your age is 30. Welcome to Demo!"
         self.assertEqual(resolve_var(self.context, text), expected)
 
+    def test_resolve_with_brackets(self):
+        """Test resolve function with nested variables"""
+        text = "Hello ${user.name}, this is ok {normal}"
+        expected = "Hello Alice, this is ok {normal}"
+        self.assertEqual(resolve_var(self.context, text), expected)
+
     def test_resolve_with_missing_variable(self):
         """Test resolve function with a missing variable"""
         text = "Hello ${user.name}, your age is ${user.details.age}. Welcome to ${project} and ${missing}!"
@@ -39,6 +47,26 @@ class TestVariables(unittest.TestCase):
         expected = "Hello Alice, welcome to the project!"
         self.assertEqual(resolve_var(self.context, text), expected)
 
+    @patch('src.action_handler.action_context', new_callable=dict)
+    def test_resolve_for_string_param(self, mock_action_context):
+        mock_action_context.update(self.context)
+        text = parse_param_to_string("Hello ${user.name}, Welcome to ${project}!")
+        expected = "Hello Alice, Welcome to Demo!"
+        self.assertEqual(expected, text)
+
+    @patch('src.action_handler.action_context', new_callable=dict)
+    def test_resolve_for_dict_param(self, mock_action_context):
+        mock_action_context.update(self.context)
+        text = parse_param_to_dict("""{"context": "Hello ${user.name}"}""")
+        expected = {"context": "Hello Alice"}
+        self.assertEqual(expected, text)
+
+    @patch('src.action_handler.action_context', new_callable=dict)
+    def test_resolve_for_key_value_param(self, mock_action_context):
+        mock_action_context.update(self.context)
+        key, value = parse_param_to_key_value("""key=${user.name}""")
+        self.assertEqual("key", key)
+        self.assertEqual("Alice", value)
 
 if __name__ == '__main__':
     unittest.main()

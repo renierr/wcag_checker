@@ -8,6 +8,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
+from src.utils import resolve_var
 
 action_context = {}
 
@@ -104,10 +105,7 @@ def parse_param_to_string(param: str | None) -> str | None:
     if not param:
         return None
     try:
-        # Replace any variables in the string with their values from action_context
-        for var_name, var_value in action_context.items():
-            param = param.replace(f"${{{var_name}}}", str(var_value))
-        return param.strip()
+        return resolve_var(action_context, param.strip())
     except Exception as e:
         logger.error(f"Error parsing string parameter: {e}")
         return None
@@ -127,9 +125,7 @@ def parse_param_to_dict(param: str | None) -> dict | None:
         if not param.startswith('{') and not param.endswith('}'):
             logger.warning("JSON Parameter must be a valid JSON object enclosed in {} -> ignored")
             return None
-        # Replace any variables in the JSON string with their values from action_context
-        for var_name, var_value in action_context.items():
-            param = param.replace(f"${{{var_name}}}", str(var_value))
+        param = resolve_var(action_context, param)
         return json.loads(param)
     except json.JSONDecodeError as e:
         logger.error(f"JSON decoding error: {e}")
@@ -150,11 +146,9 @@ def parse_param_to_key_value(param: str | None) -> tuple[str | None, str | None]
         return None, param
     try:
         key, value = param.split('=', 1)
-        # Replace any variables in the value with their values from action_context
-        for var_name, var_value in action_context.items():
-            key = key.replace(f"${{{var_name}}}", str(var_value))
-            value = value.replace(f"${{{var_name}}}", str(var_value))
-        return key.strip(), value.strip()
+        key = resolve_var(action_context, key.strip())
+        value = resolve_var(action_context, value.strip())
+        return key, value
     except ValueError as e:
         logger.error(f"Error parsing key-value pair: {e}")
         return None, None

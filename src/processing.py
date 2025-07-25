@@ -6,7 +6,7 @@ from pathlib import Path
 import selenium.common
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from src.action_handler import action_registry
+from src.action_handler import action_registry, pre_define_action_context
 from src.actions.analyse_action import analyse_action
 from src.browser_console_log_handler import handle_browser_console_log, get_browser_console_log
 from src.config import Config, ProcessingConfig, ConfigEncoder, ReportLevel, Runner
@@ -77,10 +77,14 @@ def check_run(config: ProcessingConfig) -> None:
 
                 base_url = get_full_base_url(driver)
                 logger.debug(f"Extracted Base URL: {base_url}")
+                execution_time = time.strftime("%Y-%m-%d %H:%M:%S")
+                pre_define_action_context(execution_time=execution_time, base_url=base_url,
+                                          screenshots_folder=screenshots_folder.as_posix())
+
                 actions_data = _execute_actions(config, driver, actions)
 
                 json_data.update({
-                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "timestamp": execution_time,
                     "base_url": base_url,
                     "total_inputs": len(actions_data),
                     "inputs": actions_data,

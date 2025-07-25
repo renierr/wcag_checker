@@ -12,6 +12,17 @@ from src.utils import resolve_var, setting_var
 
 action_context = {}
 
+def pre_define_action_context(**kwargs) -> None:
+    """
+    Pre-define the action context with initial values.
+    This can be used to set up default values or shared state for actions.
+
+    :param: kwargs: Key-value pairs to set in the action context.
+    """
+    for key, value in kwargs.items():
+        setting_var(action_context, key, value)
+    logger.debug(f"Action context pre-defined with: {kwargs}")
+
 class ActionRegistry:
     """
     Registry to manage browser actions.

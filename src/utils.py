@@ -379,3 +379,33 @@ def count_violations(results):
             return len(results)
 
     return violations_count
+
+def resolve_var(context: dict, text: str) -> str:
+    """
+    Replace variables in the text with their values from the context dictionary.
+    Supports nested variables using dot-separated keys.
+
+    :param context: Dictionary containing variable values.
+    :param text: String with variables in the format ${<varname>}.
+    :return: Resolved string with variables replaced.
+    """
+    def get_nested_value(d, keys):
+        """Retrieve a nested value from a dictionary using a list of keys."""
+        for key in keys:
+            d = d.get(key, None)
+            if d is None:
+                return None
+        return d
+
+    try:
+        while "${" in text and "}" in text:
+            start = text.index("${") + 2
+            end = text.index("}", start)
+            var_name = text[start:end]
+            keys = var_name.split(".")
+            value = get_nested_value(context, keys)
+            text = text.replace(f"${{{var_name}}}", str(value) if value is not None else "")
+        return text
+    except Exception as e:
+        logger.error(f"Error resolving variables in text: {e}")
+        return text

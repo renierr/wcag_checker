@@ -1,89 +1,89 @@
 # Go to an online example page - simple and reliable
 @navigate: https://validator.w3.org/nu
 
-@log: "test: ${browser.size.width}x${browser.size.height}"
-@error: "If Statement present to avoid excessive running of the example script."
-@if false {
-# run all analysis
-@analyse
-# axe with context restriction and another rule set
-@analyse_axe: {
-    "context": "#top",
-    "axe_rules": ["wcag2a", "wcag2aa"]
-}
-@analyse_tab
-@analyse_contrast
+@log: "Browser Size: ${browser.size.width}x${browser.size.height}"
+@error: "If Statement present to avoid excessive running of the example script, only in debug mode it will be run."
+@if config.debug {
+    # run all analysis
+    @analyse
+    # axe with context restriction and another rule set
+    @analyse_axe: {
+        "context": "#top",
+        "axe_rules": ["wcag2a", "wcag2aa"]
+    }
+    @analyse_tab
+    @analyse_contrast
 
-# example script
-@script: {
-    console.log("Running custom script...");
-}
+    # example script
+    @script: {
+        console.log("Running custom script...");
+    }
 
-# variables
-@var: my_var = "Hello, World!"
+    # variables
+    @var: my_var = "Hello, World!"
 
-# script with variable assignment from result
-@script: my_script_var = {
-    return "Hello, Script World!";
-}
-@script: my_script_var3 = { return "Hello, Script World 2!"; }
-@log: "${my_script_var}"
+    # script with variable assignment from result
+    @script: my_script_var = {
+        return "Hello, Script World!";
+    }
+    @script: my_script_var3 = { return "Hello, Script World 2!"; }
+    @log: "${my_script_var}"
 
-# cookies
-@cookie: mycook=value1
-@cookie: {"name": "mycook2", "value": "value2"}
+    # cookies
+    @cookie: mycook=value1
+    @cookie: {"name": "mycook2", "value": "value2"}
 
-# wait 1 second
-@wait: 1
+    # wait 1 second
+    @wait: 1
 
-# page navigation
-@navigate: /test.html
-@back
-@forward
-@back
-@refresh
-@scroll: bottom
-@scroll: #top
+    # page navigation
+    @navigate: /test.html
+    @back
+    @forward
+    @back
+    @refresh
+    @scroll: bottom
+    @scroll: #top
 
-# input actions
-@hover: #doc
-@click: #submit
-@input: #doc = Test User
-@click_context: #doc
-@click_double: #top
-@select: #docselect=textarea
-@click: #doc
-@send_key_combination: #doc=<CTRL>+a
-@send_keys: #doc=<CR><LF>Test LALA<CR>
-@select: #docselect=file
-@upload: #doc=example.actions
+    # input actions
+    @hover: #doc
+    @click: #submit
+    @input: #doc = Test User
+    @click_context: #doc
+    @click_double: #top
+    @select: #docselect=textarea
+    @click: #doc
+    @send_key_combination: #doc=<CTRL>+a
+    @send_keys: #doc=<CR><LF>Test LALA<CR>
+    @select: #docselect=file
+    @upload: #doc=example.actions
 
-# screenshots
-@screenshot: test_screen.png
-@screenshot: #banner=test_screen_element.png
+    # screenshots
+    @screenshot: test_screen.png
+    @screenshot: #banner=test_screen_element.png
 
-# resizing
-@resize: tablet
-@resize: full
-@resize: 1920x1080
-@zoom: 2
+    # resizing
+    @resize: tablet
+    @resize: full
+    @resize: 1920x1080
+    @zoom: 2
 
-# if statements
-@if true {
-    @log: "from if, This will be executed because the condition is true."
-}
-@elif false {
-    @log: "from elif, This will not be executed because the condition is false."
-}
-@else {
-    @log: "from else, This will not be executed because the condition is true."
-}
+    # if statements
+    @if true {
+        @log: "from if, This will be executed because the condition is true."
+    }
+    @elif false {
+        @log: "from elif, This will not be executed because the condition is false."
+    }
+    @else {
+        @log: "from else, This will not be executed because the condition is true."
+    }
 
-# normal lines without an @ at the front are url to navigate and analyse directly
-/nu/about.html
+    # normal lines without an @ at the front are url to navigate and analyse directly
+    /nu/about.html
 
-# end
-@wait: 2
+    # end
+    @wait: 2
 }
 
 

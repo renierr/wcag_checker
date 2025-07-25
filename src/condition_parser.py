@@ -153,6 +153,8 @@ class ConditionTransformer(Transformer):
             path += f".{prop}"
             if isinstance(current, dict) and prop in current:
                 current = current[prop]
+            elif hasattr(current, prop):
+                current = getattr(current, prop)
             else:
                 raise NameError(f"Property '{path}' not found in context")
         return current

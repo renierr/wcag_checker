@@ -1,6 +1,9 @@
 # Go to an online example page - simple and reliable
 @navigate: https://validator.w3.org/nu
 
+@log: "test: ${browser.size.width}x${browser.size.height}"
+@error: "If Statement present to avoid excessive running of the example script."
+@if false {
 # run all analysis
 @analyse
 # axe with context restriction and another rule set
@@ -81,7 +84,7 @@
 
 # end
 @wait: 2
-
+}
 
 
 

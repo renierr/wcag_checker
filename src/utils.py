@@ -409,3 +409,20 @@ def resolve_var(context: dict, text: str) -> str:
     except Exception as e:
         logger.error(f"Error resolving variables in text: {e}")
         return text
+
+def setting_var(context: dict, name: str, value: str | dict) -> None:
+    """
+    Set a variable in the context dictionary with the specified name and value.
+    Supports nested variable names using dot-separated keys.
+
+    :param context: Dictionary to store the variable.
+    :param name: Name of the variable (can be nested, e.g., "user.name").
+    :param value: Value to set for the variable.
+    """
+    keys = name.split(".")
+    current = context
+    for key in keys[:-1]:
+        if key not in current or not isinstance(current[key], dict):
+            current[key] = {}
+        current = current[key]
+    current[keys[-1]] = value

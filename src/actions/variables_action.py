@@ -3,6 +3,8 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from src.action_handler import register_action, parse_param_to_key_value
 from src.config import ProcessingConfig
 from src.logger_setup import logger
+from src.utils import setting_var
+
 
 @register_action("var")
 def var_action(config: ProcessingConfig, driver: WebDriver, action: dict, context: dict) -> None:
@@ -27,12 +29,4 @@ def var_action(config: ProcessingConfig, driver: WebDriver, action: dict, contex
 
     name, value = parse_param_to_key_value(param)
     logger.debug(f"Setting variable: {name}={value}")
-
-    # Handle nested variable names
-    keys = name.split(".")
-    current = context
-    for key in keys[:-1]:
-        if key not in current or not isinstance(current[key], dict):
-            current[key] = {}
-        current = current[key]
-    current[keys[-1]] = value
+    setting_var(context, name, value)

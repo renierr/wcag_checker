@@ -8,7 +8,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.config import ProcessingConfig
 from src.logger_setup import logger
-from src.utils import resolve_var
+from src.utils import resolve_var, setting_var
 
 action_context = {}
 
@@ -48,6 +48,11 @@ class ActionRegistry:
         action_name = action.get("name", "")
 
         if action_name in self._actions:
+            # enhance the action_context with the current action
+            setting_var(action_context, "current.action_name", action_name)
+            setting_var(action_context, "current.action", action)
+            setting_var(action_context, "current.page.title", driver.title)
+
             action_func = self._actions[action_name]
             if "context" in action_func.__code__.co_varnames:
                 return action_func(config, driver, action, action_context)

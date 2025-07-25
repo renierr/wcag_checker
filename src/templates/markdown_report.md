@@ -65,6 +65,14 @@ There are {{json_data.total_inputs}} pages in total.
 {{ input_data.error | default('') }}
 ```
 
+{% if input_data.action %}
+**Error Action:**
+
+```json
+{{ input_data.action }}
+```
+{% endif %}
+
 {% if config.debug %}
 <section>
 <details>

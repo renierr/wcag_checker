@@ -137,7 +137,8 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
                 entry = handle_action(config, driver, action)
                 if entry:
                     if isinstance(entry, dict):
-                        entry["action"] = json.dumps(action, indent=2)
+                        if "action" not in entry:
+                            entry["action"] = json.dumps(action, indent=2)
                         actions_data.append(entry)
                     elif isinstance(entry, list):
                         # if the action returns a list of entries, thread them as actions to be executed
@@ -149,7 +150,10 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
             error_message = str(e).splitlines()[0]
             logger.exception(f"Error processing Action {action}: {error_message}")
             actions_data.append({
+                "url": driver.current_url,
+                "title": "Exception occured: " + driver.title,
                 "action": json.dumps(action, indent=2),
+                "failed": True,
                 "error": error_message
             })
             if config.debug:

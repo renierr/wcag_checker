@@ -1,4 +1,6 @@
+import sys
 import unittest
+from io import StringIO
 from unittest.mock import patch, MagicMock
 from src.actions.script_action import log_script
 from src.config import ProcessingConfig
@@ -36,6 +38,24 @@ class TestActions(unittest.TestCase):
         mock_driver.execute_script.assert_called_once_with(
             log_script, 'This is a log message Demo.'
         )
+
+    @patch('src.action_handler.action_context', new_callable=dict)
+    @patch('selenium.webdriver.Chrome')
+    @patch('sys.stdout', new_callable=StringIO)
+    def test_print_action(self, MockStdout, MockWebDriver, mock_action_context):
+        mock_driver = MagicMock()
+        MockWebDriver.return_value = mock_driver
+        mock_action_context.update(self.context)
+        action = {
+            "name": "print",
+            "params": 'This is a print message ${project}.'
+        }
+        handle_action(self.config, mock_driver, action)
+        print_value = MockStdout.getvalue()
+        self.assertIn('This is a print message Demo.\n', print_value)
+        # Print to the real stdout
+        sys.__stdout__.write(f"Catched Printed value: {print_value}\n")
+
 
     @patch('src.runner_contrast.take_fullpage_screenshot', return_value=None)
     @patch('src.actions.analyse_action.take_fullpage_screenshot', return_value=None)

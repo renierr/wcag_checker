@@ -171,7 +171,7 @@ def check_contrast(driver: WebDriver, config: ProcessingConfig, index: int, elem
         colors = get_dominant_colors_from_element(driver, element)
 
     if len(colors) < 2:
-        logger.info("[Element {index}] Not enough colors to determine contrast ratio.")
+        logger.info(f"[Element {index}] Not enough colors to determine contrast ratio.")
         results.append({
             "element_index": index,
             "element_path": element_path,

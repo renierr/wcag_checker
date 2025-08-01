@@ -48,7 +48,9 @@ def get_element_colors(driver: WebDriver, element: WebElement) -> tuple:
             if (bg_color) {
                 opacity = parentWithOpacity(el) || 1;
             }
-            if (color.startsWith("rgba")) {
+            if (!bg_color && color === "rgba(0, 0, 0, 0)") {
+              return baseColor;
+            } else if (color.startsWith("rgba")) {
                 const match = color.match(/rgba\\((\\d+), (\\d+), (\\d+), ([0-9.]+)\\)/);
                 if (match) {
                     const r = parseInt(match[1]);

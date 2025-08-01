@@ -14,6 +14,10 @@
   |-------|--------|----------------|------------|
   | {{ result.element_index }} | {{ color_spans }} | {{ "%.2f"|format(result.contrast_ratio|default(0)) }} | {{ wcag_status }} |
 
+{% if result.error -%}
+{{ result.error }}
+{%- endif %}
+
 **CSS Path:** `{{ result.element_path }}`
 
 {{ element_text }}

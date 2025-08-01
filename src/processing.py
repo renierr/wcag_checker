@@ -184,6 +184,8 @@ def info_logs_of_config(config: ProcessingConfig) -> None:
     logger.info(f"HTML report enabled: {'Yes' if config.html else 'No'}")
     logger.info(f"Simulate with file: {config.simulate if config.simulate else 'None'}")
     logger.info(f"Inputs to check ({len(config.inputs)}): {config.inputs}")
+    if config.excludes:
+        logger.info(f"Excludes file: {config.excludes}")
 
     if config.runner == Runner.CONTRAST:
         logger.info(f"Using selector: {config.selector}")

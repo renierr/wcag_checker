@@ -99,6 +99,7 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
     elm_idx = 0
     violations = axe_data.get("violations", [])
     for violation in violations:
+        nodes_to_remove = []
         for node in violation.get("nodes", []):
             element = node.get("target", [])
             if element:
@@ -107,7 +108,7 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
                 # ignore if violation is in ignore list
                 if violation_ignored(element_path):
                    logger.debug(f"Element {element_path} is ignored (from ignored list).")
-                   violation["nodes"].remove(node)
+                   nodes_to_remove.append(node)
                    continue
 
                 screenshot_path = screenshots_folder / f"{config.mode.value}_{url_idx}_link_{elm_idx}.png"
@@ -134,6 +135,8 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
                 except Exception as e:
                     logger.error(f"Error taking screenshot of element {elm_idx}: {e}")
                     dat["error"] = str(e)
+        for node in nodes_to_remove:
+            violation["nodes"].remove(node)
 
     results.append(axe_data)
     full_page_screenshot_path_outline = outline_elements_for_screenshot(config, driver, elements,

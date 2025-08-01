@@ -5,6 +5,7 @@ from pathlib import Path
 import re
 
 from src.config import ProcessingConfig
+from src.ignore_violations import violation_ignored
 from src.logger_setup import logger
 from src.runner_contrast import outline_elements_for_screenshot
 from src.utils import take_element_screenshot
@@ -102,6 +103,13 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
             element = node.get("target", [])
             if element:
                 element_path = element[0]
+
+                # ignore if violation is in ignore list
+                if violation_ignored(element_path):
+                   logger.debug(f"Element {element_path} is ignored (from ignored list).")
+                   violation["nodes"].remove(node)
+                   continue
+
                 screenshot_path = screenshots_folder / f"{config.mode.value}_{url_idx}_link_{elm_idx}.png"
                 dat = {
                     "index": elm_idx,

@@ -42,3 +42,13 @@ def populate_ignored_violation_from_file(file_path: Path | None):
 def add_ignore_violation(violation_id: str):
     if violation_id:
         ignored_violations.add(violation_id)
+
+
+def violation_ignored(violation_id: str) -> bool:
+    """
+    Check if a violation ID is in the ignored violations set.
+
+    :param violation_id: The violation ID to check.
+    :return: True if the violation ID is ignored, False otherwise.
+    """
+    return violation_id in ignored_violations

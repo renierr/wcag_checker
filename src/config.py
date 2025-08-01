@@ -37,6 +37,8 @@ class ConfigEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Enum):
             return obj.value
+        if isinstance(obj, Path):
+            return str(obj)
         return super().default(obj)
 
 

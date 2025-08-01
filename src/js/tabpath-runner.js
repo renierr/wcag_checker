@@ -394,12 +394,12 @@ const TabPath = (() => {
      * @param {{}|null} elements
      * @returns {Promise<{tabbed_elements: Array, potential_elements: Array, missed_elements: Array}>}
      */
-    const tabpathRunner = async (elements = null, missing_check = true) => {
+    const tabpathRunner = async (elements = null, missing_check = true, missing_ignores = []) => {
         console.debug('Tab path Runner started');
         const tabElements = elements ? elements : (await getTabOrder()).map((el, index) => buildElementInfo(el, index));
         const potentialElements = elements ? await buildPotentialElements(missing_check) : tabElements;
         const missedElements = potentialElements
-            .filter((pe) => !tabElements.some(te => te.id === pe.id))
+            .filter((pe) => !tabElements.some(te => te.id === pe.id) && !missing_ignores.includes(pe.id))
             .map((el, index) => ({ ...el, index: (index+1) }));
         console.debug("Tab path Runner found", tabElements.length, "tabbed elements and", potentialElements.length, "potential elements");
 
@@ -481,10 +481,10 @@ const TabPath = (() => {
     };
 
     return {
-        runAnalysis: async (elements = null, missing_check = true) => {
+        runAnalysis: async (elements = null, missing_check = true, missing_ignores = []) => {
             try {
-                console.debug(`Run tabpath analysis for ${elements.length} elements with missing check: ${missing_check}`);
-                const results = await tabpathRunner(elements, missing_check);
+                console.debug(`Run tabpath analysis for ${elements.length} elements with missing check: ${missing_check} and ignores: ${missing_ignores.length}`);
+                const results = await tabpathRunner(elements, missing_check, missing_ignores);
                 return {
                     success: true,
                     data: results

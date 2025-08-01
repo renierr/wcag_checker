@@ -6,6 +6,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 from pathlib import Path
 
 from src.config import ProcessingConfig
+from src.ignore_violations import get_ignored_violations
 from src.logger_setup import logger
 from src.utils import take_fullpage_screenshot
 
@@ -36,7 +37,7 @@ class TabRunnerScript:
         """
         self.driver.execute_script(self.script_data)
 
-    def run(self, tab_elements: list[WebElement] = None, missing_check: bool = True) -> dict:
+    def run(self, tab_elements: list[WebElement] = None, missing_check: bool = True, missing_ignores: list[str] = []) -> dict:
         """
         Run tabpath script with the given options.
 
@@ -46,11 +47,12 @@ class TabRunnerScript:
             f"var callback = arguments[arguments.length - 1];"
             f"const elements = arguments[0];"
             f"const missing_check = arguments[1] ?? true;"
+            f"const missing_ignores = arguments[2] ?? [];"
             "setTimeout(() => {"
-            f"TabPath.runAnalysis(elements, missing_check).then(results => callback(results));"
+            f"TabPath.runAnalysis(elements, missing_check, missing_ignores).then(results => callback(results));"
             "});"
         )
-        return self.driver.execute_async_script(command, tab_elements, missing_check)
+        return self.driver.execute_async_script(command, tab_elements, missing_check, missing_ignores)
 
     def exportSVG(self) -> str:
         return self.driver.execute_script("return TabPath.exportAsSVG()")
@@ -134,8 +136,9 @@ def runner_tab(config: ProcessingConfig, driver: WebDriver, results: list,
     tab_elements = _collect_elements_by_tab_key(driver)
     logger.info(f"Found {len(tab_elements)} tabbable elements on page.")
 
-    logger.debug(f"Run tab script for url {url_idx} - missing_check={config.missing_tab_check}")
-    tabpath_data = tabpath_checker.run(tab_elements=tab_elements, missing_check=config.missing_tab_check)
+    violation_ignores = list(get_ignored_violations())
+    logger.debug(f"Run tab script for url {url_idx} - missing_check={config.missing_tab_check}; missing_ignores(count)={len(violation_ignores)}")
+    tabpath_data = tabpath_checker.run(tab_elements=tab_elements, missing_check=config.missing_tab_check, missing_ignores=violation_ignores)
     if not tabpath_data:
         logger.error("Tab path analysis returned no data. Skipping further processing.")
         return None

@@ -1,6 +1,8 @@
 import json
 from dataclasses import dataclass, field
 from enum import Enum
+from pathlib import Path
+
 
 class ReportLevel(Enum):
     ALL = "all"
@@ -52,6 +54,7 @@ class ProcessingConfig(Config):
     runner: Runner = Runner.AXE
     login: str = ""
     inputs: list[str] = field(default_factory=list)
+    excludes: Path | None = None
     json: bool = True
     markdown: bool = True
     html: bool = True

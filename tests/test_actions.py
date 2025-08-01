@@ -4,6 +4,7 @@ from io import StringIO
 from unittest.mock import patch, MagicMock
 from src.actions.script_action import log_script
 from src.config import ProcessingConfig
+from src.ignore_violations import get_ignored_violations
 from src.main import load_all_actions
 from src.processing import handle_action
 
@@ -95,6 +96,36 @@ class TestActions(unittest.TestCase):
         self.assertIsInstance(ret, list, "The return value should be a list")
         self.assertEqual(len(ret), 1, "The array should contain one action result")
         self.assertEqual(ret[0].get('name'), 'log', "The return value should contain the name 'log'")
+
+
+    @patch('src.action_handler.action_context', new_callable=dict)
+    @patch('selenium.webdriver.Chrome')
+    def test_ignore_action(self, MockWebDriver, mock_action_context):
+        mock_driver = MagicMock()
+        MockWebDriver.return_value = mock_driver
+        mock_action_context.update(self.context)
+        action = {
+            "name": "ignore",
+            "params": 'ignore_this id with blanks'
+        }
+        handle_action(self.config, mock_driver, action)
+        ignored_violations = get_ignored_violations()
+        self.assertIn('ignore_this id with blanks', ignored_violations, "The violation should be added to the ignore list")
+
+        # multiline ignore
+        action = {
+            "name": "ignore",
+            "params": """{
+            ignore_this
+            another_one in another line
+            multiple lines
+            }"""
+        }
+        handle_action(self.config, mock_driver, action)
+        self.assertIn('another_one in another line', ignored_violations, "The violation should be added to the ignore list (multiline)")
+
+        # Print the ignored violations to stdout
+        print(ignored_violations)
 
 
 if __name__ == '__main__':

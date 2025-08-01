@@ -10,6 +10,7 @@ from src.action_handler import action_registry, pre_define_action_context
 from src.actions.analyse_action import analyse_action
 from src.browser_console_log_handler import handle_browser_console_log, get_browser_console_log
 from src.config import Config, ProcessingConfig, ConfigEncoder, ReportLevel, Runner
+from src.ignore_violations import populate_ignored_violation_from_file
 from src.input_parser import parse_inputs
 from src.logger_setup import logger
 from src.report import build_markdown, generate_markdown_report, generate_html_report
@@ -31,6 +32,9 @@ def check_run(config: ProcessingConfig) -> None:
 
     screenshots_folder = Path(config.output) / "screenshots"
     screenshots_folder.mkdir(parents=True, exist_ok=True)
+
+    # populate exclusion list
+    populate_ignored_violation_from_file(config.excludes)
 
     json_data = {}
     if isinstance(config, ProcessingConfig):

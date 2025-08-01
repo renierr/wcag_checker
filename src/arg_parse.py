@@ -1,5 +1,7 @@
 import argparse
 import textwrap
+from pathlib import Path
+
 from rich.markdown import Markdown
 from rich_argparse import RawTextRichHelpFormatter
 from gettext import gettext as _
@@ -65,6 +67,9 @@ def argument_parser() -> argparse.ArgumentParser:
                             You can pass a file by prefix the path to file with 'config:'
                             """).strip(),
                                           nargs="*", default="")
+    parent_processing_parser.add_argument("--excludes", "-e", type=Path,
+                                          help="A File with violations to exclude from the report.",
+                                          nargs="?", default=None)
     parent_processing_parser.add_argument("--json", action=argparse.BooleanOptionalAction,
                                           help="Enable or disable JSON output.", default=True)
     parent_processing_parser.add_argument("--markdown", action=argparse.BooleanOptionalAction,

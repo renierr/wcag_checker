@@ -6,6 +6,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from src.config import ReportLevel, ProcessingConfig
 from src.contrast import check_contrast
 from src.css import inject_outline_css
+from src.ignore_violations import violation_ignored
 from src.logger_setup import logger
 from src.utils import define_get_path_script, get_csspath, take_fullpage_screenshot
 
@@ -47,6 +48,9 @@ def runner_contrast(config: ProcessingConfig, driver: WebDriver, results: list, 
                     "element_text": element.text,
                     "error": f"Skipping element {index} due to 0 width or height."
                 })
+                continue
+            if violation_ignored(element_path):
+                logger.debug(f"Element {element_path} is ignored (from ignored list).")
                 continue
 
             screenshot_path = screenshots_folder / f"{config.mode.value}_{url_idx}_link_{index}.png"

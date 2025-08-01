@@ -12,7 +12,7 @@
   {%- endif %}
   | index | colors | contrast ratio | meets wcag |
   |-------|--------|----------------|------------|
-  | {{ result.element_index }} | {{ color_spans }} | {{ "%.2f"|format(result.contrast_ratio) }} | {{ wcag_status }} |
+  | {{ result.element_index }} | {{ color_spans }} | {{ "%.2f"|format(result.contrast_ratio|default(0)) }} | {{ wcag_status }} |
 
 **CSS Path:** `{{ result.element_path }}`
 

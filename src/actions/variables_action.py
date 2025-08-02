@@ -37,7 +37,7 @@ def var_default_action(config: ProcessingConfig, driver: WebDriver, action: dict
     """
     Syntax: `@var_default: <name>=<value>`
 
-    Sets a variable in the context only if it doesn't exist yet or is None.
+    Sets a variable in the context only if it doesn't exist yet.
     Useful for defining default values for variables.
 
     ```

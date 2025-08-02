@@ -269,6 +269,7 @@ class TestConditionParser(unittest.TestCase):
         self.assertTrue(_eval_condition("present session.active", nested_context))
 
         self.assertFalse(_eval_condition("present missing", nested_context))
+        self.assertFalse(_eval_condition("present missing.user", nested_context))
         self.assertFalse(_eval_condition("present user.email", nested_context))
         self.assertFalse(_eval_condition("present user.profile.address", nested_context))
         self.assertFalse(_eval_condition("present session.user", nested_context))

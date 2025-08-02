@@ -155,21 +155,20 @@ class ConditionTransformer(Transformer):
 
         if isinstance(path_representation, Token):
             return str(path_representation) in self.context
-        elif isinstance(path_representation, list):
+
+        if isinstance(path_representation, list):
             current_obj = self.context
-            for i, segment in enumerate(path_representation):
+            for segment in path_representation:
                 if isinstance(current_obj, dict):
                     if segment in current_obj:
                         current_obj = current_obj[segment]
                     else:
                         return False
                 elif hasattr(current_obj, segment):
-                    current_obj = getattr(current_obj, segment)
+                    current_obj = getattr(current_obj, segment, None)
                 else:
                     return False
 
-                if current_obj is None and i < len(path_representation) - 1:
-                    return False
             return True
         return False
 

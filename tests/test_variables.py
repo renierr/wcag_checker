@@ -84,5 +84,17 @@ class TestVariables(unittest.TestCase):
         expected = "Hello output"
         self.assertEqual(expected, resolve_var(context, text))
 
+    def test_var_default_action_setting(self):
+        """Test setting a default variable in the context"""
+        from src.actions.variables_action import var_default_action
+        action = {"params": "my.variable=default_value"}
+        var_default_action(None, None, action, self.context)
+        self.assertEqual(self.context["my"]["variable"], "default_value")
+
+        # Test that it does not overwrite an existing variable
+        action = {"params": "my.variable=another_value"}
+        var_default_action(None, None, action, self.context)
+        self.assertEqual(self.context["my"]["variable"], "default_value")
+
 if __name__ == '__main__':
     unittest.main()

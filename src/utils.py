@@ -421,7 +421,7 @@ def resolve_var(context: dict, text: str) -> str:
         logger.error(f"Error resolving variables in text: {e}")
         return text
 
-def setting_var(context: dict, name: str, value: str | dict | object) -> None:
+def setting_var(context: dict, name: str, value: str | dict | object, override: bool = True) -> bool:
     """
     Set a variable in the context dictionary with the specified name and value.
     Supports nested variable names using dot-separated keys.
@@ -429,6 +429,8 @@ def setting_var(context: dict, name: str, value: str | dict | object) -> None:
     :param context: Dictionary to store the variable.
     :param name: Name of the variable (can be nested, e.g., "user.name").
     :param value: Value to set for the variable.
+    :param override: If True, will override existing values. If False, will not set if the key already exists.
+    :return: true if the variable was set, false if it was not set due to override being False.
     """
     keys = name.split(".")
     current = context
@@ -436,4 +438,7 @@ def setting_var(context: dict, name: str, value: str | dict | object) -> None:
         if key not in current or not isinstance(current[key], dict):
             current[key] = {}
         current = current[key]
-    current[keys[-1]] = value
+    if override or keys[-1] not in current:
+        current[keys[-1]] = value
+        return True
+    return False

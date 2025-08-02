@@ -30,3 +30,27 @@ def var_action(config: ProcessingConfig, driver: WebDriver, action: dict, contex
     name, value = parse_param_to_key_value(param)
     logger.debug(f"Setting variable: {name}={value}")
     setting_var(context, name, value)
+
+
+@register_action("var_default")
+def var_default_action(config: ProcessingConfig, driver: WebDriver, action: dict, context: dict) -> None:
+    """
+    Syntax: `@var_default: <name>=<value>`
+
+    Sets a variable in the context only if it doesn't exist yet or is None.
+    Useful for defining default values for variables.
+
+    ```
+    @var_default: my_variable=default_value
+    ```
+    """
+    param: str | None = action.get("params", None)
+    if not param or "=" not in param:
+        logger.warning("Invalid parameter for var_default action. Expected format: 'name=value'.")
+        return
+
+    name, value = parse_param_to_key_value(param)
+    if setting_var(context, name, value, override=False):
+        logger.debug(f"Setting default variable: {name}={value}")
+    else:
+        logger.debug(f"Variable '{name}' already exists. Not overriding with default value: {value}")

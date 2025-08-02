@@ -1,4 +1,5 @@
-from lark import Lark, Transformer, v_args
+import re
+from lark import Lark, Transformer, v_args, Token, Tree
 from lark.exceptions import LarkError, VisitError
 
 # Grammar for condition parsing
@@ -25,6 +26,7 @@ CONDITION_GRAMMAR = r"""
                | atom "contains" atom  -> contains_op
                | atom "not in" atom        -> not_in_op
                | atom "matches" REGEX      -> matches_op
+               | "present" present_path_check -> present_op 
                REGEX: /\/[^\/]*\/[a-zA-Z]*/
 
     ?atom: property_access 
@@ -36,6 +38,7 @@ CONDITION_GRAMMAR = r"""
          | paren_expr
     paren_expr: "(" or_expr ")" -> paren_expr
 
+    present_path_check: IDENTIFIER | (IDENTIFIER ("." IDENTIFIER)+) -> dot_path_components
     property_access: IDENTIFIER ("." IDENTIFIER)+
     IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
     NUMBER: /-?\d+(\.\d+)?/
@@ -141,14 +144,45 @@ class ConditionTransformer(Transformer):
     def paren_expr(self, expr):
         return expr
 
+    @v_args(inline=True)
+    def dot_path_components(self, *items):
+        return [str(item) for item in items]
+
+    @v_args(inline=True)
+    def present_op(self, path_representation):
+        if isinstance(path_representation, Tree):
+            path_representation = [str(token) for token in path_representation.children]
+
+        if isinstance(path_representation, Token):
+            return str(path_representation) in self.context
+        elif isinstance(path_representation, list):
+            current_obj = self.context
+            for i, segment in enumerate(path_representation):
+                if isinstance(current_obj, dict):
+                    if segment in current_obj:
+                        current_obj = current_obj[segment]
+                    else:
+                        return False
+                elif hasattr(current_obj, segment):
+                    current_obj = getattr(current_obj, segment)
+                else:
+                    return False
+
+                if current_obj is None and i < len(path_representation) - 1:
+                    return False
+            return True
+        return False
+
     def property_access(self, items):
         """Handle dot notation property access"""
-        obj = items[0]
-        properties = items[1:]
-        current = self.context.get(obj)
+        obj_name = str(items[0])
+        properties = [str(item) for item in items[1:]]
+
+        current = self.context.get(obj_name)
         if current is None:
-            raise NameError(f"Base object '{obj}' not found in context")
-        path = str(obj)
+            raise NameError(f"Base object '{obj_name}' not found in context")
+
+        path = obj_name
         for prop in properties:
             path += f".{prop}"
             if isinstance(current, dict) and prop in current:

@@ -232,6 +232,50 @@ class TestConditionParser(unittest.TestCase):
         self.assertTrue(_eval_condition("api_key contains \"-\"", context))
         self.assertTrue(_eval_condition("message contains \"!\"", context))
 
+    def test_present_operator(self):
+        """Test the 'present' operator with simple and nested contexts"""
+        simple_context = {
+            "username": "alice",
+            "is_admin": True
+        }
+
+        self.assertTrue(_eval_condition("present username", simple_context))
+        self.assertTrue(_eval_condition("present is_admin", simple_context))
+        self.assertFalse(_eval_condition("present missing_var", simple_context))
+
+        # Test with nested context
+        nested_context = {
+            "user": {
+                "profile": {
+                    "name": "Bob",
+                    "age": 30
+                },
+                "settings": {
+                    "theme": "dark"
+                }
+            },
+            "session": {
+                "active": True
+            }
+        }
+
+        self.assertTrue(_eval_condition("present user", nested_context))
+        self.assertTrue(_eval_condition("present user.profile", nested_context))
+        self.assertTrue(_eval_condition("present user.profile.name", nested_context))
+        self.assertTrue(_eval_condition("present user.profile.age", nested_context))
+        self.assertTrue(_eval_condition("present user.settings.theme", nested_context))
+        self.assertTrue(_eval_condition("present session.active", nested_context))
+
+        self.assertFalse(_eval_condition("present missing", nested_context))
+        self.assertFalse(_eval_condition("present user.email", nested_context))
+        self.assertFalse(_eval_condition("present user.profile.address", nested_context))
+        self.assertFalse(_eval_condition("present session.user", nested_context))
+
+        # combination with others
+        self.assertTrue(_eval_condition("present user and user.profile.age > 25", nested_context))
+        self.assertTrue(_eval_condition("present user.settings.theme and user.settings.theme == \"dark\"", nested_context))
+        self.assertFalse(_eval_condition("present user.email or user.profile.age < 20", nested_context))
+
 
 if __name__ == '__main__':
     unittest.main()

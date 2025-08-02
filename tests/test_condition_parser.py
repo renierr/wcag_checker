@@ -236,11 +236,13 @@ class TestConditionParser(unittest.TestCase):
         """Test the 'present' operator with simple and nested contexts"""
         simple_context = {
             "username": "alice",
-            "is_admin": True
+            "is_admin": True,
+            "empty": None
         }
 
         self.assertTrue(_eval_condition("present username", simple_context))
         self.assertTrue(_eval_condition("present is_admin", simple_context))
+        self.assertTrue(_eval_condition("present empty", simple_context))
         self.assertFalse(_eval_condition("present missing_var", simple_context))
 
         # Test with nested context

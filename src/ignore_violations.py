@@ -51,4 +51,6 @@ def violation_ignored(violation_id: str) -> bool:
     :param violation_id: The violation ID to check.
     :return: True if the violation ID is ignored, False otherwise.
     """
+    if isinstance(violation_id, list):
+        violation_id = tuple(violation_id)
     return violation_id in ignored_violations

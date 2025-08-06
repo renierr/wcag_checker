@@ -5,6 +5,8 @@ import tempfile
 import os
 from pathlib import Path
 from pprint import pprint
+
+from src.action_handler import parse_param_to_key_value
 from src.input_parser import _parse_config_file, parse_inputs
 
 class TestParseConfigFile(unittest.TestCase):
@@ -235,6 +237,18 @@ class TestParseConfigFile(unittest.TestCase):
         print_result(result)
 
         self.assertGreater(len(result), 1)
+
+    def test_parse_param_to_key_value(self):
+        """Test parsing a key-value pair"""
+        content = "my.variable=my_value"
+
+        key, value = parse_param_to_key_value(content)
+        self.assertEqual(key, 'my.variable')
+        self.assertEqual(value, 'my_value')
+
+        key, value = parse_param_to_key_value("my_variable")
+        self.assertIsNone(key)
+        self.assertEqual(value, 'my_variable')
 
 
 def print_result(result):

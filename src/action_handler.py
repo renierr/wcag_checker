@@ -162,13 +162,22 @@ def parse_param_to_key_value(param: str | None) -> tuple[str | None, str | None]
     """
     if not param:
         return None, None
-    if '=' not in param:
-        return None, param
     try:
-        key, value = param.split('=', 1)
-        key = resolve_var(action_context, key.strip())
-        value = resolve_var(action_context, value.strip())
+        # Split while considering escaped '='
+        key, value = None, None
+        for i in range(len(param)):
+            if param[i] == '=' and (i == 0 or param[i - 1] != '\\'):
+                key = param[:i].replace('\\=', '=').strip()
+                value = param[i + 1:].replace('\\=', '=').strip()
+                break
+
+        if key is None:
+            return None, resolve_var(action_context, param.strip())
+
+        key = resolve_var(action_context, key)
+        value = resolve_var(action_context, value)
         return key, value
+
     except ValueError as e:
         logger.error(f"Error parsing key-value pair: {e}")
         return None, None

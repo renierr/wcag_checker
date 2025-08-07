@@ -127,6 +127,39 @@ class TestActions(unittest.TestCase):
         # Print the ignored violations to stdout
         print(ignored_violations)
 
+    def test_wait_action(self):
+        """Test wait action"""
+        from src.actions.wait_action import wait_action
+        action = {"params": "2"}
+        with patch('time.sleep', return_value=None) as mock_sleep:
+            wait_action(self.config, None, action)
+            mock_sleep.assert_called_once_with(2)
+
+        action = {"params": "1m"}
+        with patch('time.sleep', return_value=None) as mock_sleep:
+            wait_action(self.config, None, action)
+            mock_sleep.assert_called_once_with(60)
+
+        mock_driver = MagicMock()
+        with patch('src.actions.wait_action.WebDriverWait') as mock_wait:
+            mock_until = MagicMock()
+            mock_wait.return_value.until = mock_until
+
+            with patch('src.actions.wait_action.EC.presence_of_element_located') as mock_presence:
+                action = {"params": "#my-element"}
+                wait_action(self.config, mock_driver, action)
+                mock_presence.assert_called_once()
+
+            with patch('src.actions.wait_action.EC.staleness_of') as mock_staleness:
+                action = {"params": "!#my-element"}
+                wait_action(self.config, mock_driver, action)
+                mock_staleness.assert_called_once()
+
+        action = {"params": None}
+        with patch('src.actions.wait_action.wait_page_loaded') as mock_wait_page_loaded:
+            wait_action(self.config, mock_driver, action)
+            mock_wait_page_loaded.assert_called_once()
+
 
 if __name__ == '__main__':
     unittest.main()

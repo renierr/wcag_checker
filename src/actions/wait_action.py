@@ -13,41 +13,53 @@ from src.utils import wait_page_loaded
 @register_action("wait")
 def wait_action(config: ProcessingConfig, driver: WebDriver, action: dict) -> None:
     """
-    Syntax: `@wait: <seconds>` or `@wait: loaded` or `@wait: <selector>`
+    Syntax: `@wait` or `@wait: <seconds>[s|m]` or  `@wait: [!]<selector>`
 
-    Waits for the specified number of seconds before the next step.
+    Waits for the specified number of seconds before the next step if param starts with a digit.
+    If no parameter is given, it waits for page loaded.
 
-    or `loaded` waits until the page is fully loaded.
+    all other text is treated as a selector and waits until the element is present.
+    If the selector starts with `!` it will wait for the element to be absent instead.
 
-    or all other text is treated as a selector and waits until the element is present.
+    The timeout for waiting for an element is 10 seconds by default.
+
+    Examples:
     ```
-    @wait: loaded
+    @wait
+    @wait: !#my-element-id-absent
+    @wait: 5
+    @wait: 2m
+    @wait: #myid
     ```
     """
     try:
         param: str | None = action.get("params", None)
+        timeout = 10
+
         if not param:
-            logger.warning("No wait time or selector provided for wait action.")
+            logger.info("No wait time specified, waiting for page to load")
+            wait_page_loaded(driver)
             return
 
-        param = param.strip()
+        if param.startswith("!"):
+            # If the parameter starts with '!', wait for the element to be absent
+            param = param[1:]
+            logger.info(f"Waiting for element with ID '{param}' to not exist (timeout: {timeout} seconds)")
+            WebDriverWait(driver, timeout).until(EC.staleness_of(driver.find_element(By.CSS_SELECTOR, param)))
+            return
+
+        if not param[0].isdigit():
+            logger.info(f"Waiting for element with ID '{param}' to exist (timeout: {timeout} seconds)")
+            WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, param)))
+            return
+
+        wait_time = 0
         if param.endswith("s"):
             wait_time = int(param[:-1])  # Interpret as seconds
         elif param.endswith("m"):
             wait_time = int(param[:-1]) * 60  # Interpret as minutes
         elif param.isdigit():
             wait_time = int(param)  # Default to seconds if no suffix
-        else:
-            # If param is not a number, assume it's an ID to wait for, if the id is 'loaded'
-            # then use our own page loaded function
-            if param == "loaded":
-                logger.info("Waiting for page to load")
-                wait_page_loaded(driver)
-                return
-            timeout = 10
-            logger.info(f"Waiting for element with ID '{param}' to exist (timeout: {timeout} seconds)")
-            WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, param)))
-            return
 
         if wait_time > 0:
             logger.info(f"Waiting for {wait_time} seconds")

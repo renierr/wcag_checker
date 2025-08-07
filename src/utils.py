@@ -459,24 +459,30 @@ def outline_elements_for_screenshot(config: ProcessingConfig, driver: WebDriver,
         const label = document.createElement('div');
         label.textContent = arguments[1];
         label.className = 'contrat_checker--label';
-        label.style.left = (arguments[0].getBoundingClientRect().left + window.scrollX) + 'px';
-        label.style.top = (arguments[0].getBoundingClientRect().top + window.scrollY - 20) + 'px';
+        const rect = arguments[0].getBoundingClientRect();
+        label.style.left = `${rect.left + window.scrollX}px`;
+        label.style.top = `${Math.max(0, rect.top + window.scrollY - 20)}px`;
         document.body.appendChild(label);
     """
 
+    element_indices = {}
     for index, element in enumerate(elements):
+        element_indices.setdefault(element, []).append(index)
+
+    for element, indices in element_indices.items():
         try:
             if element.size['width'] == 0 or element.size['height'] == 0:
-                logger.debug(f"Element {index} has 0 width or height. Skipping outline.")
+                logger.debug(f"Element {indices} has 0 width or height. Skipping outline.")
                 continue
 
             missed_element_present = (elements == missed_contrast_elements) or any(element == missed for missed in missed_contrast_elements)
             report_invalid_only = config.report_level == ReportLevel.INVALID
             if report_invalid_only and not missed_element_present:
-                logger.debug(f"Element {index} is not in missed_contrast_elements and invalid_only mode is set. Skipping outline.")
+                logger.debug(f"Element {indices} is not in missed_contrast_elements and invalid_only mode is set. Skipping outline.")
                 continue
 
-            output_label = f"⚠️{index}" if missed_element_present else f"✓{index}"
+            label_indices = ",".join(str(i) for i in indices)
+            output_label = f"⚠️{label_indices}" if missed_element_present else f"✓{label_indices}"
             driver.execute_script(script, element, output_label)
         except Exception:
             pass

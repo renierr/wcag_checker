@@ -103,25 +103,33 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
             element = node.get("target", [])
             if element:
                 element_path = element[0]
+                element_path_str = str(element_path)
+
+                if isinstance(element_path, list):
+                    element_path_str = ", ".join(element_path)
+
 
                 # ignore if violation is in ignore list
-                if violation_ignored(element_path):
-                   logger.debug(f"Element {element_path} is ignored (from ignored list).")
+                if violation_ignored(element_path_str):
+                   logger.debug(f"Element {element_path_str} is ignored (from ignored list).")
                    nodes_to_remove.append(node)
                    continue
 
                 screenshot_path = screenshots_folder / f"{config.mode.value}_{url_idx}_link_{elm_idx}.png"
                 dat = {
                     "index": elm_idx,
-                    "path": element_path,
+                    "path": element_path_str,
                     "screenshot": screenshot_path.as_posix()
                 }
                 node["element_info"] = dat
                 elm_idx += 1
                 # find an element and take a screenshot
                 try:
-                    element = driver.find_element(By.CSS_SELECTOR, element_path)
-                    if element.size['width'] == 0 or element.size['height'] == 0:
+                    element = find_element_in_shadow_dom(driver, element_path)
+                    if not element:
+                        logger.debug(f"Element {elm_idx} not found in the DOM. Skipping screenshot.")
+                        continue
+                    elif element.size['width'] == 0 or element.size['height'] == 0:
                         logger.debug(f"Element {elm_idx} has 0 width or height. Skipping screenshot.")
                         continue
                     elif element.is_displayed():
@@ -141,3 +149,16 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
     full_page_screenshot_path_outline = outline_elements_for_screenshot(config, driver, elements,
                                                                         elements, url_idx)
     return full_page_screenshot_path_outline
+
+def find_element_in_shadow_dom(driver: WebDriver, selector_list: str | list):
+    if isinstance(selector_list, str):
+        selector_list = [selector_list]
+    element = driver
+    for idx, selector in enumerate(selector_list):
+        if idx == 0:
+            element = driver.find_element(By.CSS_SELECTOR, selector)
+        else:
+            # Enter shadow root for intermediate selectors
+            element = driver.execute_script("return arguments[0].shadowRoot", element)
+            element = driver.execute_script("return arguments[0].querySelector(arguments[1])", element, selector)
+    return element

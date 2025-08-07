@@ -7,8 +7,7 @@ import re
 from src.config import ProcessingConfig
 from src.ignore_violations import violation_ignored
 from src.logger_setup import logger
-from src.runner_contrast import outline_elements_for_screenshot
-from src.utils import take_element_screenshot
+from src.utils import take_element_screenshot, outline_elements_for_screenshot
 
 axe = None
 class Axe:

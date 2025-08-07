@@ -128,9 +128,12 @@ def runner_axe(config: ProcessingConfig, driver: WebDriver, results: list,
                     element = find_element_in_shadow_dom(driver, element_path)
                     if not element:
                         logger.debug(f"Element {elm_idx} not found in the DOM. Skipping screenshot.")
+                        # FIXME: if we continue here the index numbers will not match element to outline
                         continue
                     elif element.size['width'] == 0 or element.size['height'] == 0:
                         logger.debug(f"Element {elm_idx} has 0 width or height. Skipping screenshot.")
+                        elements.append(element)
+                        dat["screenshot"] = None
                         continue
                     elif element.is_displayed():
                         elements.append(element)

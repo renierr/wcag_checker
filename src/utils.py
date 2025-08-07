@@ -471,10 +471,6 @@ def outline_elements_for_screenshot(config: ProcessingConfig, driver: WebDriver,
 
     for element, indices in element_indices.items():
         try:
-            if element.size['width'] == 0 or element.size['height'] == 0:
-                logger.debug(f"Element {indices} has 0 width or height. Skipping outline.")
-                continue
-
             missed_element_present = (elements == missed_contrast_elements) or any(element == missed for missed in missed_contrast_elements)
             report_invalid_only = config.report_level == ReportLevel.INVALID
             if report_invalid_only and not missed_element_present:

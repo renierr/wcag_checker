@@ -5,6 +5,10 @@ from dataclasses import fields
 from urllib.parse import urlparse
 from pathlib import Path
 from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+
 
 from src.config import ProcessingConfig, ReportLevel
 from src.css import inject_outline_css
@@ -320,13 +324,51 @@ def call_url(driver: WebDriver, url: str) -> None:
     driver.get(url)
     wait_page_loaded(driver)
 
-def wait_page_loaded(driver: WebDriver) -> None:
-    WebDriverWait(driver, 10).until(
+def wait_page_loaded(driver: WebDriver, element_selector: str = None, timeout: int = 5, idle_time: float = 0.5) -> None:
+    # wait for document ready state to be complete
+    WebDriverWait(driver, timeout).until(
+        lambda d: d.execute_script("return document.readyState === 'complete'")
+    )
+
+    # wait for all resources to be loaded
+    WebDriverWait(driver, timeout).until(
         lambda d: d.execute_script(
-            "return document.readyState === 'complete' && "
-            "window.performance.getEntriesByType('resource').filter(r => r.responseEnd === 0).length === 0"
+            "return window.performance.getEntriesByType('resource').every(r => r.responseEnd > 0)"
         )
     )
+
+    # if an element selector is provided, wait for the element to be present
+    if element_selector:
+        WebDriverWait(driver, timeout).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, element_selector))
+        )
+    else:
+        # wait for the page to be idle (no mutations for a certain time)
+        # Language=JS
+        script = """
+            if (!window._lastMutationTime) {
+                window._lastMutationTime = Date.now();
+                if (!window._mutationObserver) {
+                    window._mutationObserver = new MutationObserver(function() {
+                        window._lastMutationTime = Date.now();
+                    });
+                    window._mutationObserver.observe(document.body, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true
+                    });
+                }
+            }
+        """
+        driver.execute_script(script)
+        try:
+            WebDriverWait(driver, timeout).until(
+                lambda d: d.execute_script(
+                    "return Date.now() - window._lastMutationTime >= arguments[0] * 1000;", idle_time
+                )
+            )
+        except TimeoutException:
+            pass
 
 def filter_args_for_dataclass(cls, args_dict):
     cls_fields = {f.name for f in fields(cls)}

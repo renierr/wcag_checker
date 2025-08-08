@@ -7,8 +7,7 @@ from pathlib import Path
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
-
+from selenium.common.exceptions import TimeoutException, WebDriverException
 
 from src.config import ProcessingConfig, ReportLevel
 from src.css import inject_outline_css
@@ -488,50 +487,78 @@ def setting_var(context: dict, name: str, value: str | dict | object, override: 
     return False
 
 
+CSS_OUTLINE_CLASS = "contrat_checker--outline"
+CSS_LABEL_CLASS = "contrat_checker--label"
+
 def outline_elements_for_screenshot(config: ProcessingConfig, driver: WebDriver, elements: list[WebElement],
                                     missed_contrast_elements: list, url_idx: int) -> Path:
+    """
+    Outline elements in the screenshot and save the full-page screenshot with outlines.
+
+    :param config: ProcessingConfig instance containing configuration settings.
+    :param driver: Selenium WebDriver instance.
+    :param elements: List of WebElements to outline.
+    :param missed_contrast_elements: List of elements that missed contrast checks.
+    :param url_idx: Index of the URL being processed, used for naming the screenshot file.
+    :return: Path to the full-page screenshot with outlines.
+    """
+
     inject_outline_css(driver)
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"
     logger.debug(f"Taking full-page screenshot with outlines and saving to: {full_page_screenshot_path_outline}")
+
     # language=JS
-    script = """
-        arguments[0].classList.add('contrat_checker--outline');
-        
-        // Create a label with the index number
-        const label = document.createElement('div');
-        label.textContent = arguments[1];
-        label.className = 'contrat_checker--label';
-        const rect = arguments[0].getBoundingClientRect();
-        label.style.left = `${rect.left + window.scrollX}px`;
-        label.style.top = `${Math.max(0, rect.top + window.scrollY - 20)}px`;
-        document.body.appendChild(label);
+    outline_elements_script = """
+        const elements = arguments[0];
+        const labels = arguments[1];
+        const outlineClass = arguments[2];
+        const labelClass = arguments[3];
+        elements.forEach((el, idx) => {
+            el.classList.add(outlineClass);
+            const label = document.createElement('div');
+            label.textContent = labels[idx];
+            label.className = labelClass;
+            const rect = el.getBoundingClientRect();
+            label.style.left = `${rect.left + window.scrollX}px`;
+            label.style.top = `${Math.max(0, rect.top + window.scrollY - 20)}px`;
+            document.body.appendChild(label);
+        });    
     """
 
-    element_indices = {}
+    # language=JS
+    cleanup_script = f"""
+        document.querySelectorAll('.{CSS_OUTLINE_CLASS}, .{CSS_LABEL_CLASS}')
+            .forEach(el => el.classList.contains('{CSS_OUTLINE_CLASS}')
+             ? el.classList.remove('{CSS_OUTLINE_CLASS}')
+             : el.remove());
+    """
+
+    element_indices: dict[WebElement, list[int]] = {}
     for index, element in enumerate(elements):
         element_indices.setdefault(element, []).append(index)
 
+    elements_to_process = []
+    labels = []
     for element, indices in element_indices.items():
+        missed_element_present = (elements == missed_contrast_elements) or any(element == missed for missed in missed_contrast_elements)
+        report_invalid_only = config.report_level == ReportLevel.INVALID
+        if report_invalid_only and not missed_element_present:
+            logger.debug(f"Element {indices} is not in missed_contrast_elements and invalid_only mode is set. Skipping outline.")
+            continue
+        label = f"⚠️{','.join(map(str, indices))}" if element in missed_contrast_elements else f"✓{','.join(map(str, indices))}"
+        elements_to_process.append(element)
+        labels.append(label)
+
+    logger.info(f"Processing {len(elements_to_process)} elements for outlining.")
+    try:
+        driver.execute_script(outline_elements_script, elements_to_process, labels, CSS_OUTLINE_CLASS, CSS_LABEL_CLASS)
+        take_fullpage_screenshot(driver, full_page_screenshot_path_outline)
+    except WebDriverException as e:
+        logger.error(f"Failed to outline elements: {e}")
+    finally:
         try:
-            missed_element_present = (elements == missed_contrast_elements) or any(element == missed for missed in missed_contrast_elements)
-            report_invalid_only = config.report_level == ReportLevel.INVALID
-            if report_invalid_only and not missed_element_present:
-                logger.debug(f"Element {indices} is not in missed_contrast_elements and invalid_only mode is set. Skipping outline.")
-                continue
-
-            label_indices = ",".join(str(i) for i in indices)
-            output_label = f"⚠️{label_indices}" if missed_element_present else f"✓{label_indices}"
-            driver.execute_script(script, element, output_label)
-        except Exception:
-            pass
-    take_fullpage_screenshot(driver, full_page_screenshot_path_outline)
-
-    # clear outlines and labels
-    # language=JS
-    cleanup_script = """
-        document.querySelectorAll('.contrat_checker--outline').forEach(el => el.classList.remove('contrat_checker--outline'));
-        document.querySelectorAll('.contrat_checker--label').forEach(label => label.remove());
-    """
-    driver.execute_script(cleanup_script)
+            driver.execute_script(cleanup_script)
+        except WebDriverException as e:
+            logger.error(f"Failed to clean up outlines and labels: {e}")
 
     return full_page_screenshot_path_outline

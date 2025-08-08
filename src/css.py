@@ -41,9 +41,12 @@ def inject_outline_css(driver):
 
     # language=JS
     script = f"""
-    const style = document.createElement('style');
-    style.type = 'text/css';
-    style.appendChild(document.createTextNode(`{css}`));
-    document.head.appendChild(style);
+    if (!document.getElementById('contrat_checker_style')) {{
+        const style = document.createElement('style');
+        style.id = 'contrat_checker_style';
+        style.type = 'text/css';
+        style.appendChild(document.createTextNode(`{css}`));
+        document.head.appendChild(style);
+    }}
     """
     driver.execute_script(script)

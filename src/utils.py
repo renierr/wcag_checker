@@ -504,6 +504,10 @@ def outline_elements_for_screenshot(config: ProcessingConfig, driver: WebDriver,
     """
 
     inject_outline_css(driver)
+
+    # reset scrolling for accurate positioning of outlines
+    driver.execute_script("window.scrollTo(0, 0);")
+
     full_page_screenshot_path_outline = Path(config.output) / f"{config.mode.value}_{url_idx}_full_page_screenshot_outline.png"
     logger.debug(f"Taking full-page screenshot with outlines and saving to: {full_page_screenshot_path_outline}")
 

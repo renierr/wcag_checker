@@ -10,8 +10,8 @@ No violations found.
 {%- for violation in result.violations %}
 #### {% if violation.impact == "critical" %}🔥{% elif violation.impact == "serious" %}⚠️{% elif violation.impact == "moderate" %}🔶{% elif violation.impact == "minor" %}ℹ️{% endif %} {{ violation.id }} - {{ violation.impact | capitalize }}
 
-{{ violation.description }}
-{{ violation.help }}
+{{ violation.description | e }}
+{{ violation.help | e }}
 {%- if violation.help_url %}
 [Learn more]({{ violation.help_url }})
 {% endif %}

@@ -10,12 +10,13 @@ grammar = r"""
     %import common.WS
 
     start: (action | comment)*
-    action: if_action | include_action | script_action | simple_action | url
+    action: if_action | include_action | script_action | iframe_action | simple_action | url
     
     simple_action: "@" NAME (":" params)?
     if_action: "@if" condition action_block elif_block* else_block?
     elif_block: "@elif" condition action_block
     else_block: "@else" action_block
+    iframe_action: "@iframe" condition action_block
 
     action_block: "{" (action | comment)* "}"
     include_action: "@include:" filename
@@ -104,6 +105,15 @@ class ActionTransformer(Transformer):
     def else_block(self, actions):
         return {
             'type': 'else',
+            'actions': actions or []
+        }
+
+    @v_args(inline=True)
+    def iframe_action(self, condition, actions):
+        return {
+            'type': 'iframe',
+            'name': 'iframe',
+            'condition': str(condition).strip(),
             'actions': actions or []
         }
 

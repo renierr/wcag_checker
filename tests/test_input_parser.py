@@ -186,6 +186,29 @@ class TestParseConfigFile(unittest.TestCase):
 
         os.unlink(f.name)
 
+    def test_iframe_parse(self):
+        """Test parsing an iframe action"""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            test = """
+            @iframe #my_iframe {
+                @analyse_axe: {"context": "#dashboard"}
+            }
+            """
+
+            f.write(test)
+            f.flush()
+
+            result = _parse_config_file(Path(f.name))
+            print_result(result)
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(result[0]['type'], 'iframe')
+            self.assertEqual(result[0]['name'], 'iframe')
+            self.assertIsInstance(result[0]['actions'], list)
+            self.assertEqual(len(result[0]['actions']), 1)
+
+        os.unlink(f.name)
+
     def test_file_not_found(self):
         """Test handling of non-existent file"""
         result = _parse_config_file(Path('non_existent_file.txt'))

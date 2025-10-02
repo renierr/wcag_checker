@@ -100,6 +100,29 @@ class TestActions(unittest.TestCase):
 
     @patch('src.action_handler.action_context', new_callable=dict)
     @patch('selenium.webdriver.Chrome')
+    def test_iframe_action(self, MockWebDriver, mock_action_context):
+        mock_driver = MagicMock()
+        MockWebDriver.return_value = mock_driver
+        mock_action_context.update(self.context)
+        action = {
+            "type": "iframe",
+            "name": "iframe",
+            "condition": "test_iframe",
+            "actions": [
+                {
+                    "name": "log",
+                    "params": '"Inside iframe, executing actions."'
+                }
+            ],
+        }
+        ret = handle_action(self.config, mock_driver, action)
+        self.assertIsInstance(ret, list, "The return value should be a list")
+        self.assertEqual(len(ret), 1, "The array should contain one action result")
+        self.assertEqual(ret[0].get('name'), 'log', "The return value should contain the name 'log'")
+        self.assertIn('Inside iframe', ret[0].get('params'), "The log message should indicate iframe execution")
+
+    @patch('src.action_handler.action_context', new_callable=dict)
+    @patch('selenium.webdriver.Chrome')
     def test_ignore_action(self, MockWebDriver, mock_action_context):
         mock_driver = MagicMock()
         MockWebDriver.return_value = mock_driver

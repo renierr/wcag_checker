@@ -4,6 +4,8 @@ import time
 from pathlib import Path
 
 import selenium.common
+from selenium.common import NoSuchElementException
+from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 
 from src.action_handler import action_registry, pre_define_action_context
@@ -141,6 +143,30 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
                 if entry:
                     entry["action"] = "direct url analyse for: " + url
                     actions_data.append(entry)
+            # special case for iframe action type
+            elif action_type == "iframe":
+                iframe_condition = action.get("condition", "")
+                if not iframe_condition:
+                    raise ValueError(f"Iframe action requires a 'condition' to locate the iframe - skipping action.")
+
+                logger.debug(f"Switching to iframe context (for Selector: {iframe_condition})")
+                entry = handle_action(config, driver, action)
+                print(entry)
+                if entry:
+                    if isinstance(entry, list):
+                        try:
+                            elem = driver.find_element(By.CSS_SELECTOR, iframe_condition)
+                            driver.switch_to.frame(elem)
+                            actions_data.extend(_execute_actions(config, driver, entry))
+                        except NoSuchElementException as e:
+                            logger.warning(f"No element found for iframe switch with selector: {iframe_condition}")
+                        except selenium.common.exceptions.NoSuchFrameException:
+                            logger.warning(f"Iframe with CSS selector {iframe_condition} not found. Skipping action.")
+                        finally:
+                            logger.debug(f"Switching back from previous iframe context")
+                            driver.switch_to.default_content()
+                    else:
+                        raise ValueError(f"Unexpected item in action result data: {entry}")
             else:
                 entry = handle_action(config, driver, action)
                 if entry:

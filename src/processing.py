@@ -8,7 +8,7 @@ from selenium.common import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 
-from src.action_handler import action_registry, pre_define_action_context
+from src.action_handler import action_registry, pre_define_action_context, parse_param_to_string
 from src.actions.analyse_action import analyse_action
 from src.browser_console_log_handler import handle_browser_console_log, get_browser_console_log
 from src.config import Config, ProcessingConfig, ConfigEncoder, ReportLevel, Runner
@@ -145,13 +145,14 @@ def _execute_actions(config: ProcessingConfig, driver: WebDriver, actions: list[
                     actions_data.append(entry)
             # special case for iframe action type
             elif action_type == "iframe":
-                iframe_condition = action.get("condition", "")
+                iframe_condition = action.get("condition")
                 if not iframe_condition:
                     raise ValueError(f"Iframe action requires a 'condition' to locate the iframe - skipping action.")
-
+                iframe_condition = parse_param_to_string(iframe_condition)
+                if iframe_condition.startswith('"') and iframe_condition.endswith('"'):
+                    iframe_condition = iframe_condition[1:-1].strip()
                 logger.debug(f"Switching to iframe context (for Selector: {iframe_condition})")
                 entry = handle_action(config, driver, action)
-                print(entry)
                 if entry:
                     if isinstance(entry, list):
                         try:

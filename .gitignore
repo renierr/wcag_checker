@@ -8,3 +8,5 @@
 urls.txt
 inputs.txt
 /wcag_checker.zip
+**/__pycache__/
+

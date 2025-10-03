@@ -3,7 +3,7 @@
 This project is a tool for checking websites 
 to ensure they meet WCAG (Web Content Accessibility Guidelines) requirements. 
 
-It provides various report formats.
+It provides various report formats (Markdown, JSON, HTML).
 
 ## Features
 
